@@ -26,7 +26,7 @@ From your dev machine, build and push the new image. Then on the VM:
 docker-compose pull
 docker-compose up -d
 
-docker-compose stop
+docker-compose stopocker
 
 ### ssh
 ```
@@ -55,3 +55,7 @@ sudo chmod +x /usr/local/bin/docker-compose
 
 docker-compose version
 ```
+
+docker build -t buildbreak/overclock:latest . 
+
+docker run -d -p 80:8080 buildbreak/overclock:latest

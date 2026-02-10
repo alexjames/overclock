@@ -16,3 +16,11 @@ export async function fetchSections(courseId: string): Promise<CourseSection[]> 
   }
   return res.json();
 }
+
+export async function fetchSectionDetail(courseId: string, sectionId: string): Promise<CourseSection> {
+  const res = await fetch(`${API_HOST}/beta/v1/courses/${courseId}/sections/${sectionId}/pages`);
+  if (!res.ok) {
+    throw new Error(`Failed to fetch section detail: ${res.status}`);
+  }
+  return res.json();
+}

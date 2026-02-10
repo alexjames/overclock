@@ -18,7 +18,7 @@ import { ProgressRing } from '../../../components/ProgressRing';
 import { ContentRenderer, FormattedText } from '../../../components/ContentRenderer';
 import { QuizContainer } from '../../../components/quiz/QuizContainer';
 import { Slideshow } from '../../../components/slideshow';
-import { fetchSections } from '../../../api/courses';
+import { fetchSectionDetail } from '../../../api/courses';
 import { CourseSection } from '../../../types/course';
 import { QuizResult } from '../../../types/quiz';
 
@@ -39,12 +39,9 @@ export default function ReadingScreen() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!courseId) return;
-    fetchSections(courseId)
-      .then((sections) => {
-        const found = sections.find((s) => s.id === sectionId);
-        setSection(found ?? null);
-      })
+    if (!courseId || !sectionId) return;
+    fetchSectionDetail(courseId, sectionId)
+      .then(setSection)
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }, [courseId, sectionId]);
