@@ -1,18 +1,49 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../../context/ThemeContext';
 import { CourseCard } from '../../components/CourseCard';
-import { courses } from '../../data/courses';
+import { fetchCourses } from '../../api/courses';
 import { Course } from '../../types/course';
 
 export default function ExploreScreen() {
   const { colors } = useTheme();
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchCourses()
+      .then(setCourses)
+      .catch((err) => setError(err.message))
+      .finally(() => setLoading(false));
+  }, []);
 
   const handleCoursePress = (course: Course) => {
     router.push(`/course/${course.id}`);
   };
+
+  if (loading) {
+    return (
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
+        <View style={styles.centered}>
+          <ActivityIndicator size="large" color={colors.primary} />
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (error) {
+    return (
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
+        <View style={styles.centered}>
+          <Text style={[styles.errorText, { color: colors.text }]}>Failed to load courses</Text>
+          <Text style={[styles.errorDetail, { color: colors.textMuted }]}>{error}</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
@@ -45,6 +76,12 @@ export default function ExploreScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  centered: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
   },
   header: {
     paddingHorizontal: 24,
@@ -79,5 +116,14 @@ const styles = StyleSheet.create({
   },
   bottomPadding: {
     height: 32,
+  },
+  errorText: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginBottom: 8,
+  },
+  errorDetail: {
+    fontSize: 14,
+    textAlign: 'center',
   },
 });

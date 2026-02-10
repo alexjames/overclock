@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
   Dimensions,
   NativeSyntheticEvent,
   NativeScrollEvent,
+  ActivityIndicator,
 } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -17,7 +18,8 @@ import { ProgressRing } from '../../../components/ProgressRing';
 import { ContentRenderer, FormattedText } from '../../../components/ContentRenderer';
 import { QuizContainer } from '../../../components/quiz/QuizContainer';
 import { Slideshow } from '../../../components/slideshow';
-import { courses } from '../../../data/courses';
+import { fetchSections } from '../../../api/courses';
+import { CourseSection } from '../../../types/course';
 import { QuizResult } from '../../../types/quiz';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -32,13 +34,37 @@ export default function ReadingScreen() {
   const [quizResult, setQuizResult] = useState<QuizResult | null>(null);
   const scrollViewRef = useRef<ScrollView>(null);
 
-  const course = courses.find((c) => c.id === courseId);
-  const section = course?.sections.find((s) => s.id === sectionId);
+  const [section, setSection] = useState<CourseSection | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  if (!course || !section) {
+  useEffect(() => {
+    if (!courseId) return;
+    fetchSections(courseId)
+      .then((sections) => {
+        const found = sections.find((s) => s.id === sectionId);
+        setSection(found ?? null);
+      })
+      .catch((err) => setError(err.message))
+      .finally(() => setLoading(false));
+  }, [courseId, sectionId]);
+
+  if (loading) {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-        <Text style={[styles.errorText, { color: colors.text }]}>Section not found</Text>
+        <View style={styles.centered}>
+          <ActivityIndicator size="large" color={colors.primary} />
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (error || !section) {
+    return (
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+        <Text style={[styles.errorText, { color: colors.text }]}>
+          {error ?? 'Section not found'}
+        </Text>
       </SafeAreaView>
     );
   }
@@ -308,6 +334,11 @@ export default function ReadingScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  centered: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   topBar: {
     flexDirection: 'row',

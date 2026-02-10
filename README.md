@@ -26,6 +26,7 @@ From your dev machine, build and push the new image. Then on the VM:
 docker-compose pull
 docker-compose up -d
 
+docker-compose stop
 
 ### ssh
 ```
