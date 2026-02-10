@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1,
+    "title": "Introduction to Computer Science",
+    "instructor": "Dr. Smith",
+    "duration": "12 weeks"
+  },
+  {
+    "id": 2,
+    "title": "Data Structures and Algorithms",
+    "instructor": "Dr. Johnson",
+    "duration": "10 weeks"
+  },
+  {
+    "id": 3,
+    "title": "Operating Systems",
+    "instructor": "Dr. Lee",
+    "duration": "14 weeks"
+  }
+]
