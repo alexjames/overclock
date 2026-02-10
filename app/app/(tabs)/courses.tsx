@@ -3,22 +3,25 @@ import { View, Text, StyleSheet, ScrollView, ActivityIndicator } from 'react-nat
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../../context/ThemeContext';
+import { useApiHost } from '../../context/ApiHostContext';
 import { CourseCard } from '../../components/CourseCard';
 import { fetchCourses } from '../../api/courses';
 import { Course } from '../../types/course';
 
-export default function ExploreScreen() {
+export default function CoursesScreen() {
   const { colors } = useTheme();
+  const { apiHost } = useApiHost();
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchCourses()
+    setLoading(true);
+    fetchCourses(apiHost)
       .then(setCourses)
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
-  }, []);
+  }, [apiHost]);
 
   const handleCoursePress = (course: Course) => {
     router.push(`/course/${course.id}`);
@@ -48,12 +51,10 @@ export default function ExploreScreen() {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
       <ScrollView showsVerticalScrollIndicator={false}>
-        {/* Header */}
         <View style={styles.header}>
-          <Text style={[styles.title, { color: colors.text }]}>Explore</Text>
+          <Text style={[styles.title, { color: colors.text }]}>Courses</Text>
         </View>
 
-        {/* All Courses Section */}
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: colors.text }]}>
             All courses

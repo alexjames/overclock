@@ -4,12 +4,14 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../../context/ThemeContext';
+import { useApiHost } from '../../../context/ApiHostContext';
 import { fetchCourses, fetchSections } from '../../../api/courses';
 import { Course, CourseSection } from '../../../types/course';
 
 export default function CourseDetailScreen() {
   const { courseId } = useLocalSearchParams<{ courseId: string }>();
   const { colors } = useTheme();
+  const { apiHost } = useApiHost();
   const [course, setCourse] = useState<Course | null>(null);
   const [sections, setSections] = useState<CourseSection[]>([]);
   const [loading, setLoading] = useState(true);
@@ -18,8 +20,8 @@ export default function CourseDetailScreen() {
   useEffect(() => {
     if (!courseId) return;
     Promise.all([
-      fetchCourses().then((courses) => courses.find((c) => c.id === courseId) ?? null),
-      fetchSections(courseId),
+      fetchCourses(apiHost).then((courses) => courses.find((c) => c.id === courseId) ?? null),
+      fetchSections(apiHost, courseId),
     ])
       .then(([found, secs]) => {
         setCourse(found);
@@ -27,7 +29,7 @@ export default function CourseDetailScreen() {
       })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
-  }, [courseId]);
+  }, [courseId, apiHost]);
 
   const handleSectionPress = (section: CourseSection) => {
     router.push(`/course/${courseId}/${section.id}`);

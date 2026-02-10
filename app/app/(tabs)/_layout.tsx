@@ -26,47 +26,47 @@ export default function TabsLayout() {
       }}
     >
       <Tabs.Screen
-        name="foryou"
+        name="courses"
         options={{
-          title: 'For you',
+          title: 'Courses',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="heart-outline" size={size} color={color} />
+            <Ionicons name="book-outline" size={size} color={color} />
           ),
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="revise"
         options={{
-          title: 'Explore',
+          title: 'Revise',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="refresh-outline" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="discover"
+        options={{
+          title: 'Discover',
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="compass-outline" size={size} color={color} />
           ),
         }}
       />
       <Tabs.Screen
-        name="play"
+        name="quiz"
         options={{
-          title: 'Play',
+          title: 'Quiz',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="game-controller-outline" size={size} color={color} />
+            <Ionicons name="help-circle-outline" size={size} color={color} />
           ),
         }}
       />
       <Tabs.Screen
-        name="listen"
+        name="settings"
         options={{
-          title: 'Listen',
+          title: 'Settings',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="headset-outline" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="watch"
-        options={{
-          title: 'Watch',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="play-outline" size={size} color={color} />
+            <Ionicons name="settings-outline" size={size} color={color} />
           ),
         }}
       />

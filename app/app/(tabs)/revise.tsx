@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -16,15 +16,13 @@ import { flashcards } from '../../data/flashcards';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
-export default function PlayScreen() {
+export default function ReviseScreen() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const [revealedCards, setRevealedCards] = useState<Set<string>>(new Set());
   const [hasScrolled, setHasScrolled] = useState(false);
   const hintOpacity = useRef(new Animated.Value(1)).current;
 
-  // Calculate card height (screen height minus header, top safe area, and bottom tab bar)
-  // Header is ~44px, tab bar is ~80px (including bottom safe area)
   const headerHeight = 44;
   const tabBarHeight = 80;
   const cardHeight = SCREEN_HEIGHT - insets.top - headerHeight - tabBarHeight;
@@ -54,12 +52,10 @@ export default function PlayScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
-      {/* Header */}
       <View style={styles.header}>
-        <Text style={[styles.title, { color: colors.text }]}>Play</Text>
+        <Text style={[styles.title, { color: colors.text }]}>Revise</Text>
       </View>
 
-      {/* Swipeable Cards */}
       <ScrollView
         pagingEnabled
         showsVerticalScrollIndicator={false}
@@ -81,7 +77,6 @@ export default function PlayScreen() {
         ))}
       </ScrollView>
 
-      {/* Swipe hint */}
       <Animated.View style={[styles.swipeHint, { opacity: hintOpacity }]}>
         <Text style={[styles.swipeHintText, { color: colors.textMuted }]}>
           Swipe up for next card

@@ -14,6 +14,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../../context/ThemeContext';
+import { useApiHost } from '../../../context/ApiHostContext';
 import { ProgressRing } from '../../../components/ProgressRing';
 import { ContentRenderer, FormattedText } from '../../../components/ContentRenderer';
 import { QuizContainer } from '../../../components/quiz/QuizContainer';
@@ -29,6 +30,7 @@ type ScreenMode = 'reading' | 'quiz' | 'results' | 'slideshow';
 export default function ReadingScreen() {
   const { courseId, sectionId } = useLocalSearchParams<{ courseId: string; sectionId: string }>();
   const { colors, isDark, toggleTheme } = useTheme();
+  const { apiHost } = useApiHost();
   const [currentPage, setCurrentPage] = useState(0);
   const [screenMode, setScreenMode] = useState<ScreenMode>('reading');
   const [quizResult, setQuizResult] = useState<QuizResult | null>(null);
@@ -40,11 +42,11 @@ export default function ReadingScreen() {
 
   useEffect(() => {
     if (!courseId || !sectionId) return;
-    fetchSectionDetail(courseId, sectionId)
+    fetchSectionDetail(apiHost, courseId, sectionId)
       .then(setSection)
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
-  }, [courseId, sectionId]);
+  }, [courseId, sectionId, apiHost]);
 
   if (loading) {
     return (

@@ -1,4 +1,3 @@
-import { API_HOST } from '../config';
 import { Course, CourseSection } from '../types/course';
 
 const TIMEOUT_MS = 10000;
@@ -9,24 +8,24 @@ function fetchWithTimeout(url: string): Promise<Response> {
   return fetch(url, { signal: controller.signal }).finally(() => clearTimeout(id));
 }
 
-export async function fetchCourses(): Promise<Course[]> {
-  const res = await fetchWithTimeout(`${API_HOST}/beta/v1/courses`);
+export async function fetchCourses(apiHost: string): Promise<Course[]> {
+  const res = await fetchWithTimeout(`${apiHost}/beta/v1/courses`);
   if (!res.ok) {
     throw new Error(`Failed to fetch courses: ${res.status}`);
   }
   return res.json();
 }
 
-export async function fetchSections(courseId: string): Promise<CourseSection[]> {
-  const res = await fetchWithTimeout(`${API_HOST}/beta/v1/courses/${courseId}/sections`);
+export async function fetchSections(apiHost: string, courseId: string): Promise<CourseSection[]> {
+  const res = await fetchWithTimeout(`${apiHost}/beta/v1/courses/${courseId}/sections`);
   if (!res.ok) {
     throw new Error(`Failed to fetch sections: ${res.status}`);
   }
   return res.json();
 }
 
-export async function fetchSectionDetail(courseId: string, sectionId: string): Promise<CourseSection> {
-  const res = await fetchWithTimeout(`${API_HOST}/beta/v1/courses/${courseId}/sections/${sectionId}/pages`);
+export async function fetchSectionDetail(apiHost: string, courseId: string, sectionId: string): Promise<CourseSection> {
+  const res = await fetchWithTimeout(`${apiHost}/beta/v1/courses/${courseId}/sections/${sectionId}/pages`);
   if (!res.ok) {
     throw new Error(`Failed to fetch section detail: ${res.status}`);
   }

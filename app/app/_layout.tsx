@@ -3,6 +3,7 @@ import { StatusBar } from 'expo-status-bar';
 import { View, StyleSheet } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ThemeProvider, useTheme } from '../context/ThemeContext';
+import { ApiHostProvider } from '../context/ApiHostContext';
 
 function RootContent() {
   const { isDark, colors } = useTheme();
@@ -21,9 +22,11 @@ function RootContent() {
 export default function RootLayout() {
   return (
     <SafeAreaProvider>
-      <ThemeProvider>
-        <RootContent />
-      </ThemeProvider>
+      <ApiHostProvider>
+        <ThemeProvider>
+          <RootContent />
+        </ThemeProvider>
+      </ApiHostProvider>
     </SafeAreaProvider>
   );
 }

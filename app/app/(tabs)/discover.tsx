@@ -4,16 +4,16 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../context/ThemeContext';
 
-export default function ForYouScreen() {
+export default function DiscoverScreen() {
   const { colors } = useTheme();
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
       <View style={styles.content}>
-        <Ionicons name="heart" size={64} color={colors.primary} />
-        <Text style={[styles.title, { color: colors.text }]}>For You</Text>
+        <Ionicons name="compass" size={64} color={colors.primary} />
+        <Text style={[styles.title, { color: colors.text }]}>Discover</Text>
         <Text style={[styles.subtitle, { color: colors.textMuted }]}>
-          Personalized recommendations coming soon
+          New content to discover coming soon
         </Text>
       </View>
     </SafeAreaView>
