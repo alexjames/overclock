@@ -1,6 +1,7 @@
 services:
   app:
-    build: .
+    image: buildbreak/overclock:latest
+    restart: always
     volumes:
       - ./data:/data
     environment:
@@ -8,6 +9,7 @@ services:
 
   nginx:
     image: nginx:alpine
+    restart: always
     ports:
       - "80:80"
     volumes:
