@@ -1,0 +1,103 @@
+import { Flashcard, CARD_COLORS } from '../types/flashcard';
+
+export const flashcards: Flashcard[] = [
+  // Tap to Reveal cards
+  {
+    id: 'fc-1',
+    type: 'tap_reveal',
+    color: CARD_COLORS.softBlue,
+    question: 'What is the time complexity of binary search?',
+    answer: 'O(log n)',
+    category: 'Algorithms',
+  },
+  {
+    id: 'fc-2',
+    type: 'tap_reveal',
+    color: CARD_COLORS.warmBeige,
+    question: 'What does DNS stand for?',
+    answer: 'Domain Name System',
+    category: 'Networks',
+  },
+  {
+    id: 'fc-3',
+    type: 'tap_reveal',
+    color: CARD_COLORS.paleGreen,
+    question: 'Which data structure uses LIFO?',
+    answer: 'Stack',
+    category: 'Data Structures',
+  },
+  {
+    id: 'fc-4',
+    type: 'tap_reveal',
+    color: CARD_COLORS.lightLavender,
+    question: 'What protocol guarantees reliable delivery?',
+    answer: 'TCP',
+    category: 'Networks',
+  },
+  {
+    id: 'fc-5',
+    type: 'tap_reveal',
+    color: CARD_COLORS.softCoral,
+    question: 'What is the time complexity of accessing an array element?',
+    answer: 'O(1)',
+    category: 'Data Structures',
+  },
+
+  // Fill in the Blank cards
+  {
+    id: 'fc-6',
+    type: 'fill_blank',
+    color: CARD_COLORS.mutedMint,
+    question: 'Binary search has _____ time complexity.',
+    answer: 'O(log n)',
+    category: 'Algorithms',
+  },
+  {
+    id: 'fc-7',
+    type: 'fill_blank',
+    color: CARD_COLORS.softBlue,
+    question: 'TCP guarantees _____ delivery of packets.',
+    answer: 'reliable',
+    category: 'Networks',
+  },
+  {
+    id: 'fc-8',
+    type: 'fill_blank',
+    color: CARD_COLORS.warmBeige,
+    question: 'Arrays provide _____ access to elements by index.',
+    answer: 'O(1)',
+    category: 'Data Structures',
+  },
+  {
+    id: 'fc-9',
+    type: 'fill_blank',
+    color: CARD_COLORS.paleGreen,
+    question: 'A _____ record maps a domain to an IPv4 address.',
+    answer: 'A',
+    category: 'Networks',
+  },
+  {
+    id: 'fc-10',
+    type: 'fill_blank',
+    color: CARD_COLORS.lightLavender,
+    question: 'Linked lists excel at _____ at the beginning.',
+    answer: 'insertion',
+    category: 'Data Structures',
+  },
+  {
+    id: 'fc-11',
+    type: 'tap_reveal',
+    color: CARD_COLORS.softCoral,
+    question: 'Which data structure uses FIFO?',
+    answer: 'Queue',
+    category: 'Data Structures',
+  },
+  {
+    id: 'fc-12',
+    type: 'fill_blank',
+    color: CARD_COLORS.mutedMint,
+    question: 'UDP is preferred for _____ because low latency matters more than reliability.',
+    answer: 'streaming',
+    category: 'Networks',
+  },
+];
