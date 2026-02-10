@@ -4,21 +4,26 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../../context/ThemeContext';
-import { fetchCourses } from '../../../api/courses';
+import { fetchCourses, fetchSections } from '../../../api/courses';
 import { Course, CourseSection } from '../../../types/course';
 
 export default function CourseDetailScreen() {
   const { courseId } = useLocalSearchParams<{ courseId: string }>();
   const { colors } = useTheme();
   const [course, setCourse] = useState<Course | null>(null);
+  const [sections, setSections] = useState<CourseSection[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchCourses()
-      .then((courses) => {
-        const found = courses.find((c) => c.id === courseId);
-        setCourse(found ?? null);
+    if (!courseId) return;
+    Promise.all([
+      fetchCourses().then((courses) => courses.find((c) => c.id === courseId) ?? null),
+      fetchSections(courseId),
+    ])
+      .then(([found, secs]) => {
+        setCourse(found);
+        setSections(secs);
       })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
@@ -80,7 +85,7 @@ export default function CourseDetailScreen() {
         {/* Sections List */}
         <View style={styles.sectionsContainer}>
           <Text style={[styles.sectionsTitle, { color: colors.text }]}>Sections</Text>
-          {course.sections.map((section, index) => (
+          {sections.map((section, index) => (
             <TouchableOpacity
               key={section.id}
               style={[styles.sectionCard, { backgroundColor: colors.card, borderColor: colors.border }]}
@@ -93,9 +98,6 @@ export default function CourseDetailScreen() {
                 </View>
                 <View style={styles.sectionInfo}>
                   <Text style={[styles.sectionTitle, { color: colors.text }]}>{section.title}</Text>
-                  <Text style={[styles.sectionPages, { color: colors.textMuted }]}>
-                    {section.pages.length} pages
-                  </Text>
                 </View>
               </View>
               <Ionicons name="chevron-forward" size={24} color={colors.textMuted} />
@@ -196,9 +198,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     marginBottom: 4,
-  },
-  sectionPages: {
-    fontSize: 14,
   },
   errorText: {
     fontSize: 18,
