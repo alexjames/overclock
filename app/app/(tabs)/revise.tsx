@@ -101,11 +101,9 @@ export default function ReviseScreen() {
 
       <ScrollView
         showsVerticalScrollIndicator={false}
-        decelerationRate={0}
-        snapToInterval={cardHeight}
-        snapToAlignment="start"
+        snapToOffsets={flashcards.map((_, i) => i * cardHeight)}
+        decelerationRate="fast"
         disableIntervalMomentum
-        contentContainerStyle={styles.scrollContent}
         onScroll={handleScroll}
         scrollEventThrottle={16}
       >
