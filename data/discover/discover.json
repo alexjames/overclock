@@ -1,0 +1,196 @@
+[
+  {
+    "id": "sorting-algorithms",
+    "title": "Sorting Algorithms Visualized",
+    "subtitle": "From Bubble Sort to Quick Sort",
+    "image": "/beta/v1/static/discover/algorithms.jpg",
+    "color": "#F97316",
+    "slides": [
+      {
+        "id": "sort-1",
+        "title": "Why Sorting Matters",
+        "blocks": [
+          { "type": "text", "content": "Sorting is one of the most fundamental operations in computer science. Nearly every application — from databases to search engines — relies on efficient sorting to organize and retrieve data quickly." },
+          { "type": "text", "content": "Understanding sorting algorithms helps you reason about **time complexity**, **space trade-offs**, and **algorithmic design patterns** that appear throughout software engineering." }
+        ]
+      },
+      {
+        "id": "sort-2",
+        "title": "Bubble Sort: The Basics",
+        "blocks": [
+          { "type": "text", "content": "Bubble Sort repeatedly steps through the list, compares adjacent elements, and swaps them if they are in the wrong order. The pass through the list is repeated until the list is sorted." },
+          { "type": "text", "content": "**Time Complexity:** O(n²) in the worst and average case. O(n) in the best case when the array is already sorted." },
+          { "type": "table", "headers": ["Property", "Value"], "rows": [["Best Case", "O(n)"], ["Average Case", "O(n²)"], ["Worst Case", "O(n²)"], ["Space", "O(1)"], ["Stable", "Yes"]] }
+        ]
+      },
+      {
+        "id": "sort-3",
+        "title": "Quick Sort: Divide and Conquer",
+        "blocks": [
+          { "type": "text", "content": "Quick Sort picks a **pivot** element and partitions the array into two sub-arrays: elements less than the pivot and elements greater than the pivot. It then recursively sorts the sub-arrays." },
+          { "type": "text", "content": "The choice of pivot is critical. A poor pivot choice (e.g., always picking the first element on a sorted array) degrades performance to O(n²). Random or median-of-three pivots help avoid this." },
+          { "type": "chart", "chartType": "bar", "title": "Sorting Algorithm Comparison (10K elements, ms)", "data": [{"label": "Bubble Sort", "value": 450, "color": "#EF4444"}, {"label": "Insertion Sort", "value": 280, "color": "#F97316"}, {"label": "Merge Sort", "value": 15, "color": "#3B82F6"}, {"label": "Quick Sort", "value": 12, "color": "#10B981"}] }
+        ]
+      },
+      {
+        "id": "sort-4",
+        "title": "When to Use What",
+        "blocks": [
+          { "type": "text", "content": "There is no single \"best\" sorting algorithm. The right choice depends on your constraints:" },
+          { "type": "text", "content": "**Small arrays (n < 50):** Insertion Sort wins due to low overhead and cache efficiency.\n\n**General purpose:** Quick Sort is typically fastest in practice. Most standard library sort functions use a hybrid of Quick Sort and Insertion Sort.\n\n**Stability required:** Merge Sort guarantees stable ordering — equal elements retain their relative positions.\n\n**Memory constrained:** Heap Sort uses O(1) extra space but is slower in practice than Quick Sort." }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "how-internet-works",
+    "title": "How the Internet Works",
+    "subtitle": "Packets, Protocols, and DNS",
+    "image": "/beta/v1/static/discover/networks.jpg",
+    "color": "#3B82F6",
+    "slides": [
+      {
+        "id": "net-1",
+        "title": "The Journey of a Packet",
+        "blocks": [
+          { "type": "text", "content": "When you type a URL into your browser and press Enter, a remarkable chain of events unfolds in milliseconds. Your request is broken into small **packets**, each traveling independently across the network." },
+          { "type": "text", "content": "These packets may take different routes through routers and switches, but they all arrive at the destination and are reassembled in the correct order. This is the magic of the **Internet Protocol (IP)**." }
+        ]
+      },
+      {
+        "id": "net-2",
+        "title": "DNS: The Internet's Phone Book",
+        "blocks": [
+          { "type": "text", "content": "Before your browser can contact a server, it needs to translate the human-readable domain name (like *google.com*) into an IP address (like *142.250.80.46*). This is the job of the **Domain Name System (DNS)**." },
+          { "type": "text", "content": "DNS resolution involves a hierarchy of servers:" },
+          { "type": "table", "headers": ["Server Type", "Role"], "rows": [["Browser Cache", "Checks if the domain was recently resolved"], ["OS Resolver", "Checks the local machine's DNS cache"], ["Recursive Resolver", "Your ISP's DNS server that queries on your behalf"], ["Root Server", "Directs to the correct TLD server (.com, .org)"], ["TLD Server", "Knows which authoritative server handles the domain"], ["Authoritative Server", "Returns the actual IP address"]] }
+        ]
+      },
+      {
+        "id": "net-3",
+        "title": "TCP: Reliable Delivery",
+        "blocks": [
+          { "type": "text", "content": "The **Transmission Control Protocol (TCP)** ensures data arrives correctly and in order. Before sending data, TCP establishes a connection using a **three-way handshake**:" },
+          { "type": "text", "content": "**1. SYN** — Client sends a synchronization request\n**2. SYN-ACK** — Server acknowledges and sends its own sync\n**3. ACK** — Client confirms, connection established" },
+          { "type": "text", "content": "TCP handles *retransmission* of lost packets, *flow control* to prevent overwhelming the receiver, and *congestion control* to avoid overloading the network." }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "scaling-systems",
+    "title": "Scaling to Millions of Users",
+    "subtitle": "Load Balancers, Caching, and Sharding",
+    "image": "/beta/v1/static/discover/systems.jpg",
+    "color": "#2AD0E2",
+    "slides": [
+      {
+        "id": "scale-1",
+        "title": "Vertical vs Horizontal Scaling",
+        "blocks": [
+          { "type": "text", "content": "When your application needs to handle more traffic, you have two fundamental approaches:" },
+          { "type": "text", "content": "**Vertical Scaling (Scale Up):** Add more CPU, RAM, or storage to your existing server. Simple but has hardware limits and creates a single point of failure." },
+          { "type": "text", "content": "**Horizontal Scaling (Scale Out):** Add more servers and distribute the load. More complex but virtually unlimited and more resilient." },
+          { "type": "chart", "chartType": "line", "title": "Cost vs Capacity", "data": [{"label": "1 server", "value": 10, "color": "#EF4444"}, {"label": "2 servers", "value": 25, "color": "#F97316"}, {"label": "4 servers", "value": 55, "color": "#3B82F6"}, {"label": "8 servers", "value": 100, "color": "#10B981"}] }
+        ]
+      },
+      {
+        "id": "scale-2",
+        "title": "Load Balancing",
+        "blocks": [
+          { "type": "text", "content": "A **load balancer** sits in front of your servers and distributes incoming requests across them. Common strategies include:" },
+          { "type": "table", "headers": ["Strategy", "How It Works", "Best For"], "rows": [["Round Robin", "Requests go to each server in turn", "Equal-capacity servers"], ["Least Connections", "Routes to the server with fewest active connections", "Variable request duration"], ["IP Hash", "Same client IP always goes to the same server", "Session affinity"], ["Weighted", "Servers get traffic proportional to their capacity", "Mixed hardware"]] }
+        ]
+      },
+      {
+        "id": "scale-3",
+        "title": "Caching: The Performance Multiplier",
+        "blocks": [
+          { "type": "text", "content": "Caching stores frequently accessed data in fast storage (usually memory) to avoid expensive recomputation or database queries." },
+          { "type": "text", "content": "**Cache layers** from fastest to slowest:\n\n• **Browser cache** — Stores static assets (images, CSS, JS) locally\n• **CDN cache** — Geographically distributed servers cache content near users\n• **Application cache** (Redis/Memcached) — Stores computed results in memory\n• **Database cache** — Query result cache within the database engine" },
+          { "type": "text", "content": "A well-designed caching strategy can reduce database load by **90%** or more and cut response times from seconds to milliseconds." }
+        ]
+      },
+      {
+        "id": "scale-4",
+        "title": "Database Sharding",
+        "blocks": [
+          { "type": "text", "content": "When a single database can no longer handle the load, **sharding** splits data across multiple databases. Each shard holds a subset of the data." },
+          { "type": "text", "content": "Common sharding strategies:\n\n**Range-based:** User IDs 1-1M on shard 1, 1M-2M on shard 2\n**Hash-based:** Hash the user ID to determine which shard to use\n**Geographic:** Users in Europe on EU shard, US users on US shard" },
+          { "type": "text", "content": "Sharding adds complexity: cross-shard queries become difficult, and rebalancing data when adding shards requires careful planning." }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "cybersecurity-basics",
+    "title": "Cybersecurity Essentials",
+    "subtitle": "Common Attacks and Defenses",
+    "image": "/beta/v1/static/discover/security.jpg",
+    "color": "#8B5CF6",
+    "slides": [
+      {
+        "id": "sec-1",
+        "title": "The OWASP Top 10",
+        "blocks": [
+          { "type": "text", "content": "The **Open Web Application Security Project (OWASP)** maintains a list of the most critical web application security risks. Understanding these is essential for every developer." },
+          { "type": "text", "content": "The top threats include **injection attacks**, **broken authentication**, **sensitive data exposure**, and **cross-site scripting (XSS)**. Most security breaches exploit well-known vulnerabilities that could have been prevented." }
+        ]
+      },
+      {
+        "id": "sec-2",
+        "title": "SQL Injection",
+        "blocks": [
+          { "type": "text", "content": "SQL injection occurs when user input is directly included in a SQL query without proper sanitization. An attacker can manipulate the query to access or modify data they shouldn't have access to." },
+          { "type": "text", "content": "**Vulnerable code:**\n*SELECT * FROM users WHERE name = '\" + userInput + \"'*\n\nIf the attacker enters: *' OR '1'='1*\nThe query becomes: *SELECT * FROM users WHERE name = '' OR '1'='1'*\nThis returns **all users** in the database." },
+          { "type": "text", "content": "**Defense:** Always use **parameterized queries** (prepared statements). Never concatenate user input into SQL strings." }
+        ]
+      },
+      {
+        "id": "sec-3",
+        "title": "Authentication Best Practices",
+        "blocks": [
+          { "type": "text", "content": "Secure authentication is the first line of defense. Key practices include:" },
+          { "type": "table", "headers": ["Practice", "Why It Matters"], "rows": [["Hash passwords with bcrypt/argon2", "Prevents plaintext password exposure in breaches"], ["Use multi-factor authentication", "Protects against stolen credentials"], ["Implement rate limiting", "Prevents brute-force attacks"], ["Use secure session tokens", "Prevents session hijacking"], ["Set proper cookie flags (HttpOnly, Secure)", "Prevents XSS-based token theft"]] },
+          { "type": "text", "content": "**Never** store passwords in plaintext. **Never** roll your own cryptography. Use well-tested libraries and frameworks." }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "database-fundamentals",
+    "title": "SQL vs NoSQL Databases",
+    "subtitle": "Choosing the Right Database",
+    "image": "/beta/v1/static/discover/databases.jpg",
+    "color": "#10B981",
+    "slides": [
+      {
+        "id": "db-1",
+        "title": "Relational Databases (SQL)",
+        "blocks": [
+          { "type": "text", "content": "Relational databases store data in **tables** with predefined **schemas**. They use **SQL** (Structured Query Language) for querying and enforce data integrity through constraints, foreign keys, and transactions." },
+          { "type": "text", "content": "**Strengths:** ACID compliance (Atomicity, Consistency, Isolation, Durability), complex queries with JOINs, mature tooling, strong data integrity guarantees." },
+          { "type": "text", "content": "**Popular choices:** PostgreSQL, MySQL, SQLite, SQL Server, Oracle" }
+        ]
+      },
+      {
+        "id": "db-2",
+        "title": "NoSQL Databases",
+        "blocks": [
+          { "type": "text", "content": "NoSQL databases offer flexible schemas and are designed for specific access patterns. They come in several flavors:" },
+          { "type": "table", "headers": ["Type", "Example", "Best For"], "rows": [["Document Store", "MongoDB, CouchDB", "Semi-structured data, flexible schemas"], ["Key-Value Store", "Redis, DynamoDB", "Caching, session storage, high throughput"], ["Column Family", "Cassandra, HBase", "Write-heavy workloads, time-series data"], ["Graph Database", "Neo4j, Neptune", "Relationship-heavy data (social networks)"]] }
+        ]
+      },
+      {
+        "id": "db-3",
+        "title": "Making the Right Choice",
+        "blocks": [
+          { "type": "text", "content": "The choice between SQL and NoSQL isn't about which is \"better\" — it's about which fits your use case:" },
+          { "type": "text", "content": "**Choose SQL when:**\n• Data has clear relationships and structure\n• You need complex queries and transactions\n• Data integrity is critical (financial systems)\n• Your schema is relatively stable" },
+          { "type": "text", "content": "**Choose NoSQL when:**\n• Schema evolves frequently\n• You need horizontal scalability\n• Access patterns are simple (key-value lookups)\n• You're handling massive volumes of unstructured data" },
+          { "type": "text", "content": "Many modern systems use **both** — a relational database for core business data alongside Redis for caching and Elasticsearch for search. This is called **polyglot persistence**." }
+        ]
+      }
+    ]
+  }
+]

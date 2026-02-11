@@ -59,3 +59,6 @@ docker-compose version
 docker build -t buildbreak/overclock:latest . 
 
 docker run -d -p 80:8080 buildbreak/overclock:latest
+docker-compose up
+
+docker-compose stop

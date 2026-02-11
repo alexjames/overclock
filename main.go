@@ -81,6 +81,19 @@ func main() {
 	reviewJSON := reviewRaw
 	log.Printf("loaded %d flashcards", len(reviewCheck))
 
+	// Load discover content (returned by /beta/v1/discover).
+	discoverPath := filepath.Join(dataDir, "discover", "discover.json")
+	discoverRaw, err := os.ReadFile(discoverPath)
+	if err != nil {
+		log.Fatalf("failed to read %s: %v", discoverPath, err)
+	}
+	var discoverCheck []interface{}
+	if err := json.Unmarshal(discoverRaw, &discoverCheck); err != nil {
+		log.Fatalf("failed to parse %s: %v", discoverPath, err)
+	}
+	discoverJSON := discoverRaw
+	log.Printf("loaded %d discover items", len(discoverCheck))
+
 	// Build quiz data: one quiz per course, aggregating questions from all sections.
 	type quizSummary struct {
 		ID            string `json:"id"`
@@ -173,6 +186,19 @@ func main() {
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(reviewJSON)
 	})
+
+	http.HandleFunc("/beta/v1/discover", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet {
+			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(discoverJSON)
+	})
+
+	// Serve static files for discover images.
+	discoverImagesDir := filepath.Join(dataDir, "discover", "images")
+	http.Handle("/beta/v1/static/discover/", http.StripPrefix("/beta/v1/static/discover/", http.FileServer(http.Dir(discoverImagesDir))))
 
 	http.HandleFunc("/beta/v1/courses", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodGet {
