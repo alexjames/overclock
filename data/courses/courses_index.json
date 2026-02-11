@@ -1,0 +1,23 @@
+[
+  {
+    "id": "algorithms",
+    "title": "Algorithms & Data Structures",
+    "category": "Computer Science",
+    "icon": "code-slash",
+    "color": "#F97316"
+  },
+  {
+    "id": "networks",
+    "title": "Computer Networks",
+    "category": "Computer Science",
+    "icon": "globe",
+    "color": "#3B82F6"
+  },
+  {
+    "id": "webscalesystems",
+    "title": "Building Web-Scale Systems",
+    "category": "Computer Science",
+    "icon": "git-network",
+    "color": "#2ad0e2"
+  }
+]

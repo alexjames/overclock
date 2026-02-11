@@ -7,7 +7,7 @@ RUN go build -o /server .
 FROM alpine:3.19
 
 COPY --from=build /server /server
-COPY data/courses.json /data/courses.json
+COPY data/ /data/
 
 EXPOSE 8080
 

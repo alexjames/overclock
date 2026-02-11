@@ -1,0 +1,537 @@
+{
+  "id": "webscalesystems",
+  "title": "Building Web-Scale Systems",
+  "category": "Computer Science",
+  "icon": "git-network",
+  "color": "#2ad0e2",
+  "sections": [
+    {
+      "id": "client-ingress",
+      "title": "Client Ingress",
+      "pages": [
+        {
+          "id": "client-ingress-1",
+          "title": "Client Ingress Options",
+          "content": "When it comes to picking the ingress node for a micro service, there are primarily three options:\n\n1. Service endpoint\n2. Load balancer\n3. API gateway\n\nThere are good reasons for choosing each of these options depending on the use case. Each has its own set of trade-offs, as we will see."
+        },
+        {
+          "id": "client-ingress-2",
+          "title": "Service Endpoints",
+          "content": "In this case, the client makes a direct request to the service endpoint. This is the simplest architecture since there are no intermediares between the client and service.\n\nThe service endpoint could be a VM or a container with an exposed port.\n\nPros:\n✅ **Latency**: No additional network hops required to reach a service\n✅ **Cost**: This setup requires minimal infrastructure and cost\n\nCons:\n❌ **Single Point of Failure (SPOF)**: If the service endpoint goes down, the entire service becomes unavailable\n❌ **Scalability**: This design does not scale well under high load as traffic spikes can overwhelm the single endpoint\n❌ **Operational Excellence**: Features such as logging, rate-limiting and TLS termination need to be handled directly by the service.\n❌ **Security**: Exposing service endpoints directly to the internet increases the attack surface\n\nThis architecture is best suited for simple, low-traffic, non-critical applications."
+        },
+        {
+          "id": "client-ingress-3",
+          "title": "Service Endpoints",
+          "content": "A load balancer distributes incoming client requests across multiple service instances.\n\nPros:\n✅ **Availability**: The service remains available even if an individual instance goes down as the load balancer can route traffic to healthy instances\n✅ **Scalability**: The service can scale by adding or removing service instances\n✅ **Operational Excellence**: Load balancers can provide features such as logging and TLS termination. TLS-termination converts HTTPS traffic to HTTP before forwarding it to the service instances. This allows offloading CPU intensive work from the backend servers and centralizes certificate management.\n✅ **Security**: Load balancers can act as a security layer by hiding the details of the backend service instances from clients\n\nCons  :\n❌ **Missing Features**: Authentication, rate-limiting, and request/response transformations are not natively supported by load balancers and need to be implemented in the service or through additional components\n❌ **Configuration Complexity**: Configuring and managing load balancers adds operational overhead\n\nLoad balancers are best suited for apps that need scalability and availability. They work well with both monoliths and micro-services."
+        },
+        {
+          "id": "client-ingress-4",
+          "title": "API Gateways",
+          "content": "An API gateway is a specialized entry point that processes requests before routing them to backend services. They centralize cross-cutting concerns in larger micro-services ecosystems such as authentication, rate-limiting, logging, and request/response transformations.\n\nPros:\n✅ **Centralized Management**: API gateways provide a single point to manage cross-cutting concerns such as authentication, rate-limiting, throttling, logging, and request/response transformations\n✅ **Routing**: Gateways can route requests to different services based on URL paths, headers, or other criteria\n✅ **Observability**: They can track metrics, enable logging and provide tracing for incoming requests\n✅ **Security**: API gateways can enforce security policies and hide the details of backend services from clients\n\nCons:\n❌ **Single Point of Failure (SPOF)**: The API gateway becomes a critical component. If it goes down, all backend micro-service behind the gateway become unavailable unless redundancy is built in\n❌ **Latency**: Introducing an API gateway adds an additional network hop, which can increase latency\n❌ **Operational Complexity**: Configuring and managing an API gateway adds significant operational overhead\n\nAPI gateways are best suited for complex applications with multiple services and diverse client requirements. They are commonly used in microservices architectures where strong governance and security are desired."
+        }
+      ],
+      "slides": [
+        {
+          "id": "ci-slide-1",
+          "elements": [
+            {
+              "type": "text",
+              "content": "**Client Ingress Options**",
+              "x": 10,
+              "y": 5,
+              "size": "medium",
+              "color": "#ffffff"
+            },
+            {
+              "type": "text",
+              "content": "When it comes to picking the ingress node for a micro service, there are primarily three options...",
+              "x": 10,
+              "y": 15,
+              "size": "medium",
+              "color": "#FFFFFF"
+            }
+          ]
+        },
+        {
+          "id": "ci-slide-2",
+          "elements": [
+            {
+              "type": "text",
+              "content": "**Client Ingress Options**",
+              "x": 10,
+              "y": 5,
+              "size": "medium",
+              "color": "#ffffff"
+            },
+            {
+              "type": "text",
+              "content": "When it comes to picking the ingress node for a micro service, there are primarily three options...",
+              "x": 10,
+              "y": 15,
+              "size": "medium",
+              "color": "#FFFFFF"
+            },
+            {
+              "type": "text",
+              "content": "Service Endpoint",
+              "x": 25,
+              "y": 80,
+              "size": "large",
+              "color": "#FFFFFF"
+            },
+            {
+              "type": "image",
+              "url": "https://blogger.googleusercontent.com/img/a/AVvXsEhFIJv-EPKimGb8VwRWnLEQZ1iaEJTILYDV27Bj3j2o5M-XsROMT8U_gsQRYpuG1QtAsErIBiRnTeavvf6cyILidIorusjPUSnraLeDDKWHl4X9ruKnI5b7uQnKyPc5VwIUtfE25Zlpb7sXjIPqBpq5_zBMKYjlJs-awhyZxmYZVtWe6DaNWkuxFsBZV-Y",
+              "x": 30,
+              "y": 40,
+              "width": 40,
+              "height": 40
+            }
+          ]
+        },
+        {
+          "id": "ci-slide-3",
+          "elements": [
+            {
+              "type": "text",
+              "content": "**Client Ingress Options**",
+              "x": 10,
+              "y": 5,
+              "size": "medium",
+              "color": "#ffffff"
+            },
+            {
+              "type": "text",
+              "content": "When it comes to picking the ingress node for a micro service, there are primarily three options...",
+              "x": 10,
+              "y": 15,
+              "size": "medium",
+              "color": "#FFFFFF"
+            },
+            {
+              "type": "text",
+              "content": "Load Balancer",
+              "x": 30,
+              "y": 80,
+              "size": "large",
+              "color": "#FFFFFF"
+            },
+            {
+              "type": "image",
+              "url": "https://blogger.googleusercontent.com/img/a/AVvXsEh0pHbgzSd27GDR-ZKJ1-MfjYdLveoEjzBJcPd00WZ8fl-G3h7xUEXpCqmtQIjo9kJZxrJ7r3UMX2Us4-f-m4utPBPoZyKlppSLv0PqvmEp2_DboJW1JK0uNv5_go3ZbRXbrMEZgEQ3iKs52Ur9__fXz6xB8EJfwlN7ZQtXa8BVbX8Q5_qqvnKZf5_7mUI",
+              "x": 30,
+              "y": 40,
+              "width": 40,
+              "height": 40
+            }
+          ]
+        },
+        {
+          "id": "ci-slide-4",
+          "elements": [
+            {
+              "type": "text",
+              "content": "**Client Ingress Options**",
+              "x": 10,
+              "y": 5,
+              "size": "medium",
+              "color": "#ffffff"
+            },
+            {
+              "type": "text",
+              "content": "When it comes to picking the ingress node for a micro service, there are primarily three options...",
+              "x": 10,
+              "y": 15,
+              "size": "medium",
+              "color": "#FFFFFF"
+            },
+            {
+              "type": "text",
+              "content": "API Gateway",
+              "x": 30,
+              "y": 80,
+              "size": "large",
+              "color": "#FFFFFF"
+            },
+            {
+              "type": "image",
+              "url": "https://blogger.googleusercontent.com/img/a/AVvXsEgNwrPQZEOXp5c0G3xXFszNTgy-P75QQJrEAAk6OrT4EgdXS4VrRPuOZEQMjjGdThlo0va82JhSWwOe7TFXfEtdG_7_iKLEYT3nZ9rInpEak8Hzc1_Al3PwGDt8bPUXtUWEOyULOq_oH7pKsiSn9b-z1ZLiacYmL3aoLYXiTKmBxYbThLxN5NzIoR7VXGU",
+              "x": 30,
+              "y": 40,
+              "width": 40,
+              "height": 40
+            }
+          ]
+        },
+        {
+          "id": "ci-slide-5",
+          "elements": [
+            {
+              "type": "text",
+              "content": "**Client Ingress Options**",
+              "x": 10,
+              "y": 5,
+              "size": "medium",
+              "color": "#ffffff"
+            },
+            {
+              "type": "text",
+              "content": "There are good reasons for choosing each of these options depending on the use case. Each has its own set of trade-offs, as we will see.",
+              "x": 10,
+              "y": 15,
+              "size": "medium",
+              "color": "#FFFFFF"
+            }
+          ]
+        },
+        {
+          "id": "ci-slide-6",
+          "elements": [
+            {
+              "type": "text",
+              "content": "**Service Endpoint**",
+              "x": 32,
+              "y": 25,
+              "size": "medium",
+              "color": "#FFFFFF"
+            },
+            {
+              "type": "image",
+              "url": "https://blogger.googleusercontent.com/img/a/AVvXsEhFIJv-EPKimGb8VwRWnLEQZ1iaEJTILYDV27Bj3j2o5M-XsROMT8U_gsQRYpuG1QtAsErIBiRnTeavvf6cyILidIorusjPUSnraLeDDKWHl4X9ruKnI5b7uQnKyPc5VwIUtfE25Zlpb7sXjIPqBpq5_zBMKYjlJs-awhyZxmYZVtWe6DaNWkuxFsBZV-Y",
+              "x": 38,
+              "y": 0,
+              "width": 25,
+              "height": 25
+            },
+            {
+              "type": "text",
+              "content": "In this case, the client makes a direct request to the service endpoint. The service endpoint could be a VM or a container with an exposed port.",
+              "x": 10,
+              "y": 40,
+              "size": "medium",
+              "color": "#FFFFFF"
+            }
+          ]
+        },
+        {
+          "id": "ci-slide-7",
+          "elements": [
+            {
+              "type": "text",
+              "content": "**Service Endpoint**",
+              "x": 32,
+              "y": 25,
+              "size": "medium",
+              "color": "#FFFFFF"
+            },
+            {
+              "type": "image",
+              "url": "https://blogger.googleusercontent.com/img/a/AVvXsEhFIJv-EPKimGb8VwRWnLEQZ1iaEJTILYDV27Bj3j2o5M-XsROMT8U_gsQRYpuG1QtAsErIBiRnTeavvf6cyILidIorusjPUSnraLeDDKWHl4X9ruKnI5b7uQnKyPc5VwIUtfE25Zlpb7sXjIPqBpq5_zBMKYjlJs-awhyZxmYZVtWe6DaNWkuxFsBZV-Y",
+              "x": 38,
+              "y": 0,
+              "width": 25,
+              "height": 25
+            },
+            {
+              "type": "text",
+              "content": "**Pros:**",
+              "x": 10,
+              "y": 40,
+              "size": "medium",
+              "color": "#FFFFFF"
+            },
+            {
+              "type": "image",
+              "url": "https://blogger.googleusercontent.com/img/a/AVvXsEgIVp6j7t_9Y_lOLDmnhhmwYsUIBDN_n-vFwYgPWKnPNJBYlV-WfsK-b5zhPJVzmiMNb6dbJrUooYA_OqyOiRloXNuwUgX40mGQuwVckpVCbMogbH2PLfmGE9IxtK9ekV5OcOAfY3r8_jAM0xe9gjkD7OnHutJNFXMV5rwXNjC-uuP6qLLRsAk85X9RvkM",
+              "x": 45,
+              "y": 50,
+              "width": 15,
+              "height": 15
+            },
+            {
+              "type": "text",
+              "content": "**Latency**",
+              "x": 43,
+              "y": 65,
+              "size": "medium",
+              "color": "#FFFFFF"
+            },
+            {
+              "type": "text",
+              "content": "No additional network hops required to reach a service",
+              "x": 10,
+              "y": 75,
+              "size": "medium",
+              "color": "#FFFFFF"
+            }
+          ]
+        },
+        {
+          "id": "ci-slide-8",
+          "elements": [
+            {
+              "type": "text",
+              "content": "**Service Endpoint**",
+              "x": 32,
+              "y": 25,
+              "size": "medium",
+              "color": "#FFFFFF"
+            },
+            {
+              "type": "image",
+              "url": "https://blogger.googleusercontent.com/img/a/AVvXsEhFIJv-EPKimGb8VwRWnLEQZ1iaEJTILYDV27Bj3j2o5M-XsROMT8U_gsQRYpuG1QtAsErIBiRnTeavvf6cyILidIorusjPUSnraLeDDKWHl4X9ruKnI5b7uQnKyPc5VwIUtfE25Zlpb7sXjIPqBpq5_zBMKYjlJs-awhyZxmYZVtWe6DaNWkuxFsBZV-Y",
+              "x": 38,
+              "y": 0,
+              "width": 25,
+              "height": 25
+            },
+            {
+              "type": "text",
+              "content": "**Pros:**",
+              "x": 10,
+              "y": 40,
+              "size": "medium",
+              "color": "#FFFFFF"
+            },
+            {
+              "type": "image",
+              "url": "https://blogger.googleusercontent.com/img/a/AVvXsEghb9eqojNu1X0wx6GEYmw2s79yFsYHAi4yHkL7AkIpnJFpxxlSTg_3iZu4LYETM77TiIkEduX0Y0qeix8oVsc1Iwx2LxgKiq6T4v3ANGdzEedMHx_iiBVvNncC5g7r_Y2XFJHa0Z9sa7JY-BdCyO9y3IJwv9FAQOAnSfDvae6Og2TeDHW_dP03PXOcSBw",
+              "x": 45,
+              "y": 50,
+              "width": 15,
+              "height": 15
+            },
+            {
+              "type": "text",
+              "content": "**Cost**",
+              "x": 45,
+              "y": 65,
+              "size": "medium",
+              "color": "#FFFFFF"
+            },
+            {
+              "type": "text",
+              "content": "This setup requires minimal infrastructure and cost",
+              "x": 10,
+              "y": 75,
+              "size": "medium",
+              "color": "#FFFFFF"
+            }
+          ]
+        },
+        {
+          "id": "ci-slide-9",
+          "elements": [
+            {
+              "type": "text",
+              "content": "**Service Endpoint**",
+              "x": 32,
+              "y": 25,
+              "size": "medium",
+              "color": "#FFFFFF"
+            },
+            {
+              "type": "image",
+              "url": "https://blogger.googleusercontent.com/img/a/AVvXsEhFIJv-EPKimGb8VwRWnLEQZ1iaEJTILYDV27Bj3j2o5M-XsROMT8U_gsQRYpuG1QtAsErIBiRnTeavvf6cyILidIorusjPUSnraLeDDKWHl4X9ruKnI5b7uQnKyPc5VwIUtfE25Zlpb7sXjIPqBpq5_zBMKYjlJs-awhyZxmYZVtWe6DaNWkuxFsBZV-Y",
+              "x": 38,
+              "y": 0,
+              "width": 25,
+              "height": 25
+            },
+            {
+              "type": "text",
+              "content": "**Cons:**",
+              "x": 10,
+              "y": 40,
+              "size": "medium",
+              "color": "#FFFFFF"
+            },
+            {
+              "type": "image",
+              "url": "https://blogger.googleusercontent.com/img/a/AVvXsEgMEEi0bVVBZjVy2nG7ahj5-Li9K2Ld0L7jr0ddbRvLjnQ9_YenhFk7PRCqUW6W4s5S7zWwLyVWQ12RJH7cUoKZGGuNBGxMJSSOfsoAWT3UDOxebYxHNw2eYZsEGEQb2RRPwSgmUwcPOEIshSzQsJJnq_eiA-5pY9oJpD6GraLW7l0dVLLUnqQ57RMuggo",
+              "x": 45,
+              "y": 50,
+              "width": 15,
+              "height": 15
+            },
+            {
+              "type": "text",
+              "content": "**Availability**",
+              "x": 40,
+              "y": 65,
+              "size": "medium",
+              "color": "#FFFFFF"
+            },
+            {
+              "type": "text",
+              "content": "If the service endpoint goes down, the entire service becomes unavailable",
+              "x": 10,
+              "y": 75,
+              "size": "medium",
+              "color": "#FFFFFF"
+            }
+          ]
+        },
+        {
+          "id": "ci-slide-10",
+          "elements": [
+            {
+              "type": "text",
+              "content": "**Service Endpoint**",
+              "x": 32,
+              "y": 25,
+              "size": "medium",
+              "color": "#FFFFFF"
+            },
+            {
+              "type": "image",
+              "url": "https://blogger.googleusercontent.com/img/a/AVvXsEhFIJv-EPKimGb8VwRWnLEQZ1iaEJTILYDV27Bj3j2o5M-XsROMT8U_gsQRYpuG1QtAsErIBiRnTeavvf6cyILidIorusjPUSnraLeDDKWHl4X9ruKnI5b7uQnKyPc5VwIUtfE25Zlpb7sXjIPqBpq5_zBMKYjlJs-awhyZxmYZVtWe6DaNWkuxFsBZV-Y",
+              "x": 38,
+              "y": 0,
+              "width": 25,
+              "height": 25
+            },
+            {
+              "type": "text",
+              "content": "**Cons:**",
+              "x": 10,
+              "y": 40,
+              "size": "medium",
+              "color": "#FFFFFF"
+            },
+            {
+              "type": "image",
+              "url": "https://blogger.googleusercontent.com/img/a/AVvXsEj_G08YEmzYKB0555r6exLX1s1QTg75Wipp54jJBx9yYcDzMkwrA6tWlDnsXt_C2_muIbSU4z3POjGKEKXOhho8U2fHyjwU7qqbkmqJ2vzLjhbjrxGceZo748iobuJA5InCfGFp8A402HjLr8E4gC73QloYRxuzkw8duK72_Jq7KCX76fAZqtjHcuyRb9E",
+              "x": 45,
+              "y": 50,
+              "width": 15,
+              "height": 15
+            },
+            {
+              "type": "text",
+              "content": "**Scalability**",
+              "x": 43,
+              "y": 65,
+              "size": "medium",
+              "color": "#FFFFFF"
+            },
+            {
+              "type": "text",
+              "content": "This design does not scale well under high load as traffic spikes can overwhelm the single endpoint",
+              "x": 10,
+              "y": 75,
+              "size": "medium",
+              "color": "#FFFFFF"
+            }
+          ]
+        },
+        {
+          "id": "ci-slide-11",
+          "elements": [
+            {
+              "type": "text",
+              "content": "**Service Endpoint**",
+              "x": 32,
+              "y": 25,
+              "size": "medium",
+              "color": "#FFFFFF"
+            },
+            {
+              "type": "image",
+              "url": "https://blogger.googleusercontent.com/img/a/AVvXsEhFIJv-EPKimGb8VwRWnLEQZ1iaEJTILYDV27Bj3j2o5M-XsROMT8U_gsQRYpuG1QtAsErIBiRnTeavvf6cyILidIorusjPUSnraLeDDKWHl4X9ruKnI5b7uQnKyPc5VwIUtfE25Zlpb7sXjIPqBpq5_zBMKYjlJs-awhyZxmYZVtWe6DaNWkuxFsBZV-Y",
+              "x": 38,
+              "y": 0,
+              "width": 25,
+              "height": 25
+            },
+            {
+              "type": "text",
+              "content": "**Cons:**",
+              "x": 10,
+              "y": 40,
+              "size": "medium",
+              "color": "#FFFFFF"
+            },
+            {
+              "type": "image",
+              "url": "https://blogger.googleusercontent.com/img/a/AVvXsEgB5zC7dBJ7gxByKja4O0sBcmp92XaEEifGpU6Kgn4hqLO_3wMmElQfqJbLepba2V5w4Vd9bBfbhXUsY_QmHwJy0qLYVIye1aDEQOn7XPO0yLn6TfeKUAp9fqW9qiunXPW76dFED_013WjkJMT63IK1JHolmuH3NHNwDCUUFrzEjxYz8X2Le_ZYGZq5tkU",
+              "x": 45,
+              "y": 50,
+              "width": 15,
+              "height": 15
+            },
+            {
+              "type": "text",
+              "content": "**Operational Excellence**",
+              "x": 25,
+              "y": 65,
+              "size": "medium",
+              "color": "#FFFFFF"
+            },
+            {
+              "type": "text",
+              "content": "Features such as **logging**, **rate-limiting** and **TLS termination** need to be handled directly by the service.",
+              "x": 10,
+              "y": 75,
+              "size": "medium",
+              "color": "#FFFFFF"
+            }
+          ]
+        },
+        {
+          "id": "ci-slide-12",
+          "elements": [
+            {
+              "type": "text",
+              "content": "**Service Endpoint**",
+              "x": 32,
+              "y": 25,
+              "size": "medium",
+              "color": "#FFFFFF"
+            },
+            {
+              "type": "image",
+              "url": "https://blogger.googleusercontent.com/img/a/AVvXsEhFIJv-EPKimGb8VwRWnLEQZ1iaEJTILYDV27Bj3j2o5M-XsROMT8U_gsQRYpuG1QtAsErIBiRnTeavvf6cyILidIorusjPUSnraLeDDKWHl4X9ruKnI5b7uQnKyPc5VwIUtfE25Zlpb7sXjIPqBpq5_zBMKYjlJs-awhyZxmYZVtWe6DaNWkuxFsBZV-Y",
+              "x": 38,
+              "y": 0,
+              "width": 25,
+              "height": 25
+            },
+            {
+              "type": "text",
+              "content": "**Cons:**",
+              "x": 10,
+              "y": 40,
+              "size": "medium",
+              "color": "#FFFFFF"
+            },
+            {
+              "type": "image",
+              "url": "https://blogger.googleusercontent.com/img/a/AVvXsEgZuKqo4TM63YvsfG8p0ShVG3ci6ZUkvZSmRBXB70Q4Fe_6OeX-UOaaSbE4g0HhLNkTbWYmBS4yZozuEtRW6xn3basKM6kBPjuKQhIDwv4vHNecPtQaUBm9GC1zucAIbFZpamS6qU0uAxnRME_vUGy9PhoBhuXAbfGEqsFKQqVI3L4l9nBtKarauzvL6Ls",
+              "x": 45,
+              "y": 50,
+              "width": 15,
+              "height": 15
+            },
+            {
+              "type": "text",
+              "content": "**Security**",
+              "x": 43,
+              "y": 65,
+              "size": "medium",
+              "color": "#FFFFFF"
+            },
+            {
+              "type": "text",
+              "content": "Exposing service endpoints directly to the internet increases the attack surface",
+              "x": 10,
+              "y": 75,
+              "size": "medium",
+              "color": "#FFFFFF"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

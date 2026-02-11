@@ -1,0 +1,125 @@
+{
+  "id": "networks",
+  "title": "Computer Networks",
+  "category": "Computer Science",
+  "icon": "globe",
+  "color": "#3B82F6",
+  "sections": [
+    {
+      "id": "internet-basics",
+      "title": "How the Internet Works",
+      "pages": [
+        {
+          "id": "internet-1",
+          "title": "The Network of Networks",
+          "content": "The Internet is not a single network—it's a network of networks. Millions of private, public, academic, and government networks are interconnected.\n\nWhen you visit a website, your request travels through multiple networks:\n1. Your home network (WiFi router)\n2. Your ISP's network\n3. Internet backbone networks\n4. The destination's network\n\nThis works because all networks agree to use the same protocols—rules for communication. The most important is TCP/IP, the \"language\" of the Internet.\n\nFun fact: No single organization owns or controls the Internet. It works through cooperation and standardization."
+        },
+        {
+          "id": "internet-2",
+          "title": "IP Addresses and Routing",
+          "content": "Every device on the Internet needs an address to receive data. This is the IP address.\n\nIPv4: 192.168.1.1 (32 bits, ~4 billion addresses)\nIPv6: 2001:0db8:85a3::8a2e:0370:7334 (128 bits, virtually unlimited)\n\nHow does data find its way? Through routing.\n\nRouters are devices that forward data packets toward their destination. Each router:\n1. Receives a packet\n2. Looks at the destination IP\n3. Consults its routing table\n4. Forwards to the next hop\n\nThis happens dozens of times for each request. Try running 'traceroute google.com' to see the path your data takes!"
+        },
+        {
+          "id": "internet-3",
+          "title": "Packets and Protocols",
+          "content": "Data on the Internet travels in packets—small chunks of data with addressing information.\n\nWhy packets instead of continuous streams?\n• Multiple conversations can share the same wires\n• If one packet is lost, only that piece needs resending\n• Networks can route around failures\n\nKey protocols:\n\nTCP (Transmission Control Protocol)\n• Reliable, ordered delivery\n• Used for web pages, email, files\n• Slower but guaranteed\n\nUDP (User Datagram Protocol)\n• Fast, no guarantees\n• Used for video streaming, gaming\n• Some loss is acceptable\n\nHTTP/HTTPS runs on top of TCP to deliver web content. When you load a page, hundreds of TCP packets carry the HTML, CSS, JavaScript, and images."
+        }
+      ],
+      "quiz": {
+        "questions": [
+          {
+            "id": "internet-q1",
+            "format": "MULTIPLE_CHOICE",
+            "question": "What is the primary protocol that makes the Internet work?",
+            "options": [
+              "HTTP",
+              "TCP/IP",
+              "DNS",
+              "FTP"
+            ],
+            "correctAnswerIndex": 1,
+            "explanation": "TCP/IP is the fundamental protocol suite that enables communication across the Internet. HTTP, DNS, and FTP all run on top of TCP/IP."
+          },
+          {
+            "id": "internet-q2",
+            "format": "TRUE_FALSE",
+            "question": "TCP guarantees reliable, ordered delivery of data.",
+            "correctAnswer": true,
+            "explanation": "TCP (Transmission Control Protocol) ensures that data arrives correctly and in order, retransmitting lost packets as needed."
+          },
+          {
+            "id": "internet-q3",
+            "format": "MULTIPLE_CHOICE",
+            "question": "Which protocol would be better for live video streaming?",
+            "options": [
+              "TCP",
+              "UDP",
+              "HTTP",
+              "SMTP"
+            ],
+            "correctAnswerIndex": 1,
+            "explanation": "UDP is preferred for streaming because some packet loss is acceptable, and the lower latency is more important than perfect delivery."
+          }
+        ]
+      }
+    },
+    {
+      "id": "dns",
+      "title": "DNS Explained",
+      "pages": [
+        {
+          "id": "dns-1",
+          "title": "The Internet's Phone Book",
+          "content": "DNS (Domain Name System) translates human-readable domain names into IP addresses.\n\nWhen you type \"google.com\", your browser doesn't know where that is. It needs the IP address (like 142.250.80.46).\n\nDNS is like a phone book:\n• You know the name (google.com)\n• DNS looks up the number (142.250.80.46)\n• Now you can make the call (HTTP request)\n\nWithout DNS, you'd have to memorize IP addresses for every website. Imagine remembering 142.250.80.46 instead of google.com!\n\nDNS is distributed—no single server has all the answers. This makes it fast and resilient."
+        },
+        {
+          "id": "dns-2",
+          "title": "The DNS Lookup Process",
+          "content": "When you request a website, here's what happens:\n\n1. Browser Cache\nFirst, check if you've looked this up recently.\n\n2. Operating System Cache\nYour computer might remember from earlier.\n\n3. Recursive Resolver (usually your ISP)\nIf not cached, ask your ISP's DNS server.\n\n4. Root Name Server\nThe resolver asks a root server: \"Who handles .com?\"\n\n5. TLD Name Server\nThe .com server says: \"google.com is handled by ns1.google.com\"\n\n6. Authoritative Name Server\nFinally, Google's server responds with the IP address.\n\nThis seems slow, but aggressive caching means most lookups are answered locally in milliseconds."
+        },
+        {
+          "id": "dns-3",
+          "title": "DNS Records",
+          "content": "DNS doesn't just store IP addresses. Different record types serve different purposes:\n\nA Record\nMaps domain to IPv4 address\ngoogle.com → 142.250.80.46\n\nAAAA Record\nMaps domain to IPv6 address\ngoogle.com → 2607:f8b0:4004:800::200e\n\nCNAME Record\nAlias from one name to another\nwww.example.com → example.com\n\nMX Record\nMail server for the domain\nexample.com mail → mail.example.com\n\nTXT Record\nArbitrary text, often for verification\nUsed for email security (SPF, DKIM)\n\nYou can query these yourself using 'nslookup' or 'dig' commands in your terminal!"
+        }
+      ],
+      "quiz": {
+        "questions": [
+          {
+            "id": "dns-q1",
+            "format": "MULTIPLE_CHOICE",
+            "question": "What does DNS stand for?",
+            "options": [
+              "Domain Name System",
+              "Digital Network Service",
+              "Data Name Server",
+              "Domain Network Security"
+            ],
+            "correctAnswerIndex": 0,
+            "explanation": "DNS stands for Domain Name System. It translates human-readable domain names into IP addresses."
+          },
+          {
+            "id": "dns-q2",
+            "format": "TRUE_FALSE",
+            "question": "An A record maps a domain name to an IPv6 address.",
+            "correctAnswer": false,
+            "explanation": "An A record maps to an IPv4 address. AAAA records are used for IPv6 addresses."
+          },
+          {
+            "id": "dns-q3",
+            "format": "MULTIPLE_CHOICE",
+            "question": "Which DNS record type is used to specify mail servers for a domain?",
+            "options": [
+              "A Record",
+              "CNAME Record",
+              "MX Record",
+              "TXT Record"
+            ],
+            "correctAnswerIndex": 2,
+            "explanation": "MX (Mail Exchange) records specify the mail servers responsible for accepting email for a domain."
+          }
+        ]
+      }
+    }
+  ]
+}

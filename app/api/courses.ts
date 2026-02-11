@@ -1,4 +1,5 @@
 import { Course, CourseSection } from '../types/course';
+import { Flashcard } from '../types/flashcard';
 
 const TIMEOUT_MS = 10000;
 
@@ -28,6 +29,14 @@ export async function fetchSectionDetail(apiHost: string, courseId: string, sect
   const res = await fetchWithTimeout(`${apiHost}/beta/v1/courses/${courseId}/sections/${sectionId}/pages`);
   if (!res.ok) {
     throw new Error(`Failed to fetch section detail: ${res.status}`);
+  }
+  return res.json();
+}
+
+export async function fetchFlashcards(apiHost: string): Promise<Flashcard[]> {
+  const res = await fetchWithTimeout(`${apiHost}/beta/v1/review`);
+  if (!res.ok) {
+    throw new Error(`Failed to fetch flashcards: ${res.status}`);
   }
   return res.json();
 }

@@ -5,7 +5,7 @@ services:
     volumes:
       - ./data:/data
     environment:
-      - DATA_FILE_PATH=/data/courses.json
+      - DATA_DIR=/data
 
   nginx:
     image: nginx:alpine

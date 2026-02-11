@@ -2,6 +2,14 @@ import React, { useRef, useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Animated, LayoutChangeEvent } from 'react-native';
 import { Flashcard } from '../types/flashcard';
 
+function darken(hex: string, amount = 0.15): string {
+  const n = parseInt(hex.replace('#', ''), 16);
+  const r = Math.max(0, Math.round(((n >> 16) & 0xff) * (1 - amount)));
+  const g = Math.max(0, Math.round(((n >> 8) & 0xff) * (1 - amount)));
+  const b = Math.max(0, Math.round((n & 0xff) * (1 - amount)));
+  return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, '0')}`;
+}
+
 interface FlashCardProps {
   card: Flashcard;
   isRevealed: boolean;
@@ -29,7 +37,6 @@ export function FlashCard({ card, isRevealed, onTap }: FlashCardProps) {
     if (card.type === 'tap_reveal') {
       return (
         <View style={styles.contentContainer}>
-          <Text style={styles.category}>{card.category}</Text>
           <Text style={styles.question}>{card.question}</Text>
           <View style={styles.answerWrapper}>
             <View style={styles.answerContainer} onLayout={onAnswerLayout}>
@@ -56,7 +63,6 @@ export function FlashCard({ card, isRevealed, onTap }: FlashCardProps) {
       const parts = card.question.split('_____');
       return (
         <View style={styles.contentContainer}>
-          <Text style={styles.category}>{card.category}</Text>
           <View style={styles.fillBlankRow}>
             <Text style={styles.fillBlankText}>{parts[0]}</Text>
             <View style={styles.blankAnswerWrapper}>
@@ -78,7 +84,6 @@ export function FlashCard({ card, isRevealed, onTap }: FlashCardProps) {
             </View>
             <Text style={styles.fillBlankText}>{parts[1]}</Text>
           </View>
-          {!isRevealed && <Text style={styles.tapHintBottom}>Tap to reveal</Text>}
         </View>
       );
     }
@@ -92,7 +97,11 @@ export function FlashCard({ card, isRevealed, onTap }: FlashCardProps) {
       onPress={onTap}
       activeOpacity={0.95}
     >
+      <View style={[styles.categoryTag, { backgroundColor: card.color, borderColor: darken(card.color) }]}>
+        <Text style={styles.categoryTagText}>{card.category}</Text>
+      </View>
       {renderContent()}
+      {!isRevealed && <Text style={styles.tapHintBottom}>Tap to reveal</Text>}
     </TouchableOpacity>
   );
 }
@@ -117,13 +126,22 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
     paddingVertical: 48,
   },
-  category: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#6B7280',
+  categoryTag: {
+    position: 'absolute',
+    top: 24,
+    right: 24,
+    borderWidth: 1.5,
+    borderRadius: 20,
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    zIndex: 1,
+  },
+  categoryTagText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#374151',
     textTransform: 'uppercase',
-    letterSpacing: 1,
-    marginBottom: 24,
+    letterSpacing: 0.5,
   },
   question: {
     fontSize: 24,

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -8,17 +8,24 @@ import {
   Animated,
   NativeSyntheticEvent,
   NativeScrollEvent,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../../context/ThemeContext';
+import { useApiHost } from '../../context/ApiHostContext';
 import { FlashCard } from '../../components/FlashCard';
-import { flashcards } from '../../data/flashcards';
+import { fetchFlashcards } from '../../api/courses';
+import { Flashcard } from '../../types/flashcard';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 export default function ReviseScreen() {
   const { colors } = useTheme();
+  const { apiHost } = useApiHost();
   const insets = useSafeAreaInsets();
+  const [flashcards, setFlashcards] = useState<Flashcard[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [revealedCards, setRevealedCards] = useState<Set<string>>(new Set());
   const [hasScrolled, setHasScrolled] = useState(false);
   const hintOpacity = useRef(new Animated.Value(1)).current;
@@ -26,6 +33,15 @@ export default function ReviseScreen() {
   const headerHeight = 44;
   const tabBarHeight = 80;
   const cardHeight = SCREEN_HEIGHT - insets.top - headerHeight - tabBarHeight;
+
+  useEffect(() => {
+    setLoading(true);
+    setError(null);
+    fetchFlashcards(apiHost)
+      .then(setFlashcards)
+      .catch((err) => setError(err.message))
+      .finally(() => setLoading(false));
+  }, [apiHost]);
 
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     if (!hasScrolled && event.nativeEvent.contentOffset.y > 10) {
@@ -49,6 +65,33 @@ export default function ReviseScreen() {
       return newSet;
     });
   };
+
+  if (loading) {
+    return (
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
+        <View style={styles.header}>
+          <Text style={[styles.title, { color: colors.text }]}>Revise</Text>
+        </View>
+        <View style={styles.centered}>
+          <ActivityIndicator size="large" color={colors.primary} />
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (error) {
+    return (
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
+        <View style={styles.header}>
+          <Text style={[styles.title, { color: colors.text }]}>Revise</Text>
+        </View>
+        <View style={styles.centered}>
+          <Text style={[styles.errorText, { color: colors.text }]}>Failed to load flashcards</Text>
+          <Text style={[styles.errorDetail, { color: colors.textMuted }]}>{error}</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
@@ -99,6 +142,21 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '700',
   },
+  centered: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorText: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 8,
+  },
+  errorDetail: {
+    fontSize: 13,
+    textAlign: 'center',
+    paddingHorizontal: 32,
+  },
   scrollContent: {
     paddingBottom: 0,
   },
@@ -107,7 +165,7 @@ const styles = StyleSheet.create({
   },
   swipeHint: {
     position: 'absolute',
-    bottom: 24,
+    bottom: 40,
     left: 0,
     right: 0,
     alignItems: 'center',

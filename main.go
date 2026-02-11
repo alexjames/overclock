@@ -5,46 +5,90 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
 func main() {
-	dataFile := os.Getenv("DATA_FILE_PATH")
-	if dataFile == "" {
-		dataFile = "/data/courses.json"
+	dataDir := os.Getenv("DATA_DIR")
+	if dataDir == "" {
+		dataDir = "/data"
 	}
+	coursesDir := filepath.Join(dataDir, "courses")
 
-	raw, err := os.ReadFile(dataFile)
+	// Load the courses index (returned by /beta/v1/courses).
+	indexPath := filepath.Join(coursesDir, "courses_index.json")
+	indexRaw, err := os.ReadFile(indexPath)
 	if err != nil {
-		log.Fatalf("failed to read data file %s: %v", dataFile, err)
+		log.Fatalf("failed to read %s: %v", indexPath, err)
 	}
 
-	// Parse into structured data so we can look up courses by ID.
-	var courses []map[string]interface{}
-	if err := json.Unmarshal(raw, &courses); err != nil {
-		log.Fatalf("failed to parse data file %s: %v", dataFile, err)
+	// Validate it's valid JSON.
+	var indexCheck []map[string]interface{}
+	if err := json.Unmarshal(indexRaw, &indexCheck); err != nil {
+		log.Fatalf("failed to parse %s: %v", indexPath, err)
 	}
+	coursesJSON := indexRaw
 
-	// Build a lookup map by course ID and a sections-stripped list for the courses endpoint.
+	// Load all other JSON files in the data directory as individual course files.
 	courseByID := make(map[string]map[string]interface{})
-	var courseSummaries []map[string]interface{}
-	for _, c := range courses {
-		if id, ok := c["id"].(string); ok {
-			courseByID[id] = c
-		}
-		summary := make(map[string]interface{})
-		for k, v := range c {
-			if k != "sections" {
-				summary[k] = v
-			}
-		}
-		courseSummaries = append(courseSummaries, summary)
+
+	entries, err := os.ReadDir(coursesDir)
+	if err != nil {
+		log.Fatalf("failed to read courses directory %s: %v", coursesDir, err)
 	}
 
-	coursesJSON, err := json.Marshal(courseSummaries)
-	if err != nil {
-		log.Fatalf("failed to marshal course summaries: %v", err)
+	for _, entry := range entries {
+		name := entry.Name()
+		if entry.IsDir() || !strings.HasSuffix(name, ".json") || name == "courses_index.json" {
+			continue
+		}
+
+		filePath := filepath.Join(coursesDir, name)
+		raw, err := os.ReadFile(filePath)
+		if err != nil {
+			log.Printf("warning: failed to read %s: %v", filePath, err)
+			continue
+		}
+
+		var course map[string]interface{}
+		if err := json.Unmarshal(raw, &course); err != nil {
+			log.Printf("warning: failed to parse %s: %v", filePath, err)
+			continue
+		}
+
+		id, ok := course["id"].(string)
+		if !ok {
+			log.Printf("warning: %s has no string 'id' field, skipping", filePath)
+			continue
+		}
+
+		courseByID[id] = course
+		log.Printf("loaded course: %s from %s", id, name)
 	}
+
+	// Load review flashcards (returned by /beta/v1/review).
+	reviewPath := filepath.Join(dataDir, "review", "flashcards.json")
+	reviewRaw, err := os.ReadFile(reviewPath)
+	if err != nil {
+		log.Fatalf("failed to read %s: %v", reviewPath, err)
+	}
+	// Validate it's valid JSON.
+	var reviewCheck []interface{}
+	if err := json.Unmarshal(reviewRaw, &reviewCheck); err != nil {
+		log.Fatalf("failed to parse %s: %v", reviewPath, err)
+	}
+	reviewJSON := reviewRaw
+	log.Printf("loaded %d flashcards", len(reviewCheck))
+
+	http.HandleFunc("/beta/v1/review", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet {
+			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(reviewJSON)
+	})
 
 	http.HandleFunc("/beta/v1/courses", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodGet {
@@ -125,6 +169,7 @@ func main() {
 		http.NotFound(w, r)
 	})
 
+	log.Printf("loaded %d courses", len(courseByID))
 	log.Println("server listening on :8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
