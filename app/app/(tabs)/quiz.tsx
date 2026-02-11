@@ -12,18 +12,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../context/ThemeContext';
 import { useApiHost } from '../../context/ApiHostContext';
-import { fetchCourses, fetchSections, fetchSectionDetail } from '../../api/courses';
+import { fetchQuizList, fetchQuiz, QuizSummary } from '../../api/courses';
 import { QuizContainer } from '../../components/quiz/QuizContainer';
 import { Question, QuizResult } from '../../types/quiz';
-
-interface QuizListItem {
-  courseId: string;
-  courseTitle: string;
-  courseColor: string;
-  courseIcon: string;
-  sectionId: string;
-  sectionTitle: string;
-}
 
 type ScreenMode = 'list' | 'loading_quiz' | 'quiz' | 'results';
 
@@ -31,7 +22,7 @@ export default function QuizScreen() {
   const { colors } = useTheme();
   const { apiHost } = useApiHost();
 
-  const [quizItems, setQuizItems] = useState<QuizListItem[]>([]);
+  const [quizzes, setQuizzes] = useState<QuizSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
@@ -44,39 +35,8 @@ export default function QuizScreen() {
   const loadQuizList = useCallback(async () => {
     try {
       setError(null);
-      const courses = await fetchCourses(apiHost);
-
-      const allItems: QuizListItem[] = [];
-      await Promise.all(
-        courses.map(async (course) => {
-          try {
-            const sections = await fetchSections(apiHost, course.id);
-            await Promise.all(
-              sections.map(async (section) => {
-                try {
-                  const detail = await fetchSectionDetail(apiHost, course.id, section.id);
-                  if (detail.quiz && detail.quiz.questions && detail.quiz.questions.length > 0) {
-                    allItems.push({
-                      courseId: course.id,
-                      courseTitle: course.title,
-                      courseColor: course.color,
-                      courseIcon: course.icon,
-                      sectionId: section.id,
-                      sectionTitle: section.title,
-                    });
-                  }
-                } catch {
-                  // Skip sections that fail to load
-                }
-              })
-            );
-          } catch {
-            // Skip courses whose sections fail to load
-          }
-        })
-      );
-
-      setQuizItems(allItems);
+      const list = await fetchQuizList(apiHost);
+      setQuizzes(list);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -90,13 +50,13 @@ export default function QuizScreen() {
     loadQuizList();
   }, [loadQuizList]);
 
-  const handleStartQuiz = async (item: QuizListItem) => {
+  const handleStartQuiz = async (quiz: QuizSummary) => {
     setScreenMode('loading_quiz');
-    setActiveQuizTitle(`${item.courseTitle} - ${item.sectionTitle}`);
+    setActiveQuizTitle(quiz.title);
     try {
-      const detail = await fetchSectionDetail(apiHost, item.courseId, item.sectionId);
-      if (detail.quiz && detail.quiz.questions.length > 0) {
-        setActiveQuestions(detail.quiz.questions);
+      const data = await fetchQuiz(apiHost, quiz.id);
+      if (data.questions && data.questions.length > 0) {
+        setActiveQuestions(data.questions);
         setScreenMode('quiz');
       } else {
         setScreenMode('list');
@@ -198,15 +158,6 @@ export default function QuizScreen() {
     );
   }
 
-  // Group items by course
-  const groupedByCourse: Record<string, QuizListItem[]> = {};
-  quizItems.forEach((item) => {
-    if (!groupedByCourse[item.courseId]) {
-      groupedByCourse[item.courseId] = [];
-    }
-    groupedByCourse[item.courseId].push(item);
-  });
-
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
       <ScrollView
@@ -226,40 +177,38 @@ export default function QuizScreen() {
           </View>
         )}
 
-        {!error && quizItems.length === 0 && (
+        {!error && quizzes.length === 0 && (
           <View style={styles.emptyContainer}>
             <Ionicons name="help-circle-outline" size={64} color={colors.textMuted} />
             <Text style={[styles.emptyText, { color: colors.textMuted }]}>No quizzes available</Text>
           </View>
         )}
 
-        {Object.entries(groupedByCourse).map(([courseId, items]) => (
-          <View key={courseId} style={styles.courseGroup}>
-            <View style={styles.courseHeader}>
-              <View style={[styles.courseIcon, { backgroundColor: items[0].courseColor }]}>
-                <Ionicons name={items[0].courseIcon as any} size={20} color="white" />
+        <View style={styles.quizList}>
+          {quizzes.map((quiz) => (
+            <TouchableOpacity
+              key={quiz.id}
+              style={[styles.quizCard, { backgroundColor: colors.card, borderColor: colors.border }]}
+              onPress={() => handleStartQuiz(quiz)}
+              activeOpacity={0.7}
+            >
+              <View style={styles.quizCardLeft}>
+                <View style={[styles.courseIcon, { backgroundColor: quiz.color }]}>
+                  <Ionicons name={quiz.icon as any} size={24} color="white" />
+                </View>
+                <View style={styles.quizCardInfo}>
+                  <Text style={[styles.quizCardTitle, { color: colors.text }]}>{quiz.title}</Text>
+                  <Text style={[styles.quizCardSubtitle, { color: colors.textMuted }]}>
+                    {quiz.questionCount} question{quiz.questionCount !== 1 ? 's' : ''}
+                  </Text>
+                </View>
               </View>
-              <Text style={[styles.courseName, { color: colors.text }]}>{items[0].courseTitle}</Text>
-            </View>
-
-            {items.map((item) => (
-              <TouchableOpacity
-                key={`${item.courseId}-${item.sectionId}`}
-                style={[styles.quizCard, { backgroundColor: colors.card, borderColor: colors.border }]}
-                onPress={() => handleStartQuiz(item)}
-                activeOpacity={0.7}
-              >
-                <View style={styles.quizCardContent}>
-                  <Ionicons name="help-circle-outline" size={24} color={colors.primary} />
-                  <Text style={[styles.sectionTitle, { color: colors.text }]}>{item.sectionTitle}</Text>
-                </View>
-                <View style={[styles.startButton, { backgroundColor: colors.primary }]}>
-                  <Text style={styles.startButtonText}>Start</Text>
-                </View>
-              </TouchableOpacity>
-            ))}
-          </View>
-        ))}
+              <View style={[styles.startButton, { backgroundColor: colors.primary }]}>
+                <Text style={styles.startButtonText}>Start</Text>
+              </View>
+            </TouchableOpacity>
+          ))}
+        </View>
 
         <View style={styles.bottomPadding} />
       </ScrollView>
@@ -341,26 +290,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginTop: 16,
   },
-  courseGroup: {
+  quizList: {
     paddingHorizontal: 24,
     marginTop: 24,
-  },
-  courseHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  courseIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
-  courseName: {
-    fontSize: 18,
-    fontWeight: '700',
   },
   quizCard: {
     flexDirection: 'row',
@@ -371,21 +303,35 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginBottom: 12,
   },
-  quizCardContent: {
+  quizCardLeft: {
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
-    gap: 12,
   },
-  sectionTitle: {
+  courseIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 14,
+  },
+  quizCardInfo: {
+    flex: 1,
+  },
+  quizCardTitle: {
     fontSize: 16,
     fontWeight: '600',
-    flex: 1,
+  },
+  quizCardSubtitle: {
+    fontSize: 13,
+    marginTop: 2,
   },
   startButton: {
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 8,
+    marginLeft: 12,
   },
   startButtonText: {
     color: 'white',

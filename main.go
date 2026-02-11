@@ -81,6 +81,90 @@ func main() {
 	reviewJSON := reviewRaw
 	log.Printf("loaded %d flashcards", len(reviewCheck))
 
+	// Build quiz data: one quiz per course, aggregating questions from all sections.
+	type quizSummary struct {
+		ID            string `json:"id"`
+		Title         string `json:"title"`
+		Color         string `json:"color"`
+		Icon          string `json:"icon"`
+		QuestionCount int    `json:"questionCount"`
+	}
+
+	var quizSummaries []quizSummary
+	quizQuestions := make(map[string][]interface{}) // quizId -> questions
+
+	for id, course := range courseByID {
+		title, _ := course["title"].(string)
+		color, _ := course["color"].(string)
+		icon, _ := course["icon"].(string)
+
+		rawSections, _ := course["sections"].([]interface{})
+		var allQuestions []interface{}
+		for _, s := range rawSections {
+			sec, ok := s.(map[string]interface{})
+			if !ok {
+				continue
+			}
+			quiz, ok := sec["quiz"].(map[string]interface{})
+			if !ok {
+				continue
+			}
+			questions, ok := quiz["questions"].([]interface{})
+			if !ok {
+				continue
+			}
+			allQuestions = append(allQuestions, questions...)
+		}
+
+		if len(allQuestions) == 0 {
+			continue
+		}
+
+		quizSummaries = append(quizSummaries, quizSummary{
+			ID:            id,
+			Title:         title,
+			Color:         color,
+			Icon:          icon,
+			QuestionCount: len(allQuestions),
+		})
+		quizQuestions[id] = allQuestions
+	}
+
+	quizListJSON, err := json.Marshal(quizSummaries)
+	if err != nil {
+		log.Fatalf("failed to marshal quiz summaries: %v", err)
+	}
+	log.Printf("built %d quizzes", len(quizSummaries))
+
+	http.HandleFunc("/beta/v1/quiz", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet {
+			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(quizListJSON)
+	})
+
+	http.HandleFunc("/beta/v1/quiz/", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet {
+			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+
+		quizID := strings.TrimPrefix(r.URL.Path, "/beta/v1/quiz/")
+		questions, ok := quizQuestions[quizID]
+		if !ok {
+			http.NotFound(w, r)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"id":        quizID,
+			"questions": questions,
+		})
+	})
+
 	http.HandleFunc("/beta/v1/review", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodGet {
 			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
