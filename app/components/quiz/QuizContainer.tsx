@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { useTheme } from '../../context/ThemeContext';
 import { Question, QuestionFormat, QuizResult } from '../../types/quiz';
@@ -13,10 +13,19 @@ interface QuizContainerProps {
 
 export function QuizContainer({ questions, onComplete, onExit }: QuizContainerProps) {
   const { colors } = useTheme();
+  const scrollViewRef = useRef<ScrollView>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, any>>({});
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [correctCount, setCorrectCount] = useState(0);
+
+  useEffect(() => {
+    if (isSubmitted) {
+      setTimeout(() => {
+        scrollViewRef.current?.scrollToEnd({ animated: true });
+      }, 100);
+    }
+  }, [isSubmitted]);
 
   const currentQuestion = questions[currentIndex];
   const isLastQuestion = currentIndex === questions.length - 1;
@@ -104,7 +113,7 @@ export function QuizContainer({ questions, onComplete, onExit }: QuizContainerPr
       </View>
 
       {/* Question content */}
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView ref={scrollViewRef} style={styles.content} showsVerticalScrollIndicator={false}>
         {renderQuestion()}
 
         {/* Explanation after submit */}
@@ -118,7 +127,7 @@ export function QuizContainer({ questions, onComplete, onExit }: QuizContainerPr
         )}
       </ScrollView>
 
-      {/* Bottom buttons */}
+      {/* Bottom bar with action button */}
       <View style={styles.bottomBar}>
         {!isSubmitted ? (
           <TouchableOpacity
