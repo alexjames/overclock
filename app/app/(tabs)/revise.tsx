@@ -100,11 +100,11 @@ export default function ReviseScreen() {
       </View>
 
       <ScrollView
-        pagingEnabled
         showsVerticalScrollIndicator={false}
-        decelerationRate="fast"
+        decelerationRate={0}
         snapToInterval={cardHeight}
         snapToAlignment="start"
+        disableIntervalMomentum
         contentContainerStyle={styles.scrollContent}
         onScroll={handleScroll}
         scrollEventThrottle={16}
