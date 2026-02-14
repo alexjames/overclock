@@ -19,5 +19,12 @@
     "category": "Computer Science",
     "icon": "git-network",
     "color": "#2ad0e2"
+  },
+  {
+    "id": "testing",
+    "title": "Software Testing",
+    "category": "Computer Science",
+    "icon": "bug",
+    "color": "#EF4444"
   }
 ]

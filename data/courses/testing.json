@@ -1,0 +1,211 @@
+{
+  "id": "testing",
+  "title": "Software Testing",
+  "category": "Computer Science",
+  "icon": "bug",
+  "color": "#EF4444",
+  "sections": [
+    {
+      "id": "performance-testing",
+      "title": "Performance Testing",
+      "pages": [
+        {
+          "id": "performance-testing-1",
+          "title": "Performance Testing",
+          "content": "",
+          "blocks": [
+            {
+              "type": "text",
+              "content": "Performance testing validates a software system's **responsiveness** and **stability** under various workloads. Let's look at some of the most common forms for performance tests and how they are used."
+            }
+          ]
+        },
+        {
+          "id": "performance-testing-2",
+          "title": "Load Testing",
+          "content": "",
+          "blocks": [
+            {
+              "type": "text",
+              "content": "Load testing is done to determine how a system behaves under typical load. The test environment simulates real-world usage conditions and verifies that the system does not slow down or fail."
+            },
+            {
+              "type": "text",
+              "content": "In a web application, this might mean the average traffic it handles in production at any given time. In a file hosting application as an example, this might mean 1000 users concurrently logged in and uploading files."
+            },
+            {
+              "type": "text",
+              "content": "Load tests are usually conducted over short time-frames."
+            }
+          ]
+        },
+        {
+          "id": "performance-testing-3",
+          "title": "Stress Testing",
+          "content": "",
+          "blocks": [
+            {
+              "type": "text",
+              "content": "A stress tests validates how well a system can handle load beyond its expected real-world usage."
+            },
+            {
+              "type": "text",
+              "content": "While a load test focuses on the system's performance characteristics, stress tests focus on the system's reliability, error handling and recovery mechanisms."
+            },
+            {
+              "type": "text",
+              "content": "As an example, a stress test on a system typically handling 1M requests per second might gradually ramp up traffic from 500K -> 1M -> 1.5M -> 2M requests per second."
+            }
+          ]
+        },
+        {
+          "id": "performance-testing-4",
+          "title": "Spike Testing",
+          "content": "",
+          "blocks": [
+            {
+              "type": "text",
+              "content": "In spike testing, the system is subjected to sudden surge in usage or traffic to verify the system can handle the uptick. These tests focus on a system's ability to scale and remain stable."
+            },
+            {
+              "type": "text",
+              "content": "Usage spikes are common in the real-world in scenarios such as a website or mobile app going viral and suddenly experiencing traffic from a large number of users. Another example is a surge in traffic in a messaging app around New Year’s, when users send greetings to friends and family."
+            },
+            {
+              "type": "text",
+              "content": "By their nature, these spikes tend to last for short periods of time. Hence, the test environment will simulate random traffic increases to see how the system copes. This could mean going from 500K to 2M requests per seconds very quickly."
+            },
+            {
+              "type": "text",
+              "content": "Unlike a stress test, the traffic ramp up here is sudden and often followed by a quick drop."
+            }
+          ]
+        },
+        {
+          "id": "performance-testing-5",
+          "title": "Breakpoint or Capacity Testing",
+          "content": "",
+          "blocks": [
+            {
+              "type": "text",
+              "content": "These tests stretch a system until failure to help identify its limits."
+            },
+            {
+              "type": "text",
+              "content": "Realistically, no system scales indefinitely and a stress test helps determine the upper-bounds of a system's working capacity. They also help to identify *how* a system fails so that maintainers are prepared."
+            },
+            {
+              "type": "text",
+              "content": "These tests increase load or traffic until the point that the system fails its SLAs or expected performance characteristics."
+            }
+          ]
+        },
+        {
+          "id": "performance-testing-6",
+          "title": "Soak Testing",
+          "content": "",
+          "blocks": [
+            {
+              "type": "text",
+              "content": "Soak tests verify how the system responds under typical load over sustained periods of time. This is similar to a load test except its conducted over a longer duration (e.g. over several hours or days)."
+            },
+            {
+              "type": "text",
+              "content": "A soak test helps uncover issues that might only manifest over long periods of the system running under load such as memory leaks, disk space exhaustion from logs and gradual performance degradation."
+            },
+            {
+              "type": "text",
+              "content": "The test setup resembles that of the load test and is run for longer."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "metrics-and-tooling",
+      "title": "Metrics and Tooling",
+      "pages": [
+        {
+          "id": "metrics-and-tooling-1",
+          "title": "Metrics and Tooling",
+          "content": "",
+          "blocks": [
+            {
+              "type": "text",
+              "content": "The common metrics that are tracked as part of performance testing are -"
+            },
+            {
+              "type": "text",
+              "content": "Response Time"
+            },
+            {
+              "type": "text",
+              "content": "Throughput"
+            },
+            {
+              "type": "text",
+              "content": "Error Rates"
+            },
+            {
+              "type": "text",
+              "content": "Resource Utilization"
+            },
+            {
+              "type": "text",
+              "content": "The most common tools used for performance testing in web applications are `JMeter`, `k6`, `Gatling` and `Locust`."
+            },
+            {
+              "type": "text",
+              "content": "The frequency and duration for which performance tests are run come down to cost and business risk. It's common for load or soak tests to be run more often than stress tests."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "quick-recap",
+      "title": "Quick Recap",
+      "pages": [
+        {
+          "id": "quick-recap-1",
+          "title": "Quick Recap",
+          "content": "",
+          "blocks": [
+            {
+              "type": "text",
+              "content": "performance testing -> responsiveness and stability"
+            },
+            {
+              "type": "text",
+              "content": "load test -> average load"
+            },
+            {
+              "type": "text",
+              "content": "stress test -> above average load"
+            },
+            {
+              "type": "text",
+              "content": "spike test -> sudden short-term increase"
+            },
+            {
+              "type": "text",
+              "content": "capacity test -> load until failure"
+            },
+            {
+              "type": "text",
+              "content": "soak test -> sustained average load"
+            },
+            {
+              "type": "text",
+              "content": "track: response time, throughput, error rates, resource utilization"
+            },
+            {
+              "type": "text",
+              "content": "tools: JMeter, k6, Gatling and Locust"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
