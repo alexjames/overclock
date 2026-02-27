@@ -1,0 +1,6 @@
+# Expo CLI local state
+.expo/
+
+# OS
+.DS_Store
+Thumbs.db

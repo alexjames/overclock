@@ -179,7 +179,10 @@ func main() {
 			http.Error(w, "failed to read review dir", http.StatusInternalServerError)
 			return
 		}
-		var all []interface{}
+
+		// Collect all card groups across all files.
+		type cardGroup map[string]interface{}
+		var groups []cardGroup
 		for _, entry := range entries {
 			if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".json") {
 				continue
@@ -188,20 +191,35 @@ func main() {
 			if err != nil {
 				continue
 			}
-			var cards []interface{}
+			var cards []cardGroup
 			if err := json.Unmarshal(raw, &cards); err != nil {
 				continue
 			}
-			all = append(all, cards...)
+			groups = append(groups, cards...)
 		}
 
-		rand.Shuffle(len(all), func(i, j int) { all[i], all[j] = all[j], all[i] })
-		if len(all) > 12 {
-			all = all[:12]
+		// Shuffle groups and pick up to 12, then resolve one question per group.
+		rand.Shuffle(len(groups), func(i, j int) { groups[i], groups[j] = groups[j], groups[i] })
+		if len(groups) > 12 {
+			groups = groups[:12]
+		}
+
+		result := make([]map[string]interface{}, 0, len(groups))
+		for _, g := range groups {
+			card := make(map[string]interface{})
+			for k, v := range g {
+				card[k] = v
+			}
+			// Pick one random question from the questions slice and promote it.
+			if qs, ok := g["questions"].([]interface{}); ok && len(qs) > 0 {
+				card["question"] = qs[rand.Intn(len(qs))]
+				delete(card, "questions")
+			}
+			result = append(result, card)
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(all)
+		json.NewEncoder(w).Encode(result)
 	})
 
 	http.HandleFunc("/beta/v1/discover", func(w http.ResponseWriter, r *http.Request) {

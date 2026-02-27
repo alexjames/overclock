@@ -22,7 +22,6 @@ Usage:
 """
 
 import argparse
-import hashlib
 import json
 import os
 import sys
@@ -39,57 +38,56 @@ def color_for_index(i: int) -> str:
     return COLORS[i % len(COLORS)]
 
 
-def short_id(prefix: str, text: str, index: int) -> str:
-    """Generate a stable short ID from prefix + text hash."""
-    digest = hashlib.md5(text.encode()).hexdigest()[:6]
-    return f"{prefix}-{index}-{digest}"
+def stable_id(prefix: str, answer: str) -> str:
+    """Generate a stable ID from prefix + answer."""
+    slug = answer.lower().replace(" ", "-").replace("_", "-")
+    return f"{prefix}-{slug}"
 
 
 def parse_cloze(data: list, prefix: str, category: str) -> list:
     """
     Each entry has an `answer` and a list of `text` sentences containing <<MASK>>.
-    Each sentence becomes one fill_blank card; <<MASK>> is replaced with _____.
+    Produces one card per answer; all sentences stored as `questions` list.
+    <<MASK>> is replaced with _____ in each question variant.
     """
     cards = []
-    idx = 1
-    for entry in data:
+    for idx, entry in enumerate(data):
         answer = str(entry.get("answer", "")).strip()
         sentences = entry.get("text", [])
-        for sentence in sentences:
-            question = str(sentence).replace("<<MASK>>", "_____").strip()
-            cards.append({
-                "id": short_id(prefix, question, idx),
-                "type": "fill_blank",
-                "color": color_for_index(idx - 1),
-                "question": question,
-                "answer": answer,
-                "category": category,
-            })
-            idx += 1
+        questions = [str(s).replace("<<MASK>>", "_____").strip() for s in sentences]
+        if not questions:
+            continue
+        cards.append({
+            "id": stable_id(prefix, answer),
+            "type": "fill_blank",
+            "color": color_for_index(idx),
+            "answer": answer,
+            "category": category,
+            "questions": questions,
+        })
     return cards
 
 
 def parse_mcq(data: list, prefix: str, category: str) -> list:
     """
     Each entry has an `option` (the answer) and a list of `text` descriptions.
-    Each description becomes one tap_reveal card whose answer is the option name.
+    Produces one card per option; all descriptions stored as `questions` list.
     """
     cards = []
-    idx = 1
-    for entry in data:
+    for idx, entry in enumerate(data):
         option = str(entry.get("option", "")).strip()
         descriptions = entry.get("text", [])
-        for desc in descriptions:
-            question = str(desc).strip()
-            cards.append({
-                "id": short_id(prefix, question, idx),
-                "type": "tap_reveal",
-                "color": color_for_index(idx - 1),
-                "question": question,
-                "answer": option,
-                "category": category,
-            })
-            idx += 1
+        questions = [str(d).strip() for d in descriptions]
+        if not questions:
+            continue
+        cards.append({
+            "id": stable_id(prefix, option),
+            "type": "tap_reveal",
+            "color": color_for_index(idx),
+            "answer": option,
+            "category": category,
+            "questions": questions,
+        })
     return cards
 
 
