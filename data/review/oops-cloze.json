@@ -1,0 +1,122 @@
+[
+  {
+    "id": "oops-cloze-1-89ea3a",
+    "type": "fill_blank",
+    "color": "#E8F4FD",
+    "question": "_____ (principle) is when an object hides its implementation details.",
+    "answer": "Abstraction",
+    "category": "Oops"
+  },
+  {
+    "id": "oops-cloze-2-e97625",
+    "type": "fill_blank",
+    "color": "#FDF6E8",
+    "question": "When an object only exposes necessary information through public methods, it is called _____ (principle).",
+    "answer": "Abstraction",
+    "category": "Oops"
+  },
+  {
+    "id": "oops-cloze-3-6d2d2c",
+    "type": "fill_blank",
+    "color": "#E8FDF4",
+    "question": "_____ (principle) specifies what an object does rather than how it does it.",
+    "answer": "Abstraction",
+    "category": "Oops"
+  },
+  {
+    "id": "oops-cloze-4-e33552",
+    "type": "fill_blank",
+    "color": "#F4E8FD",
+    "question": "By using _____ (principle), we can create a clear separation between the interface and implementation of an object.",
+    "answer": "Abstraction",
+    "category": "Oops"
+  },
+  {
+    "id": "oops-cloze-5-6823ac",
+    "type": "fill_blank",
+    "color": "#FDE8E8",
+    "question": "_____ (principle) is bundling data and the methods that operate on that data into a class.",
+    "answer": "Encapsulation",
+    "category": "Oops"
+  },
+  {
+    "id": "oops-cloze-6-51c5ff",
+    "type": "fill_blank",
+    "color": "#E8FDFA",
+    "question": "_____ (principle) restricts direct access to an object's internal data.",
+    "answer": "Encapsulation",
+    "category": "Oops"
+  },
+  {
+    "id": "oops-cloze-7-bf08a0",
+    "type": "fill_blank",
+    "color": "#FDF4E8",
+    "question": "_____ (principle) prevents you from modifying an object's internal data.",
+    "answer": "Encapsulation",
+    "category": "Oops"
+  },
+  {
+    "id": "oops-cloze-8-aaf9e4",
+    "type": "fill_blank",
+    "color": "#EAE8FD",
+    "question": "When an object returns a reference to an internal data strucuture, it violates _____ (principle).",
+    "answer": "Encapsulation",
+    "category": "Oops"
+  },
+  {
+    "id": "oops-cloze-9-51520c",
+    "type": "fill_blank",
+    "color": "#E8F4FD",
+    "question": "_____ (principle) allows you to replace type checks for an object.",
+    "answer": "Polymorphism",
+    "category": "Oops"
+  },
+  {
+    "id": "oops-cloze-10-265952",
+    "type": "fill_blank",
+    "color": "#FDF6E8",
+    "question": "In _____ (principle), objects of different types can respond to the same action in different ways.",
+    "answer": "Polymorphism",
+    "category": "Oops"
+  },
+  {
+    "id": "oops-cloze-11-d7fd24",
+    "type": "fill_blank",
+    "color": "#E8FDF4",
+    "question": "If a function does type checks, it might be a good candidate for using _____ (principle).",
+    "answer": "Polymorphism",
+    "category": "Oops"
+  },
+  {
+    "id": "oops-cloze-12-a420d8",
+    "type": "fill_blank",
+    "color": "#F4E8FD",
+    "question": "_____ (principle) enables one class to inherit properties and behaviors from another class.",
+    "answer": "Inheritance",
+    "category": "Oops"
+  },
+  {
+    "id": "oops-cloze-13-0db235",
+    "type": "fill_blank",
+    "color": "#FDE8E8",
+    "question": "_____ (principle) allows a class to be a more specialized version of another class.",
+    "answer": "Inheritance",
+    "category": "Oops"
+  },
+  {
+    "id": "oops-cloze-14-68e546",
+    "type": "fill_blank",
+    "color": "#E8FDFA",
+    "question": "_____ (principle) enforces a hierarchical relationship between classes.",
+    "answer": "Inheritance",
+    "category": "Oops"
+  },
+  {
+    "id": "oops-cloze-15-a2df76",
+    "type": "fill_blank",
+    "color": "#FDF4E8",
+    "question": "_____ (principle) can lead to tight coupling between classes if not used carefully.",
+    "answer": "Inheritance",
+    "category": "Oops"
+  }
+]

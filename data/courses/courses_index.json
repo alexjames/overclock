@@ -26,5 +26,12 @@
     "category": "Computer Science",
     "icon": "bug",
     "color": "#EF4444"
+  },
+  {
+    "id": "performance-testing",
+    "title": "Software Testing",
+    "category": "Computer Science",
+    "icon": "book",
+    "color": "#6366F1"
   }
 ]

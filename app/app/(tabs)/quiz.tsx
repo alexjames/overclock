@@ -86,10 +86,16 @@ export default function PracticeScreen() {
 
   useEffect(() => {
     setQuizLoading(true);
-    setFlashcardLoading(true);
     loadQuizList();
-    loadFlashcards();
-  }, [loadQuizList, loadFlashcards]);
+  }, [loadQuizList]);
+
+  useEffect(() => {
+    if (activeSegment === 'flashcards') {
+      setFlashcardLoading(true);
+      setRevealedCards(new Set());
+      loadFlashcards();
+    }
+  }, [activeSegment, loadFlashcards]);
 
   // Quiz handlers
   const handleStartQuiz = async (quiz: QuizSummary) => {

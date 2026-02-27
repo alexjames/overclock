@@ -4,37 +4,33 @@ How to test:
 curl http://localhost/beta/v1/courses
 ```
 
+# Deploy
+```
+./deploy.bat
+```
 
-1. Push your image to a registry
-From your dev machine (where the repo lives):
-
-
-# Build and tag the image
-docker build -t buildbreak/overclock:latest .
+# Build run locally
+docker-compose up --build -d
 
 # Push to Docker Hub (or any registry)
 docker login
 docker push buildbreak/overclock:latest
+
+
 2. On the VM, create just 3 files
 docker-compose.yml
 nginx/nginx.conf
-data/courses.json
+data folder
+
+docker-compose up --build -d
 
 1. Run on the VM
 From your dev machine, build and push the new image. Then on the VM:
 
 docker-compose pull
-docker-compose up --build -d
+docker-compose up -d
 docker-compose stop
-
-### ssh
-```
-scp -i "C:\Users\darkm\Downloads\alx-key-pair.pem" .\nginx\nginx.conf ec2-user@ec2-34-211-23-81.us-west-2.compute.amazonaws.com:
-nginx/nginx.conf
-scp -i "C:\Users\darkm\Downloads\alx-key-pair.pem" .\docker-compose.yml ec2-user@ec2-34-211-23-81.us-west-2.compute.amazonaws.com:
-scp -i "C:\Users\darkm\Downloads\alx-key-pair.pem" -r data ec2-user@ec2-34-211-23-81.us-west-2.compute.amazonaws.com:             
-courses.json                             
-```
+                      
 
 ### EC2 instance setup
 ```
@@ -130,3 +126,5 @@ python scripts/md_to_course.py overclockdata/discover/testing/performance-testin
   --icon bug \
   --color "#EF4444"
 ```
+
+ssh -i "C:\Users\darkm\Downloads\alx-key-pair.pem"   ec2-user@ec2-34-211-23-81.us-west-2.compute.amazonaws.com

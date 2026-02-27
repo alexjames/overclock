@@ -1,5 +1,6 @@
 services:
   app:
+    image: buildbreak/overclock:latest
     build: .
     restart: always
     volumes:

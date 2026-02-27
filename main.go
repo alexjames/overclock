@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"log"
+	"math/rand"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -67,19 +68,7 @@ func main() {
 		log.Printf("loaded course: %s from %s", id, name)
 	}
 
-	// Load review flashcards (returned by /beta/v1/review).
-	reviewPath := filepath.Join(dataDir, "review", "flashcards.json")
-	reviewRaw, err := os.ReadFile(reviewPath)
-	if err != nil {
-		log.Fatalf("failed to read %s: %v", reviewPath, err)
-	}
-	// Validate it's valid JSON.
-	var reviewCheck []interface{}
-	if err := json.Unmarshal(reviewRaw, &reviewCheck); err != nil {
-		log.Fatalf("failed to parse %s: %v", reviewPath, err)
-	}
-	reviewJSON := reviewRaw
-	log.Printf("loaded %d flashcards", len(reviewCheck))
+	reviewDir := filepath.Join(dataDir, "review")
 
 	// Load discover content (returned by /beta/v1/discover).
 	discoverPath := filepath.Join(dataDir, "discover", "discover.json")
@@ -183,8 +172,36 @@ func main() {
 			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 			return
 		}
+
+		// Read all JSON files in the review directory on each request.
+		entries, err := os.ReadDir(reviewDir)
+		if err != nil {
+			http.Error(w, "failed to read review dir", http.StatusInternalServerError)
+			return
+		}
+		var all []interface{}
+		for _, entry := range entries {
+			if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".json") {
+				continue
+			}
+			raw, err := os.ReadFile(filepath.Join(reviewDir, entry.Name()))
+			if err != nil {
+				continue
+			}
+			var cards []interface{}
+			if err := json.Unmarshal(raw, &cards); err != nil {
+				continue
+			}
+			all = append(all, cards...)
+		}
+
+		rand.Shuffle(len(all), func(i, j int) { all[i], all[j] = all[j], all[i] })
+		if len(all) > 12 {
+			all = all[:12]
+		}
+
 		w.Header().Set("Content-Type", "application/json")
-		w.Write(reviewJSON)
+		json.NewEncoder(w).Encode(all)
 	})
 
 	http.HandleFunc("/beta/v1/discover", func(w http.ResponseWriter, r *http.Request) {
