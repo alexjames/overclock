@@ -35,15 +35,6 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="revise"
-        options={{
-          title: 'Revise',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="refresh-outline" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
         name="discover"
         options={{
           title: 'Discover',
@@ -55,9 +46,9 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="quiz"
         options={{
-          title: 'Quiz',
+          title: 'Practice',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="help-circle-outline" size={size} color={color} />
+            <Ionicons name="fitness-outline" size={size} color={color} />
           ),
         }}
       />

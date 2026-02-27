@@ -1,55 +1,97 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
+  Dimensions,
+  Animated,
   ActivityIndicator,
   TouchableOpacity,
   RefreshControl,
+  NativeSyntheticEvent,
+  NativeScrollEvent,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../context/ThemeContext';
 import { useApiHost } from '../../context/ApiHostContext';
-import { fetchQuizList, fetchQuiz, QuizSummary } from '../../api/courses';
+import { fetchQuizList, fetchQuiz, fetchFlashcards, QuizSummary } from '../../api/courses';
 import { QuizContainer } from '../../components/quiz/QuizContainer';
+import { FlashCard } from '../../components/FlashCard';
 import { Question, QuizResult } from '../../types/quiz';
+import { Flashcard } from '../../types/flashcard';
 
+const { height: SCREEN_HEIGHT } = Dimensions.get('window');
+
+type Segment = 'quizzes' | 'flashcards';
 type ScreenMode = 'list' | 'loading_quiz' | 'quiz' | 'results';
 
-export default function QuizScreen() {
+export default function PracticeScreen() {
   const { colors } = useTheme();
   const { apiHost } = useApiHost();
+  const insets = useSafeAreaInsets();
 
+  const [activeSegment, setActiveSegment] = useState<Segment>('quizzes');
+
+  // Quiz state
   const [quizzes, setQuizzes] = useState<QuizSummary[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [refreshing, setRefreshing] = useState(false);
-
+  const [quizLoading, setQuizLoading] = useState(true);
+  const [quizError, setQuizError] = useState<string | null>(null);
+  const [quizRefreshing, setQuizRefreshing] = useState(false);
   const [screenMode, setScreenMode] = useState<ScreenMode>('list');
   const [activeQuestions, setActiveQuestions] = useState<Question[]>([]);
   const [activeQuizTitle, setActiveQuizTitle] = useState('');
   const [quizResult, setQuizResult] = useState<QuizResult | null>(null);
 
+  // Flashcard state
+  const [flashcards, setFlashcards] = useState<Flashcard[]>([]);
+  const [flashcardLoading, setFlashcardLoading] = useState(true);
+  const [flashcardError, setFlashcardError] = useState<string | null>(null);
+  const [revealedCards, setRevealedCards] = useState<Set<string>>(new Set());
+  const [hasScrolled, setHasScrolled] = useState(false);
+  const hintOpacity = useRef(new Animated.Value(1)).current;
+
+  const headerHeight = 44;
+  const segmentHeight = 48;
+  const tabBarHeight = 80;
+  const cardHeight = SCREEN_HEIGHT - insets.top - headerHeight - segmentHeight - tabBarHeight;
+
+  // Load quiz list
   const loadQuizList = useCallback(async () => {
     try {
-      setError(null);
+      setQuizError(null);
       const list = await fetchQuizList(apiHost);
       setQuizzes(list);
     } catch (err: any) {
-      setError(err.message);
+      setQuizError(err.message);
     } finally {
-      setLoading(false);
-      setRefreshing(false);
+      setQuizLoading(false);
+      setQuizRefreshing(false);
+    }
+  }, [apiHost]);
+
+  // Load flashcards
+  const loadFlashcards = useCallback(async () => {
+    try {
+      setFlashcardError(null);
+      const cards = await fetchFlashcards(apiHost);
+      setFlashcards(cards);
+    } catch (err: any) {
+      setFlashcardError(err.message);
+    } finally {
+      setFlashcardLoading(false);
     }
   }, [apiHost]);
 
   useEffect(() => {
-    setLoading(true);
+    setQuizLoading(true);
+    setFlashcardLoading(true);
     loadQuizList();
-  }, [loadQuizList]);
+    loadFlashcards();
+  }, [loadQuizList, loadFlashcards]);
 
+  // Quiz handlers
   const handleStartQuiz = async (quiz: QuizSummary) => {
     setScreenMode('loading_quiz');
     setActiveQuizTitle(quiz.title);
@@ -77,12 +119,36 @@ export default function QuizScreen() {
     setQuizResult(null);
   };
 
-  const handleRefresh = () => {
-    setRefreshing(true);
+  const handleQuizRefresh = () => {
+    setQuizRefreshing(true);
     loadQuizList();
   };
 
-  // Quiz mode
+  // Flashcard handlers
+  const handleFlashcardScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    if (!hasScrolled && event.nativeEvent.contentOffset.y > 10) {
+      setHasScrolled(true);
+      Animated.timing(hintOpacity, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+    }
+  };
+
+  const handleCardTap = (cardId: string) => {
+    setRevealedCards((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(cardId)) {
+        newSet.delete(cardId);
+      } else {
+        newSet.add(cardId);
+      }
+      return newSet;
+    });
+  };
+
+  // --- Full-screen quiz mode (hides segmented control) ---
   if (screenMode === 'quiz' && activeQuestions.length > 0) {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
@@ -104,7 +170,7 @@ export default function QuizScreen() {
     );
   }
 
-  // Results mode
+  // --- Results mode ---
   if (screenMode === 'results' && quizResult) {
     const isPassing = quizResult.percentage >= 70;
     return (
@@ -135,7 +201,7 @@ export default function QuizScreen() {
     );
   }
 
-  // Loading quiz mode
+  // --- Loading quiz mode ---
   if (screenMode === 'loading_quiz') {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
@@ -147,71 +213,161 @@ export default function QuizScreen() {
     );
   }
 
-  // List loading
-  if (loading) {
-    return (
-      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
-        <View style={styles.centered}>
-          <ActivityIndicator size="large" color={colors.primary} />
-        </View>
-      </SafeAreaView>
-    );
-  }
+  // --- Main list view with segmented control ---
+  const isLoading = activeSegment === 'quizzes' ? quizLoading : flashcardLoading;
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={colors.primary} />
-        }
-      >
-        <View style={styles.header}>
-          <Text style={[styles.title, { color: colors.text }]}>Quiz</Text>
-        </View>
+      {/* Header */}
+      <View style={styles.header}>
+        <Text style={[styles.title, { color: colors.text }]}>Practice</Text>
+      </View>
 
-        {error && (
-          <View style={styles.errorContainer}>
-            <Text style={[styles.errorText, { color: colors.text }]}>Failed to load quizzes</Text>
-            <Text style={[styles.errorDetail, { color: colors.textMuted }]}>{error}</Text>
-          </View>
-        )}
-
-        {!error && quizzes.length === 0 && (
-          <View style={styles.emptyContainer}>
-            <Ionicons name="help-circle-outline" size={64} color={colors.textMuted} />
-            <Text style={[styles.emptyText, { color: colors.textMuted }]}>No quizzes available</Text>
-          </View>
-        )}
-
-        <View style={styles.quizList}>
-          {quizzes.map((quiz) => (
-            <TouchableOpacity
-              key={quiz.id}
-              style={[styles.quizCard, { backgroundColor: colors.card, borderColor: colors.border }]}
-              onPress={() => handleStartQuiz(quiz)}
-              activeOpacity={0.7}
+      {/* Segmented control */}
+      <View style={styles.segmentContainer}>
+        <View style={[styles.segmentPill, { backgroundColor: colors.border }]}>
+          <TouchableOpacity
+            style={[
+              styles.segmentButton,
+              activeSegment === 'quizzes' && { backgroundColor: colors.primary },
+            ]}
+            onPress={() => setActiveSegment('quizzes')}
+            activeOpacity={0.7}
+          >
+            <Text
+              style={[
+                styles.segmentText,
+                { color: activeSegment === 'quizzes' ? '#FFFFFF' : colors.textSecondary },
+              ]}
             >
-              <View style={styles.quizCardLeft}>
-                <View style={[styles.courseIcon, { backgroundColor: quiz.color }]}>
-                  <Ionicons name={quiz.icon as any} size={24} color="white" />
-                </View>
-                <View style={styles.quizCardInfo}>
-                  <Text style={[styles.quizCardTitle, { color: colors.text }]}>{quiz.title}</Text>
-                  <Text style={[styles.quizCardSubtitle, { color: colors.textMuted }]}>
-                    {quiz.questionCount} question{quiz.questionCount !== 1 ? 's' : ''}
-                  </Text>
-                </View>
-              </View>
-              <View style={[styles.startButton, { backgroundColor: colors.primary }]}>
-                <Text style={styles.startButtonText}>Start</Text>
-              </View>
-            </TouchableOpacity>
-          ))}
+              Quizzes
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.segmentButton,
+              activeSegment === 'flashcards' && { backgroundColor: colors.primary },
+            ]}
+            onPress={() => setActiveSegment('flashcards')}
+            activeOpacity={0.7}
+          >
+            <Text
+              style={[
+                styles.segmentText,
+                { color: activeSegment === 'flashcards' ? '#FFFFFF' : colors.textSecondary },
+              ]}
+            >
+              Flashcards
+            </Text>
+          </TouchableOpacity>
         </View>
+      </View>
 
-        <View style={styles.bottomPadding} />
-      </ScrollView>
+      {/* Loading */}
+      {isLoading && (
+        <View style={styles.centered}>
+          <ActivityIndicator size="large" color={colors.primary} />
+        </View>
+      )}
+
+      {/* Quizzes segment */}
+      {!isLoading && activeSegment === 'quizzes' && (
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl refreshing={quizRefreshing} onRefresh={handleQuizRefresh} tintColor={colors.primary} />
+          }
+        >
+          {quizError && (
+            <View style={styles.errorContainer}>
+              <Text style={[styles.errorText, { color: colors.text }]}>Failed to load quizzes</Text>
+              <Text style={[styles.errorDetail, { color: colors.textMuted }]}>{quizError}</Text>
+            </View>
+          )}
+
+          {!quizError && quizzes.length === 0 && (
+            <View style={styles.emptyContainer}>
+              <Ionicons name="help-circle-outline" size={64} color={colors.textMuted} />
+              <Text style={[styles.emptyText, { color: colors.textMuted }]}>No quizzes available</Text>
+            </View>
+          )}
+
+          <View style={styles.quizList}>
+            {quizzes.map((quiz) => (
+              <TouchableOpacity
+                key={quiz.id}
+                style={[styles.quizCard, { backgroundColor: colors.card, borderColor: colors.border }]}
+                onPress={() => handleStartQuiz(quiz)}
+                activeOpacity={0.7}
+              >
+                <View style={styles.quizCardLeft}>
+                  <View style={[styles.courseIcon, { backgroundColor: quiz.color }]}>
+                    <Ionicons name={quiz.icon as any} size={24} color="white" />
+                  </View>
+                  <View style={styles.quizCardInfo}>
+                    <Text style={[styles.quizCardTitle, { color: colors.text }]}>{quiz.title}</Text>
+                    <Text style={[styles.quizCardSubtitle, { color: colors.textMuted }]}>
+                      {quiz.questionCount} question{quiz.questionCount !== 1 ? 's' : ''}
+                    </Text>
+                  </View>
+                </View>
+                <View style={[styles.startButton, { backgroundColor: colors.primary }]}>
+                  <Text style={styles.startButtonText}>Start</Text>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </View>
+          <View style={styles.bottomPadding} />
+        </ScrollView>
+      )}
+
+      {/* Flashcards segment */}
+      {!isLoading && activeSegment === 'flashcards' && (
+        <>
+          {flashcardError && (
+            <View style={styles.centered}>
+              <Text style={[styles.errorText, { color: colors.text }]}>Failed to load flashcards</Text>
+              <Text style={[styles.errorDetail, { color: colors.textMuted }]}>{flashcardError}</Text>
+            </View>
+          )}
+
+          {!flashcardError && flashcards.length === 0 && (
+            <View style={styles.centered}>
+              <Ionicons name="albums-outline" size={64} color={colors.textMuted} />
+              <Text style={[styles.emptyText, { color: colors.textMuted }]}>No flashcards available</Text>
+            </View>
+          )}
+
+          {!flashcardError && flashcards.length > 0 && (
+            <>
+              <ScrollView
+                showsVerticalScrollIndicator={false}
+                snapToOffsets={flashcards.map((_, i) => i * cardHeight)}
+                decelerationRate="fast"
+                disableIntervalMomentum
+                onScroll={handleFlashcardScroll}
+                scrollEventThrottle={16}
+              >
+                {flashcards.map((card) => (
+                  <View key={card.id} style={[styles.cardContainer, { height: cardHeight }]}>
+                    <FlashCard
+                      card={card}
+                      isRevealed={revealedCards.has(card.id)}
+                      onTap={() => handleCardTap(card.id)}
+                    />
+                  </View>
+                ))}
+              </ScrollView>
+
+              <Animated.View style={[styles.swipeHint, { opacity: hintOpacity }]}>
+                <Text style={[styles.swipeHintText, { color: colors.textMuted }]}>
+                  Swipe up for next card
+                </Text>
+              </Animated.View>
+            </>
+          )}
+        </>
+      )}
     </SafeAreaView>
   );
 }
@@ -228,15 +384,32 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingHorizontal: 24,
-    paddingTop: 16,
-    paddingBottom: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    paddingTop: 12,
+    paddingBottom: 4,
+    alignItems: 'center',
   },
   title: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: '700',
-    textAlign: 'center',
+  },
+  segmentContainer: {
+    paddingHorizontal: 24,
+    paddingVertical: 8,
+  },
+  segmentPill: {
+    flexDirection: 'row',
+    borderRadius: 10,
+    padding: 3,
+  },
+  segmentButton: {
+    flex: 1,
+    paddingVertical: 8,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  segmentText: {
+    fontSize: 14,
+    fontWeight: '600',
   },
   topBar: {
     flexDirection: 'row',
@@ -281,7 +454,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   emptyContainer: {
-    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     paddingTop: 100,
@@ -292,7 +464,7 @@ const styles = StyleSheet.create({
   },
   quizList: {
     paddingHorizontal: 24,
-    marginTop: 24,
+    marginTop: 16,
   },
   quizCard: {
     flexDirection: 'row',
@@ -386,5 +558,19 @@ const styles = StyleSheet.create({
   },
   bottomPadding: {
     height: 32,
+  },
+  cardContainer: {
+    width: '100%',
+  },
+  swipeHint: {
+    position: 'absolute',
+    bottom: 40,
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+  },
+  swipeHintText: {
+    fontSize: 13,
+    fontWeight: '500',
   },
 });

@@ -3,7 +3,8 @@
     "allow": [
       "Bash(node:*)",
       "Bash(go build:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(del \"c:\\\\Users\\\\darkm\\\\Software\\\\overclock\\\\app\\\\app\\\\\\(tabs\\)\\\\revise.tsx\")"
     ]
   }
 }
