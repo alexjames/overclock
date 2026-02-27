@@ -29,7 +29,7 @@ type ScreenMode = 'reading' | 'quiz' | 'results' | 'slideshow';
 
 export default function ReadingScreen() {
   const { courseId, sectionId } = useLocalSearchParams<{ courseId: string; sectionId: string }>();
-  const { colors, isDark, toggleTheme } = useTheme();
+  const { colors } = useTheme();
   const { apiHost } = useApiHost();
   const [currentPage, setCurrentPage] = useState(0);
   const [screenMode, setScreenMode] = useState<ScreenMode>('reading');
@@ -115,10 +115,6 @@ export default function ReadingScreen() {
 
   const handleQuizExit = () => {
     router.back();
-  };
-
-  const handleStartSlideshow = () => {
-    setScreenMode('slideshow');
   };
 
   const handleSlideshowExit = () => {
@@ -259,72 +255,45 @@ export default function ReadingScreen() {
         ))}
       </ScrollView>
 
-      {/* Bottom Bar */}
-      <View style={[styles.bottomBar, { backgroundColor: colors.surface, borderTopColor: colors.border }]}>
-        <View style={styles.bottomActions}>
-          <TouchableOpacity style={styles.actionButton}>
-            <Ionicons name="volume-high-outline" size={24} color={colors.textMuted} />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButton}>
-            <Ionicons name="create-outline" size={24} color={colors.textMuted} />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButton}>
-            <Text style={[styles.fontSizeText, { color: colors.textMuted }]}>Aa</Text>
-          </TouchableOpacity>
-          {hasSlideshow && (
-            <TouchableOpacity style={styles.actionButton} onPress={handleStartSlideshow}>
-              <Ionicons name="easel-outline" size={24} color={colors.textMuted} />
-            </TouchableOpacity>
-          )}
-          <TouchableOpacity style={styles.actionButton} onPress={toggleTheme}>
-            <Ionicons
-              name={isDark ? 'sunny-outline' : 'moon-outline'}
-              size={24}
-              color={colors.textMuted}
-            />
-          </TouchableOpacity>
-        </View>
-
-        {/* Navigation Buttons */}
-        <View style={styles.navButtons}>
-          <TouchableOpacity
+      {/* Navigation Buttons */}
+      <View style={[styles.navButtons, { backgroundColor: colors.surface, borderTopColor: colors.border }]}>
+        <TouchableOpacity
+          style={[
+            styles.navButton,
+            { backgroundColor: colors.border },
+            currentPage === 0 && styles.navButtonDisabled,
+          ]}
+          onPress={handlePrevious}
+          disabled={currentPage === 0}
+        >
+          <Ionicons
+            name="arrow-back"
+            size={20}
+            color={currentPage === 0 ? colors.textMuted : colors.text}
+          />
+          <Text
             style={[
-              styles.navButton,
-              { backgroundColor: colors.border },
-              currentPage === 0 && styles.navButtonDisabled,
+              styles.navButtonText,
+              { color: currentPage === 0 ? colors.textMuted : colors.text },
             ]}
-            onPress={handlePrevious}
-            disabled={currentPage === 0}
           >
-            <Ionicons
-              name="arrow-back"
-              size={20}
-              color={currentPage === 0 ? colors.textMuted : colors.text}
-            />
-            <Text
-              style={[
-                styles.navButtonText,
-                { color: currentPage === 0 ? colors.textMuted : colors.text },
-              ]}
-            >
-              Previous
-            </Text>
-          </TouchableOpacity>
+            Previous
+          </Text>
+        </TouchableOpacity>
 
-          <TouchableOpacity
-            style={[styles.navButton, { backgroundColor: colors.primary }]}
-            onPress={handleNext}
-          >
-            <Text style={styles.navButtonTextLight}>
-              {currentPage === totalPages - 1 ? (hasQuiz ? 'Start Quiz' : 'Finish') : 'Next'}
-            </Text>
-            <Ionicons
-              name={currentPage === totalPages - 1 ? (hasQuiz ? 'school' : 'checkmark') : 'arrow-forward'}
-              size={20}
-              color="white"
-            />
-          </TouchableOpacity>
-        </View>
+        <TouchableOpacity
+          style={[styles.navButton, { backgroundColor: colors.primary }]}
+          onPress={handleNext}
+        >
+          <Text style={styles.navButtonTextLight}>
+            {currentPage === totalPages - 1 ? (hasQuiz ? 'Start Quiz' : 'Finish') : 'Next'}
+          </Text>
+          <Ionicons
+            name={currentPage === totalPages - 1 ? (hasQuiz ? 'school' : 'checkmark') : 'arrow-forward'}
+            size={20}
+            color="white"
+          />
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
@@ -409,31 +378,12 @@ const styles = StyleSheet.create({
     fontSize: 17,
     lineHeight: 30,
   },
-  bottomBar: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderTopWidth: 1,
-  },
-  bottomActions: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: 24,
-    marginBottom: 16,
-  },
-  actionButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  fontSizeText: {
-    fontSize: 18,
-    fontWeight: '600',
-  },
   navButtons: {
     flexDirection: 'row',
     gap: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderTopWidth: 1,
   },
   navButton: {
     flex: 1,
