@@ -4,7 +4,14 @@
       "Bash(node:*)",
       "Bash(go build:*)",
       "Bash(curl:*)",
-      "Bash(del \"c:\\\\Users\\\\darkm\\\\Software\\\\overclock\\\\app\\\\app\\\\\\(tabs\\)\\\\revise.tsx\")"
+      "Bash(del \"c:\\\\Users\\\\darkm\\\\Software\\\\overclock\\\\app\\\\app\\\\\\(tabs\\)\\\\revise.tsx\")",
+      "Bash(eas build --platform ios --auto-submit)",
+      "Bash(git fsck)",
+      "Bash(git clone --no-checkout --no-hardlinks --depth 1 \"file:///C:/Users/darkm/Software/overclock\" \"C:/Users/darkm/AppData/Local/Temp/eas-test-clone\")",
+      "Bash(echo \"exit code: $?\")",
+      "Bash(git config --global --add safe.directory \"C:/Users/darkm/Software/overclock\")",
+      "Bash(git config --global --add safe.directory \"C:/Users/darkm/Software/overclock/.git\")",
+      "Bash(git clone --no-checkout --no-hardlinks --depth 1 \"file:///C:/Users/darkm/Software/overclock\" \"C:/Users/darkm/AppData/Local/Temp/eas-test-clone2\")"
     ]
   }
 }

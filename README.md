@@ -128,3 +128,14 @@ python scripts/md_to_course.py overclockdata/discover/testing/performance-testin
 ```
 
 ssh -i "C:\Users\darkm\Downloads\alx-key-pair.pem"   ec2-user@ec2-34-211-23-81.us-west-2.compute.amazonaws.com
+
+### ALX(TODO):
+Remove HTTP restriction on `app.json` otherwise you will fail APPL review:
+```
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSAppTransportSecurity": {
+          "NSAllowsArbitraryLoads": true
+        }
+      }
+```
