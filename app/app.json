@@ -17,10 +17,7 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.buildbreak.overclock",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false,
-        "NSAppTransportSecurity": {
-          "NSAllowsArbitraryLoads": true
-        }
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {

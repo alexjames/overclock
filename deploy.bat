@@ -8,4 +8,5 @@ docker push buildbreak/overclock:latest
 
 scp -i "%KEY%" .\nginx\nginx.conf %USER%@%VM%:nginx/nginx.conf
 scp -i "%KEY%" .\docker-compose.yml %USER%@%VM%:
+scp -i "%KEY%" .\setup-ssl.sh %USER%@%VM%:
 scp -i "%KEY%" -r data %USER%@%VM%:

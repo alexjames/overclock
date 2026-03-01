@@ -139,3 +139,11 @@ Remove HTTP restriction on `app.json` otherwise you will fail APPL review:
         }
       }
 ```
+
+```
+Successfully received certificate.
+Certificate is saved at: /etc/letsencrypt/live/overclock.buildbreak.net/fullchain.pem
+Key is saved at:         /etc/letsencrypt/live/overclock.buildbreak.net/privkey.pem
+This certificate expires on 2026-05-30.
+These files will be updated when the certificate renews.
+```
