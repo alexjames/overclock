@@ -17,11 +17,11 @@ services:
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
       - certbot-www:/var/www/certbot:ro
-      - certbot-certs:/etc/letsencrypt:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
     depends_on:
       - app
 
-  certbot:
+  certbot: # not working yet, files in volume are unreadable
     image: certbot/certbot
     volumes:
       - certbot-www:/var/www/certbot

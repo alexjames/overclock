@@ -18,6 +18,7 @@ docker run --rm \
   -v certbot-certs:/etc/letsencrypt \
   certbot/certbot certonly \
     --standalone \
+    --non-interactive \
     --agree-tos \
     --no-eff-email \
     -m "$EMAIL" \
