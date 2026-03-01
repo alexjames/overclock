@@ -11,7 +11,8 @@
       "Bash(echo \"exit code: $?\")",
       "Bash(git config --global --add safe.directory \"C:/Users/darkm/Software/overclock\")",
       "Bash(git config --global --add safe.directory \"C:/Users/darkm/Software/overclock/.git\")",
-      "Bash(git clone --no-checkout --no-hardlinks --depth 1 \"file:///C:/Users/darkm/Software/overclock\" \"C:/Users/darkm/AppData/Local/Temp/eas-test-clone2\")"
+      "Bash(git clone --no-checkout --no-hardlinks --depth 1 \"file:///C:/Users/darkm/Software/overclock\" \"C:/Users/darkm/AppData/Local/Temp/eas-test-clone2\")",
+      "Bash(git check-attr eol setup-ssl.sh)"
     ]
   }
 }
