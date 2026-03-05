@@ -1,13 +1,9 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
-  ScrollView,
-  Dimensions,
-  NativeSyntheticEvent,
-  NativeScrollEvent,
   ActivityIndicator,
 } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -15,30 +11,24 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../../context/ThemeContext';
 import { useApiHost } from '../../../context/ApiHostContext';
-import { ProgressRing } from '../../../components/ProgressRing';
-import { ContentRenderer, FormattedText } from '../../../components/ContentRenderer';
+import { PageSlideshow } from '../../../components/PageSlideshow';
 import { QuizContainer } from '../../../components/quiz/QuizContainer';
-import { Slideshow } from '../../../components/slideshow';
 import { fetchSectionDetail } from '../../../api/courses';
 import { CourseSection } from '../../../types/course';
 import { QuizResult } from '../../../types/quiz';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
+type ScreenMode = 'slideshow' | 'quiz' | 'results';
 
-type ScreenMode = 'reading' | 'quiz' | 'results' | 'slideshow';
-
-export default function ReadingScreen() {
+export default function SectionScreen() {
   const { courseId, sectionId } = useLocalSearchParams<{ courseId: string; sectionId: string }>();
   const { colors } = useTheme();
   const { apiHost } = useApiHost();
-  const [currentPage, setCurrentPage] = useState(0);
-  const [screenMode, setScreenMode] = useState<ScreenMode>('reading');
-  const [quizResult, setQuizResult] = useState<QuizResult | null>(null);
-  const scrollViewRef = useRef<ScrollView>(null);
 
   const [section, setSection] = useState<CourseSection | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [screenMode, setScreenMode] = useState<ScreenMode>('slideshow');
+  const [quizResult, setQuizResult] = useState<QuizResult | null>(null);
 
   useEffect(() => {
     if (!courseId || !sectionId) return;
@@ -68,43 +58,13 @@ export default function ReadingScreen() {
     );
   }
 
-  const pages = section.pages;
-  const totalPages = pages.length;
-  const hasQuiz = section.quiz && section.quiz.questions.length > 0;
-  const hasSlideshow = section.slides && section.slides.length > 0;
+  const hasQuiz = !!(section.quiz && section.quiz.questions.length > 0);
 
-  const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-    const offsetX = event.nativeEvent.contentOffset.x;
-    const pageIndex = Math.round(offsetX / SCREEN_WIDTH);
-    if (pageIndex !== currentPage && pageIndex >= 0 && pageIndex < totalPages) {
-      setCurrentPage(pageIndex);
-    }
-  };
-
-  const goToPage = (pageIndex: number) => {
-    if (pageIndex >= 0 && pageIndex < totalPages) {
-      scrollViewRef.current?.scrollTo({ x: pageIndex * SCREEN_WIDTH, animated: true });
-      setCurrentPage(pageIndex);
-    }
-  };
-
-  const handleExit = () => {
-    router.back();
-  };
-
-  const handlePrevious = () => {
-    goToPage(currentPage - 1);
-  };
-
-  const handleNext = () => {
-    if (currentPage === totalPages - 1) {
-      if (hasQuiz) {
-        setScreenMode('quiz');
-      } else {
-        router.back();
-      }
+  const handleSlideshowComplete = () => {
+    if (hasQuiz) {
+      setScreenMode('quiz');
     } else {
-      goToPage(currentPage + 1);
+      router.back();
     }
   };
 
@@ -117,22 +77,7 @@ export default function ReadingScreen() {
     router.back();
   };
 
-  const handleSlideshowExit = () => {
-    setScreenMode('reading');
-  };
-
-  // Slideshow Screen
-  if (screenMode === 'slideshow' && hasSlideshow) {
-    return (
-      <Slideshow
-        slides={section.slides!}
-        spanningImages={section.spanningImages}
-        onExit={handleSlideshowExit}
-      />
-    );
-  }
-
-  // Quiz Results Screen
+  // Quiz results screen
   if (screenMode === 'results' && quizResult) {
     const isPassing = quizResult.percentage >= 70;
     return (
@@ -151,23 +96,10 @@ export default function ReadingScreen() {
               You got {quizResult.correctAnswers} out of {quizResult.totalQuestions} questions correct
             </Text>
           </View>
-
           <View style={styles.resultsButtons}>
             <TouchableOpacity
-              style={[styles.resultButton, { backgroundColor: colors.surface, borderColor: colors.border, borderWidth: 1 }]}
-              onPress={() => {
-                setScreenMode('reading');
-                setCurrentPage(0);
-                goToPage(0);
-              }}
-            >
-              <Ionicons name="book-outline" size={20} color={colors.text} />
-              <Text style={[styles.resultButtonText, { color: colors.text }]}>Review Content</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
               style={[styles.resultButton, { backgroundColor: colors.primary }]}
-              onPress={handleExit}
+              onPress={handleQuizExit}
             >
               <Ionicons name="checkmark" size={20} color="white" />
               <Text style={[styles.resultButtonText, { color: 'white' }]}>Done</Text>
@@ -178,7 +110,7 @@ export default function ReadingScreen() {
     );
   }
 
-  // Quiz Screen
+  // Quiz screen
   if (screenMode === 'quiz' && hasQuiz) {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
@@ -198,104 +130,12 @@ export default function ReadingScreen() {
     );
   }
 
-  // Reading Screen
+  // Slideshow (default)
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
-      {/* Top Bar */}
-      <View style={[styles.topBar, { borderBottomColor: colors.border }]}>
-        <TouchableOpacity onPress={handleExit} style={styles.exitButton}>
-          <Ionicons name="close" size={28} color={colors.text} />
-        </TouchableOpacity>
-        <ProgressRing total={totalPages} current={currentPage} />
-        <View style={styles.placeholder} />
-      </View>
-
-      {/* Page Content - Swipeable */}
-      <ScrollView
-        ref={scrollViewRef}
-        horizontal
-        pagingEnabled
-        showsHorizontalScrollIndicator={false}
-        onMomentumScrollEnd={handleScroll}
-        scrollEventThrottle={16}
-        contentContainerStyle={styles.scrollContent}
-      >
-        {pages.map((page, index) => (
-          <View key={page.id} style={[styles.pageContainer, { width: SCREEN_WIDTH }]}>
-            <ScrollView
-              style={styles.pageScroll}
-              contentContainerStyle={styles.pageScrollContent}
-              showsVerticalScrollIndicator={false}
-            >
-              {/* Single Content Card with all content */}
-              <View style={[styles.contentCard, { backgroundColor: colors.card }]}>
-                {/* Header */}
-                <View style={styles.cardHeader}>
-                  <Text style={[styles.sectionTitle, { color: colors.primary }]}>
-                    {page.title}
-                  </Text>
-                </View>
-
-                {/* Divider */}
-                <View style={[styles.divider, { backgroundColor: colors.border }]} />
-
-                {/* Page Content */}
-                <View style={styles.contentBody}>
-                  {page.blocks && page.blocks.length > 0 ? (
-                    <ContentRenderer blocks={page.blocks} />
-                  ) : (
-                    <FormattedText style={[styles.pageContent, { color: colors.text }]}>
-                      {page.content}
-                    </FormattedText>
-                  )}
-                </View>
-              </View>
-            </ScrollView>
-          </View>
-        ))}
-      </ScrollView>
-
-      {/* Navigation Buttons */}
-      <View style={[styles.navButtons, { backgroundColor: colors.surface, borderTopColor: colors.border }]}>
-        <TouchableOpacity
-          style={[
-            styles.navButton,
-            { backgroundColor: colors.border },
-            currentPage === 0 && styles.navButtonDisabled,
-          ]}
-          onPress={handlePrevious}
-          disabled={currentPage === 0}
-        >
-          <Ionicons
-            name="arrow-back"
-            size={20}
-            color={currentPage === 0 ? colors.textMuted : colors.text}
-          />
-          <Text
-            style={[
-              styles.navButtonText,
-              { color: currentPage === 0 ? colors.textMuted : colors.text },
-            ]}
-          >
-            Previous
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.navButton, { backgroundColor: colors.primary }]}
-          onPress={handleNext}
-        >
-          <Text style={styles.navButtonTextLight}>
-            {currentPage === totalPages - 1 ? (hasQuiz ? 'Start Quiz' : 'Finish') : 'Next'}
-          </Text>
-          <Ionicons
-            name={currentPage === totalPages - 1 ? (hasQuiz ? 'school' : 'checkmark') : 'arrow-forward'}
-            size={20}
-            color="white"
-          />
-        </TouchableOpacity>
-      </View>
-    </SafeAreaView>
+    <PageSlideshow
+      pages={section.pages}
+      onComplete={handleSlideshowComplete}
+    />
   );
 }
 
@@ -307,6 +147,11 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  errorText: {
+    fontSize: 18,
+    textAlign: 'center',
+    marginTop: 100,
   },
   topBar: {
     flexDirection: 'row',
@@ -329,87 +174,6 @@ const styles = StyleSheet.create({
   quizTitle: {
     fontSize: 18,
     fontWeight: '600',
-  },
-  scrollContent: {
-    flexGrow: 1,
-  },
-  pageContainer: {
-    flex: 1,
-  },
-  pageScroll: {
-    flex: 1,
-  },
-  pageScrollContent: {
-    padding: 12,
-  },
-  contentCard: {
-    borderRadius: 20,
-    overflow: 'hidden',
-  },
-  cardHeader: {
-    alignItems: 'center',
-    paddingTop: 24,
-    paddingHorizontal: 24,
-    paddingBottom: 16,
-  },
-  categoryLabel: {
-    fontSize: 14,
-    fontWeight: '500',
-    marginBottom: 4,
-  },
-  sectionTitle: {
-    fontSize: 22,
-    fontWeight: '700',
-    marginBottom: 4,
-    textAlign: 'center',
-  },
-  pageIndicator: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  divider: {
-    height: 1,
-    marginHorizontal: 24,
-  },
-  contentBody: {
-    padding: 24,
-  },
-  pageContent: {
-    fontSize: 17,
-    lineHeight: 30,
-  },
-  navButtons: {
-    flexDirection: 'row',
-    gap: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderTopWidth: 1,
-  },
-  navButton: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 14,
-    borderRadius: 12,
-    gap: 8,
-  },
-  navButtonDisabled: {
-    opacity: 0.5,
-  },
-  navButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  navButtonTextLight: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: 'white',
-  },
-  errorText: {
-    fontSize: 18,
-    textAlign: 'center',
-    marginTop: 100,
   },
   resultsContainer: {
     flex: 1,
