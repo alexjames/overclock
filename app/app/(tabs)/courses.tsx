@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
-import { router } from 'expo-router';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, StyleSheet, ScrollView, ActivityIndicator, TouchableOpacity, RefreshControl } from 'react-native';
+import { router, useFocusEffect } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../../context/ThemeContext';
 import { useApiHost } from '../../context/ApiHostContext';
@@ -13,15 +13,33 @@ export default function CoursesScreen() {
   const { apiHost } = useApiHost();
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    setLoading(true);
-    fetchCourses(apiHost)
-      .then(setCourses)
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
+  const loadCourses = useCallback(async () => {
+    try {
+      setError(null);
+      const data = await fetchCourses(apiHost);
+      setCourses(data);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
   }, [apiHost]);
+
+  useFocusEffect(
+    useCallback(() => {
+      setLoading(true);
+      loadCourses();
+    }, [loadCourses])
+  );
+
+  const handleRefresh = () => {
+    setRefreshing(true);
+    loadCourses();
+  };
 
   const handleCoursePress = (course: Course) => {
     router.push(`/course/${course.id}`);
@@ -43,6 +61,12 @@ export default function CoursesScreen() {
         <View style={styles.centered}>
           <Text style={[styles.errorText, { color: colors.text }]}>Failed to load courses</Text>
           <Text style={[styles.errorDetail, { color: colors.textMuted }]}>{error}</Text>
+          <TouchableOpacity
+            style={[styles.retryButton, { backgroundColor: colors.primary }]}
+            onPress={() => { setLoading(true); loadCourses(); }}
+          >
+            <Text style={styles.retryButtonText}>Retry</Text>
+          </TouchableOpacity>
         </View>
       </SafeAreaView>
     );
@@ -50,7 +74,10 @@ export default function CoursesScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={colors.primary} />}
+      >
         <View style={styles.header}>
           <Text style={[styles.title, { color: colors.text }]}>Courses</Text>
         </View>
@@ -126,5 +153,16 @@ const styles = StyleSheet.create({
   errorDetail: {
     fontSize: 14,
     textAlign: 'center',
+  },
+  retryButton: {
+    marginTop: 20,
+    paddingHorizontal: 32,
+    paddingVertical: 12,
+    borderRadius: 10,
+  },
+  retryButtonText: {
+    color: 'white',
+    fontSize: 15,
+    fontWeight: '600',
   },
 });

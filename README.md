@@ -10,7 +10,7 @@ curl http://localhost/beta/v1/courses
 ```
 
 # Build run locally
-docker-compose up --build -d
+docker compose -f .\docker-compose-local.yml up --build
 
 # Push to Docker Hub (or any registry)
 docker login
