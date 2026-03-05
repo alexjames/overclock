@@ -1,37 +1,9 @@
 [
   {
-    "id": "algorithms",
-    "title": "Algorithms & Data Structures",
-    "category": "Computer Science",
-    "icon": "code-slash",
-    "color": "#F97316"
-  },
-  {
-    "id": "networks",
-    "title": "Computer Networks",
+    "id": "internet-protocols",
+    "title": "Internet Protocols",
     "category": "Computer Science",
     "icon": "globe",
-    "color": "#3B82F6"
-  },
-  {
-    "id": "webscalesystems",
-    "title": "Building Web-Scale Systems",
-    "category": "Computer Science",
-    "icon": "git-network",
-    "color": "#2ad0e2"
-  },
-  {
-    "id": "testing",
-    "title": "Software Testing",
-    "category": "Computer Science",
-    "icon": "bug",
-    "color": "#EF4444"
-  },
-  {
-    "id": "performance-testing",
-    "title": "Software Testing",
-    "category": "Computer Science",
-    "icon": "book",
-    "color": "#6366F1"
+    "color": "#F97316"
   }
 ]

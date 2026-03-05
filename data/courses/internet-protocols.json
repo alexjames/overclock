@@ -1,0 +1,199 @@
+{
+  "id": "internet-protocols",
+  "title": "Internet Protocols",
+  "category": "Computer Science",
+  "icon": "globe",
+  "color": "#3B82F6",
+  "sections": [
+    {
+      "id": "osi-model",
+      "title": "OSI Model",
+      "pages": [
+        {
+          "id": "osi-1",
+          "title": "What is the OSI Model?",
+          "content": "",
+          "blocks": [
+            {
+              "type": "text",
+              "content": "The OSI model is a **7 layer reference model** that standardizes communications protocols, allowing interoperability across diverse networking systems."
+            },
+            {
+              "type": "text",
+              "content": "The key benefits are:"
+            },
+            {
+              "type": "table",
+              "headers": ["Benefit", "Description"],
+              "rows": [
+                ["Modularity", "Each layer handles specific functions"],
+                ["Troubleshooting", "Easier to debug and isolate problems"],
+                ["Structured Development", "Provides a framework for designing complex protocols"]
+              ]
+            }
+          ]
+        },
+        {
+          "id": "osi-2",
+          "title": "The 7 Layers",
+          "content": "",
+          "blocks": [
+            {
+              "type": "text",
+              "content": "The OSI model is divided into 7 layers, each responsible for a specific aspect of network communication. Let's look at each layer from top to bottom."
+            },
+            {
+              "type": "table",
+              "headers": ["Layer", "Name"],
+              "rows": [
+                ["7", "Application"],
+                ["6", "Presentation"],
+                ["5", "Session"],
+                ["4", "Transport"],
+                ["3", "Network"],
+                ["2", "Data Link"],
+                ["1", "Physical"]
+              ]
+            }
+          ]
+        },
+        {
+          "id": "osi-3",
+          "title": "Application Layer (Layer 7)",
+          "content": "",
+          "blocks": [
+            {
+              "type": "text",
+              "content": "This is the **end user layer** of the OSI model. Client software applications such as web browsers and email clients use protocols at this layer to access network services."
+            },
+            {
+              "type": "table",
+              "headers": ["Attribute", "Detail"],
+              "rows": [
+                ["Main Functions", "User Interface"],
+                ["Example Protocols", "HTTP, FTP, SMTP, DNS"]
+              ]
+            }
+          ]
+        },
+        {
+          "id": "osi-4",
+          "title": "Presentation Layer (Layer 6)",
+          "content": "",
+          "blocks": [
+            {
+              "type": "text",
+              "content": "This layer **transforms data** so that it is consumable by the application layer above it. Depending on the protocol, this layer is responsible for operations such as translation, encryption and compression. It allows interoperability across devices that may use different underlying data formats."
+            },
+            {
+              "type": "table",
+              "headers": ["Function", "Examples"],
+              "rows": [
+                ["Data Formatting", "JSON, XML"],
+                ["Compression", "JPG, PNG, MPEG"],
+                ["Encryption", "SSL, TLS"],
+                ["Data Serialization", "XDR, NDR, ASN.1"]
+              ]
+            }
+          ]
+        },
+        {
+          "id": "osi-5",
+          "title": "Session Layer (Layer 5)",
+          "content": "",
+          "blocks": [
+            {
+              "type": "text",
+              "content": "The session layer **manages sessions (connections)** between two communicating devices. This includes establishing, maintaining and closing connections."
+            },
+            {
+              "type": "table",
+              "headers": ["Attribute", "Detail"],
+              "rows": [
+                ["Main Functions", "Session management, checkpointing and synchronization"],
+                ["Example Protocols", "NetBIOS, RPC, PPTP"]
+              ]
+            }
+          ]
+        },
+        {
+          "id": "osi-6",
+          "title": "Transport Layer (Layer 4)",
+          "content": "",
+          "blocks": [
+            {
+              "type": "text",
+              "content": "This layer is responsible for **end-to-end data delivery** between two communicating devices. This layer performs several critical functions such as message segmentation, acknowledgement, re-delivery and traffic control."
+            },
+            {
+              "type": "table",
+              "headers": ["Attribute", "Detail"],
+              "rows": [
+                ["Main Functions", "Segmentation and re-assembly, flow control, error correction"],
+                ["Example Protocols", "TCP, UDP, SCTP"]
+              ]
+            }
+          ]
+        },
+        {
+          "id": "osi-7",
+          "title": "Network Layer (Layer 3)",
+          "content": "",
+          "blocks": [
+            {
+              "type": "text",
+              "content": "The network layer is responsible for the **transmission of data across networks** from the sender to the receiver. This layer takes data from the transport layer, re-assembles them into smaller units called packets and determines the best path to route the packets to their destination."
+            },
+            {
+              "type": "table",
+              "headers": ["Attribute", "Detail"],
+              "rows": [
+                ["Main Functions", "Routing, logical addressing"],
+                ["Example Protocols", "IP, ICMP, IGMP"]
+              ]
+            }
+          ]
+        },
+        {
+          "id": "osi-8",
+          "title": "Data Link Layer (Layer 2)",
+          "content": "",
+          "blocks": [
+            {
+              "type": "text",
+              "content": "This layer handles **node-to-node delivery** of data over a physical network link. This layer breaks packets into smaller pieces called data frames and ensures they are delivered to the next node. Switches, bridges and NICs are common networking devices that operate at this layer."
+            },
+            {
+              "type": "table",
+              "headers": ["Attribute", "Detail"],
+              "rows": [
+                ["Main Functions", "Physical addressing, flow control (between nodes), error detection"],
+                ["Example Protocols", "Ethernet (IEEE 802.3), WiFi (IEEE 802.11), PPP"]
+              ]
+            }
+          ]
+        },
+        {
+          "id": "osi-9",
+          "title": "Physical Layer (Layer 1)",
+          "content": "",
+          "blocks": [
+            {
+              "type": "text",
+              "content": "This layer is concerned with the **physical transmission of raw bits** over a physical medium, such as cables, fiber optics and radio waves. Hubs, repeaters and modems operate at this layer."
+            },
+            {
+              "type": "table",
+              "headers": ["Attribute", "Detail"],
+              "rows": [
+                ["Main Functions", "Bit transmission"],
+                ["Physical Media", "Copper cables, fiber optics, radio waves"],
+                ["Devices", "Hubs, repeaters, modems"]
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
