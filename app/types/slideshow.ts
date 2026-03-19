@@ -1,4 +1,5 @@
 export type SlideTextSize = 'small' | 'medium' | 'large' | 'xlarge' | 'xxlarge';
+export type SlideTextAlign = 'left' | 'center' | 'right';
 
 export interface SlideTextElement {
   type: 'text';
@@ -7,6 +8,7 @@ export interface SlideTextElement {
   y: number; // Y position as percentage (0-100, or 0-100*verticalPages for multi-page slides)
   size?: SlideTextSize; // defaults to 'medium'
   color?: string; // defaults to white
+  align?: SlideTextAlign; // defaults to 'left'
 }
 
 export interface SlideImageElement {

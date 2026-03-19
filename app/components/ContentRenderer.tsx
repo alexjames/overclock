@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet, Dimensions, TextStyle } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
-import { ContentBlock, ChartData, ImagePosition } from '../types/course';
+import { ContentBlock, ChartData, ImagePosition, TextAlign } from '../types/course';
 
 interface ContentRendererProps {
   blocks: ContentBlock[];
@@ -111,7 +111,7 @@ function parseFormatting(text: string) {
 function renderBlock(block: ContentBlock, colors: any) {
   switch (block.type) {
     case 'text':
-      return <TextBlock content={block.content} colors={colors} />;
+      return <TextBlock content={block.content} align={block.align} colors={colors} />;
     case 'image':
       return <ImageBlock url={block.url} caption={block.caption} colors={colors} />;
     case 'table':
@@ -124,8 +124,8 @@ function renderBlock(block: ContentBlock, colors: any) {
 }
 
 // Text Block with formatting support
-function TextBlock({ content, colors }: { content: string; colors: any }) {
-  return <FormattedText style={[styles.text, { color: colors.text }]}>{content}</FormattedText>;
+function TextBlock({ content, align, colors }: { content: string; align?: TextAlign; colors: any }) {
+  return <FormattedText style={[styles.text, { color: colors.text, textAlign: align ?? 'left' }]}>{content}</FormattedText>;
 }
 
 // Maps position string to absolute inset style for a positioned image
