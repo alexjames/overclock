@@ -149,3 +149,13 @@ These files will be updated when the certificate renews.
 ```
 
 https://oblador.github.io/react-native-vector-icons/#Ionicons
+
+
+The 9 valid values follow a vertical-horizontal pattern:
+
+left	center	right
+top	top-left	top-center	top-right
+middle	middle-left	middle-center	middle-right
+bottom	bottom-left	bottom-center	bottom-right
+Omitting position defaults to middle-center (the previous behaviour).
+

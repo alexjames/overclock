@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   Dimensions,
 } from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../context/ThemeContext';
 import { ContentRenderer, FormattedText } from './ContentRenderer';
@@ -15,7 +15,6 @@ import { ProgressRing } from './ProgressRing';
 import { CoursePage } from '../types/course';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const BG = '#F8F7F4';
 
 interface PageSlideshowProps {
   pages: CoursePage[];
@@ -39,11 +38,11 @@ export function PageSlideshow({ pages, onComplete }: PageSlideshowProps) {
   const showRing = index > 0 && index <= total;
 
   return (
-    <View style={[styles.root, { backgroundColor: BG, paddingTop: insets.top }]}>
+    <View style={[styles.root, { backgroundColor: colors.background, paddingTop: insets.top }]}>
       {/* Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { backgroundColor: colors.background }]}>
         <TouchableOpacity style={styles.closeButton} onPress={onComplete}>
-          <Ionicons name="close" size={26} color="#333" />
+          <Ionicons name="close" size={26} color={colors.text} />
         </TouchableOpacity>
         {showRing && <ProgressRing total={total} current={index - 1} />}
       </View>
@@ -81,29 +80,30 @@ export function PageSlideshow({ pages, onComplete }: PageSlideshowProps) {
 // ─── Tutorial slide ────────────────────────────────────────────────────────────
 
 function TutorialSlide() {
+  const { colors } = useTheme();
   return (
     <View style={styles.tutorialContainer}>
       <View style={styles.tutorialZones}>
         {/* Left zone */}
-        <View style={[styles.tutorialZone, styles.tutorialLeft]}>
-          <Ionicons name="arrow-back" size={48} color="#555" />
-          <Text style={styles.tutorialZoneLabel}>Tap to go{'\n'}back</Text>
+        <View style={styles.tutorialZone}>
+          <Ionicons name="arrow-back" size={48} color={colors.textSecondary} />
+          <Text style={[styles.tutorialZoneLabel, { color: colors.textSecondary }]}>Tap to go{'\n'}back</Text>
         </View>
 
         {/* Divider */}
-        <View style={styles.tutorialDivider} />
+        <View style={[styles.tutorialDivider, { backgroundColor: colors.border }]} />
 
         {/* Right zone */}
-        <View style={[styles.tutorialZone, styles.tutorialRight]}>
-          <Ionicons name="arrow-forward" size={48} color="#555" />
-          <Text style={styles.tutorialZoneLabel}>Tap to go{'\n'}forward</Text>
+        <View style={styles.tutorialZone}>
+          <Ionicons name="arrow-forward" size={48} color={colors.textSecondary} />
+          <Text style={[styles.tutorialZoneLabel, { color: colors.textSecondary }]}>Tap to go{'\n'}forward</Text>
         </View>
       </View>
 
       <View style={styles.tutorialFooter}>
-        <View style={styles.tutorialFooterLine} />
-        <Text style={styles.tutorialFooterText}>Tap to navigate</Text>
-        <View style={styles.tutorialFooterLine} />
+        <View style={[styles.tutorialFooterLine, { backgroundColor: colors.border }]} />
+        <Text style={[styles.tutorialFooterText, { color: colors.textMuted }]}>Tap to navigate</Text>
+        <View style={[styles.tutorialFooterLine, { backgroundColor: colors.border }]} />
       </View>
     </View>
   );
@@ -118,16 +118,14 @@ function ContentSlide({ page }: { page: CoursePage }) {
       style={styles.contentScroll}
       contentContainerStyle={styles.contentScrollInner}
       showsVerticalScrollIndicator={false}
-      // Prevent scroll gesture from triggering the parent onTouchEnd
       onStartShouldSetResponder={() => false}
     >
-      <Text style={[styles.pageTitle, { color: '#1A1A1A' }]}>{page.title}</Text>
+      <Text style={[styles.pageTitle, { color: colors.text }]}>{page.title}</Text>
       {page.blocks && page.blocks.length > 0 ? (
         <ContentRenderer blocks={page.blocks} />
       ) : (
-        <FormattedText style={styles.pageContent}>{page.content}</FormattedText>
+        <FormattedText style={[styles.pageContent, { color: colors.text }]}>{page.content}</FormattedText>
       )}
-      {/* Extra padding so content doesn't get hidden behind tap hint */}
       <View style={{ height: 60 }} />
     </ScrollView>
   );
@@ -136,14 +134,15 @@ function ContentSlide({ page }: { page: CoursePage }) {
 // ─── Completion slide ──────────────────────────────────────────────────────────
 
 function CompletionSlide({ onDone }: { onDone: () => void }) {
+  const { colors } = useTheme();
   return (
     <View style={styles.completionContainer}>
       <View style={styles.completionIcon}>
-        <Ionicons name="checkmark-circle" size={88} color="#22C55E" />
+        <Ionicons name="checkmark-circle" size={88} color={colors.success} />
       </View>
-      <Text style={styles.completionTitle}>Section Complete</Text>
-      <Text style={styles.completionSubtitle}>You've finished this section.</Text>
-      <TouchableOpacity style={styles.doneButton} onPress={onDone}>
+      <Text style={[styles.completionTitle, { color: colors.text }]}>Section Complete</Text>
+      <Text style={[styles.completionSubtitle, { color: colors.textSecondary }]}>You've finished this section.</Text>
+      <TouchableOpacity style={[styles.doneButton, { backgroundColor: colors.success }]} onPress={onDone}>
         <Text style={styles.doneButtonText}>Done</Text>
       </TouchableOpacity>
     </View>
@@ -162,7 +161,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: BG,
   },
   closeButton: {
     width: 36,
@@ -203,19 +201,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 16,
   },
-  tutorialLeft: {
-    backgroundColor: 'rgba(0,0,0,0.03)',
-  },
-  tutorialRight: {
-    backgroundColor: 'rgba(0,0,0,0.03)',
-  },
   tutorialDivider: {
     width: StyleSheet.hairlineWidth,
-    backgroundColor: '#C0BFB9',
   },
   tutorialZoneLabel: {
     fontSize: 16,
-    color: '#555',
     textAlign: 'center',
     lineHeight: 22,
   },
@@ -229,11 +219,9 @@ const styles = StyleSheet.create({
   tutorialFooterLine: {
     flex: 1,
     height: StyleSheet.hairlineWidth,
-    backgroundColor: '#C0BFB9',
   },
   tutorialFooterText: {
     fontSize: 13,
-    color: '#888',
     fontWeight: '500',
   },
 
@@ -242,6 +230,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   contentScrollInner: {
+    flexGrow: 1,
+    justifyContent: 'space-between',
     paddingHorizontal: 24,
     paddingTop: 8,
     paddingBottom: 24,
@@ -255,7 +245,6 @@ const styles = StyleSheet.create({
   pageContent: {
     fontSize: 17,
     lineHeight: 28,
-    color: '#1A1A1A',
   },
 
   // Completion
@@ -271,16 +260,13 @@ const styles = StyleSheet.create({
   completionTitle: {
     fontSize: 26,
     fontWeight: '700',
-    color: '#1A1A1A',
     marginBottom: 8,
   },
   completionSubtitle: {
     fontSize: 16,
-    color: '#666',
     marginBottom: 40,
   },
   doneButton: {
-    backgroundColor: '#22C55E',
     paddingHorizontal: 48,
     paddingVertical: 14,
     borderRadius: 12,

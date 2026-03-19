@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet, Dimensions, TextStyle } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
-import { ContentBlock, ChartData } from '../types/course';
+import { ContentBlock, ChartData, ImagePosition } from '../types/course';
 
 interface ContentRendererProps {
   blocks: ContentBlock[];
@@ -12,11 +12,24 @@ export function ContentRenderer({ blocks }: ContentRendererProps) {
 
   return (
     <View style={styles.container}>
-      {blocks.map((block, index) => (
-        <View key={index} style={styles.blockContainer}>
-          {renderBlock(block, colors)}
-        </View>
-      ))}
+      {blocks.map((block, index) => {
+        // Positioned images are absolutely placed — rendered outside normal flow
+        if (block.type === 'image' && block.position) {
+          return (
+            <View key={index} style={[styles.positionedImageContainer, resolveAbsoluteStyle(block.position)]}>
+              <Image source={{ uri: block.url }} style={styles.image} resizeMode="contain" />
+              {block.caption && (
+                <Text style={[styles.caption, { color: colors.textMuted }]}>{block.caption}</Text>
+              )}
+            </View>
+          );
+        }
+        return (
+          <View key={index} style={styles.blockContainer}>
+            {renderBlock(block, colors)}
+          </View>
+        );
+      })}
     </View>
   );
 }
@@ -115,7 +128,20 @@ function TextBlock({ content, colors }: { content: string; colors: any }) {
   return <FormattedText style={[styles.text, { color: colors.text }]}>{content}</FormattedText>;
 }
 
-// Image Block
+// Maps position string to absolute inset style for a positioned image
+function resolveAbsoluteStyle(position: ImagePosition): object {
+  const [v, h] = position.split('-');
+  const style: Record<string, string | number> = { position: 'absolute' };
+  if (v === 'top')    { style.top = 0; }
+  if (v === 'bottom') { style.bottom = 0; }
+  if (v === 'middle') { style.top = '33%'; style.bottom = '33%'; }
+  if (h === 'left')   { style.left = 0; }
+  if (h === 'right')  { style.right = 0; }
+  if (h === 'center') { style.left = '12.5%'; style.right = '12.5%'; }
+  return style;
+}
+
+// Image Block (no position — inline flow)
 function ImageBlock({ url, caption, colors }: { url: string; caption?: string; colors: any }) {
   return (
     <View style={styles.imageContainer}>
@@ -268,6 +294,9 @@ const styles = StyleSheet.create({
   },
   italicText: {
     fontStyle: 'italic',
+  },
+  positionedImageContainer: {
+    alignItems: 'center',
   },
   imageContainer: {
     alignItems: 'center',

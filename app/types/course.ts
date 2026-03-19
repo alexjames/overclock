@@ -1,7 +1,13 @@
+// 9-quadrant position grid: top/middle/bottom × left/center/right
+export type ImagePosition =
+  | 'top-left'    | 'top-center'    | 'top-right'
+  | 'middle-left' | 'middle-center' | 'middle-right'
+  | 'bottom-left' | 'bottom-center' | 'bottom-right';
+
 // Content block types for rich content support
 export type ContentBlock =
   | { type: 'text'; content: string }
-  | { type: 'image'; url: string; caption?: string }
+  | { type: 'image'; url: string; caption?: string; position?: ImagePosition }
   | { type: 'table'; headers: string[]; rows: string[][] }
   | { type: 'chart'; chartType: 'bar' | 'line' | 'pie'; title: string; data: ChartData[] };
 
