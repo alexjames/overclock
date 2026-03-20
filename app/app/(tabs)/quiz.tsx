@@ -414,9 +414,7 @@ export default function PracticeScreen() {
                     </Text>
                   </View>
                 </View>
-                <View style={[styles.startButton, { backgroundColor: colors.primary }]}>
-                  <Text style={styles.startButtonText}>Start</Text>
-                </View>
+                <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
               </TouchableOpacity>
             ))}
           </View>
@@ -597,17 +595,6 @@ const styles = StyleSheet.create({
   deckCardSubtitle: {
     fontSize: 13,
     marginTop: 2,
-  },
-  startButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 8,
-    marginLeft: 12,
-  },
-  startButtonText: {
-    color: 'white',
-    fontSize: 14,
-    fontWeight: '600',
   },
   resultsContainer: {
     flex: 1,

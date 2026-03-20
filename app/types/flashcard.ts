@@ -3,7 +3,7 @@ export type FlashcardType = 'tap_reveal' | 'fill_blank';
 export interface Flashcard {
   id: string;
   type: FlashcardType;
-  category: string;
+  category: number;
   question: string;  // For tap_reveal: the question. For fill_blank: sentence with _____
   answer: string;    // The revealed answer
 }

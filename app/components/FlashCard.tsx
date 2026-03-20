@@ -1,14 +1,7 @@
-import React, { useRef, useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Animated, LayoutChangeEvent } from 'react-native';
+import React, { useRef, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Animated } from 'react-native';
 import { Flashcard } from '../types/flashcard';
 
-function darken(hex: string, amount = 0.15): string {
-  const n = parseInt(hex.replace('#', ''), 16);
-  const r = Math.max(0, Math.round(((n >> 16) & 0xff) * (1 - amount)));
-  const g = Math.max(0, Math.round(((n >> 8) & 0xff) * (1 - amount)));
-  const b = Math.max(0, Math.round((n & 0xff) * (1 - amount)));
-  return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, '0')}`;
-}
 
 interface FlashCardProps {
   card: Flashcard;
@@ -19,8 +12,6 @@ interface FlashCardProps {
 
 export function FlashCard({ card, color, isRevealed, onTap }: FlashCardProps) {
   const coverOpacity = useRef(new Animated.Value(1)).current;
-  const [answerLayout, setAnswerLayout] = useState({ width: 0, height: 0 });
-
   useEffect(() => {
     Animated.timing(coverOpacity, {
       toValue: isRevealed ? 0 : 1,
@@ -29,31 +20,19 @@ export function FlashCard({ card, color, isRevealed, onTap }: FlashCardProps) {
     }).start();
   }, [isRevealed]);
 
-  const onAnswerLayout = (event: LayoutChangeEvent) => {
-    const { width, height } = event.nativeEvent.layout;
-    setAnswerLayout({ width, height });
-  };
-
   const renderContent = () => {
     if (card.type === 'tap_reveal') {
       return (
         <View style={styles.contentContainer}>
           <Text style={styles.question}>{card.question}</Text>
           <View style={styles.answerWrapper}>
-            <View style={styles.answerContainer} onLayout={onAnswerLayout}>
+            <View style={styles.answerContainer}>
               <Text style={styles.answer}>{card.answer}</Text>
+              <Animated.View
+                style={[styles.answerCover, { opacity: coverOpacity }]}
+                pointerEvents={isRevealed ? 'none' : 'auto'}
+              />
             </View>
-            <Animated.View
-              style={[
-                styles.answerCover,
-                {
-                  opacity: coverOpacity,
-                  width: answerLayout.width || '100%',
-                  height: answerLayout.height || '100%',
-                },
-              ]}
-              pointerEvents={isRevealed ? 'none' : 'auto'}
-            />
           </View>
         </View>
       );
@@ -67,10 +46,7 @@ export function FlashCard({ card, color, isRevealed, onTap }: FlashCardProps) {
           <View style={styles.fillBlankRow}>
             <Text style={styles.fillBlankText}>{parts[0]}</Text>
             <View style={styles.blankAnswerWrapper}>
-              <Text
-                style={styles.revealedWord}
-                onLayout={onAnswerLayout}
-              >
+              <Text style={styles.revealedWord}>
                 {card.answer}
               </Text>
               <Animated.View
@@ -98,9 +74,6 @@ export function FlashCard({ card, color, isRevealed, onTap }: FlashCardProps) {
       onPress={onTap}
       activeOpacity={0.95}
     >
-      <View style={[styles.categoryTag, { backgroundColor: color, borderColor: darken(color) }]}>
-        <Text style={styles.categoryTagText}>{card.category}</Text>
-      </View>
       {renderContent()}
       {!isRevealed && <Text style={styles.tapHintBottom}>Tap to reveal</Text>}
     </TouchableOpacity>
@@ -123,26 +96,9 @@ const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
+    alignSelf: 'stretch',
     paddingHorizontal: 32,
     paddingVertical: 48,
-  },
-  categoryTag: {
-    position: 'absolute',
-    top: 24,
-    right: 24,
-    borderWidth: 1.5,
-    borderRadius: 20,
-    paddingHorizontal: 14,
-    paddingVertical: 6,
-    zIndex: 1,
-  },
-  categoryTagText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#374151',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
   },
   question: {
     fontSize: 24,
@@ -154,6 +110,7 @@ const styles = StyleSheet.create({
   answerWrapper: {
     marginTop: 32,
     position: 'relative',
+    alignItems: 'center',
   },
   answerContainer: {
     paddingHorizontal: 24,
@@ -171,10 +128,10 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     left: 0,
+    right: 0,
+    bottom: 0,
     backgroundColor: '#6B7280',
     borderRadius: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   fillBlankRow: {
     flexDirection: 'row',
