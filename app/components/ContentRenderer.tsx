@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet, Dimensions, TextStyle } from 'react-native';
+import { View, Text, Image, ScrollView, StyleSheet, Dimensions, TextStyle } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
 import { ContentBlock, ChartData, ImagePosition, TextAlign } from '../types/course';
 
@@ -112,6 +112,8 @@ function renderBlock(block: ContentBlock, colors: any) {
   switch (block.type) {
     case 'text':
       return <TextBlock content={block.content} align={block.align} colors={colors} />;
+    case 'code':
+      return <CodeBlock content={block.content} language={block.language} colors={colors} />;
     case 'image':
       return <ImageBlock url={block.url} caption={block.caption} colors={colors} />;
     case 'table':
@@ -126,6 +128,32 @@ function renderBlock(block: ContentBlock, colors: any) {
 // Text Block with formatting support
 function TextBlock({ content, align, colors }: { content: string; align?: TextAlign; colors: any }) {
   return <FormattedText style={[styles.text, { color: colors.text, textAlign: align ?? 'left' }]}>{content}</FormattedText>;
+}
+
+// Code Block with horizontal/vertical scrolling
+function CodeBlock({ content, language, colors }: { content: string; language?: string; colors: any }) {
+  return (
+    <View style={[styles.codeContainer, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+      {language && (
+        <View style={[styles.codeLanguageBadge, { backgroundColor: colors.border }]}>
+          <Text style={[styles.codeLanguageText, { color: colors.textSecondary }]}>{language}</Text>
+        </View>
+      )}
+      <ScrollView
+        style={styles.codeScrollVertical}
+        nestedScrollEnabled={true}
+        showsVerticalScrollIndicator={true}
+      >
+        <ScrollView
+          horizontal={true}
+          showsHorizontalScrollIndicator={true}
+          nestedScrollEnabled={true}
+        >
+          <Text style={[styles.codeText, { color: colors.text }]}>{content}</Text>
+        </ScrollView>
+      </ScrollView>
+    </View>
+  );
 }
 
 // Maps position string to absolute inset style for a positioned image
@@ -430,5 +458,31 @@ const styles = StyleSheet.create({
   },
   pieLegendText: {
     fontSize: 14,
+  },
+  codeContainer: {
+    borderRadius: 10,
+    borderWidth: 1,
+    overflow: 'hidden',
+    marginVertical: 8,
+  },
+  codeLanguageBadge: {
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    alignSelf: 'flex-start',
+    borderBottomRightRadius: 8,
+  },
+  codeLanguageText: {
+    fontSize: 11,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+  },
+  codeScrollVertical: {
+    maxHeight: 280,
+    padding: 14,
+  },
+  codeText: {
+    fontFamily: 'monospace',
+    fontSize: 13,
+    lineHeight: 20,
   },
 });

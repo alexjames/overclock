@@ -9,6 +9,7 @@ export type TextAlign = 'left' | 'center' | 'right';
 
 export type ContentBlock =
   | { type: 'text'; content: string; align?: TextAlign }
+  | { type: 'code'; content: string; language?: string }
   | { type: 'image'; url: string; caption?: string; position?: ImagePosition }
   | { type: 'table'; headers: string[]; rows: string[][] }
   | { type: 'chart'; chartType: 'bar' | 'line' | 'pie'; title: string; data: ChartData[] };
@@ -30,10 +31,13 @@ export interface SectionQuiz {
   questions: import('./quiz').Question[];
 }
 
+export type SectionDisplayMode = 'slideshow' | 'pages';
+
 export interface CourseSection {
   id: string;
   title: string;
   pages: CoursePage[];
+  displayMode?: SectionDisplayMode; // defaults to 'slideshow'
   quiz?: SectionQuiz;
   slides?: import('./slideshow').Slide[];
   spanningImages?: import('./slideshow').SpanningImage[];

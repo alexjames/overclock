@@ -12,9 +12,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../../context/ThemeContext';
 import { useApiHost } from '../../../context/ApiHostContext';
 import { PageSlideshow } from '../../../components/PageSlideshow';
+import { PageViewer } from '../../../components/PageViewer';
+import { Slideshow } from '../../../components/slideshow/Slideshow';
 import { QuizContainer } from '../../../components/quiz/QuizContainer';
-import { fetchSectionDetail } from '../../../api/courses';
-import { CourseSection } from '../../../types/course';
+import { fetchCourses, fetchSectionDetail } from '../../../api/courses';
+import { Course, CourseSection } from '../../../types/course';
 import { QuizResult } from '../../../types/quiz';
 
 type ScreenMode = 'slideshow' | 'quiz' | 'results';
@@ -24,6 +26,7 @@ export default function SectionScreen() {
   const { colors } = useTheme();
   const { apiHost } = useApiHost();
 
+  const [course, setCourse] = useState<Course | null>(null);
   const [section, setSection] = useState<CourseSection | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -32,8 +35,14 @@ export default function SectionScreen() {
 
   useEffect(() => {
     if (!courseId || !sectionId) return;
-    fetchSectionDetail(apiHost, courseId, sectionId)
-      .then(setSection)
+    Promise.all([
+      fetchCourses(apiHost).then((courses) => courses.find((c) => c.id === courseId) ?? null),
+      fetchSectionDetail(apiHost, courseId, sectionId),
+    ])
+      .then(([found, sec]) => {
+        setCourse(found);
+        setSection(sec);
+      })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }, [courseId, sectionId, apiHost]);
@@ -130,7 +139,32 @@ export default function SectionScreen() {
     );
   }
 
-  // Slideshow (default)
+  // Full-screen slideshow mode
+  if (section.slides && section.slides.length > 0) {
+    return (
+      <Slideshow
+        slides={section.slides}
+        spanningImages={section.spanningImages}
+        onExit={handleSlideshowComplete}
+      />
+    );
+  }
+
+  // Pages mode with Previous/Next buttons
+  if (section.displayMode === 'pages') {
+    return (
+      <PageViewer
+        title={section.title}
+        color={course?.color ?? colors.primary}
+        pages={section.pages}
+        hasQuiz={hasQuiz}
+        onComplete={() => router.back()}
+        onStartQuiz={hasQuiz ? () => setScreenMode('quiz') : undefined}
+      />
+    );
+  }
+
+  // Slideshow pages mode (default)
   return (
     <PageSlideshow
       pages={section.pages}

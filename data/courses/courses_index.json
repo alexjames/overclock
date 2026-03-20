@@ -5,5 +5,12 @@
     "category": "Computer Science",
     "icon": "globe",
     "color": "#F97316"
+  },
+  {
+    "id": "data-structures-algorithms",
+    "title": "Data Structures & Algorithms",
+    "category": "Computer Science",
+    "icon": "git-branch",
+    "color": "#10B981"
   }
 ]

@@ -1,0 +1,233 @@
+{
+  "id": "data-structures-algorithms",
+  "title": "Data Structures & Algorithms",
+  "category": "Computer Science",
+  "icon": "git-branch",
+  "color": "#10B981",
+  "sections": [
+    {
+      "id": "arrays-and-lists",
+      "title": "Arrays & Linked Lists",
+      "displayMode": "pages",
+      "pages": [
+        {
+          "id": "arrays-1",
+          "title": "Arrays",
+          "content": "",
+          "blocks": [
+            {
+              "type": "text",
+              "content": "An **array** is a contiguous block of memory that stores elements of the same type. Elements are accessed by their index in **O(1)** time."
+            },
+            {
+              "type": "text",
+              "content": "Key operations and their time complexities:"
+            },
+            {
+              "type": "table",
+              "headers": ["Operation", "Time"],
+              "rows": [
+                ["Access by index", "O(1)"],
+                ["Search", "O(n)"],
+                ["Insert at end", "O(1)*"],
+                ["Insert at index", "O(n)"],
+                ["Delete", "O(n)"]
+              ]
+            }
+          ]
+        },
+        {
+          "id": "arrays-2",
+          "title": "Dynamic Arrays",
+          "content": "",
+          "blocks": [
+            {
+              "type": "text",
+              "content": "A **dynamic array** automatically resizes when it runs out of capacity. When full, it allocates a new array (typically *2x* the size) and copies elements over."
+            },
+            {
+              "type": "text",
+              "content": "Here is a simplified dynamic array implementation in Python:"
+            },
+            {
+              "type": "code",
+              "language": "python",
+              "content": "class DynamicArray:\n    def __init__(self):\n        self.size = 0\n        self.capacity = 1\n        self.data = [None] * self.capacity\n\n    def append(self, value):\n        if self.size == self.capacity:\n            self._resize(self.capacity * 2)\n        self.data[self.size] = value\n        self.size += 1\n\n    def get(self, index):\n        if index < 0 or index >= self.size:\n            raise IndexError(\"Index out of bounds\")\n        return self.data[index]\n\n    def _resize(self, new_capacity):\n        new_data = [None] * new_capacity\n        for i in range(self.size):\n            new_data[i] = self.data[i]\n        self.data = new_data\n        self.capacity = new_capacity"
+            },
+            {
+              "type": "text",
+              "content": "The **amortized** cost of append is *O(1)* because resizing happens infrequently."
+            }
+          ]
+        },
+        {
+          "id": "arrays-3",
+          "title": "Linked Lists",
+          "content": "",
+          "blocks": [
+            {
+              "type": "text",
+              "content": "A **linked list** stores elements in nodes, where each node holds a value and a pointer to the next node. Unlike arrays, elements are not stored contiguously in memory."
+            },
+            {
+              "type": "code",
+              "language": "python",
+              "content": "class Node:\n    def __init__(self, value):\n        self.value = value\n        self.next = None\n\nclass LinkedList:\n    def __init__(self):\n        self.head = None\n\n    def prepend(self, value):\n        node = Node(value)\n        node.next = self.head\n        self.head = node\n\n    def find(self, value):\n        current = self.head\n        while current:\n            if current.value == value:\n                return current\n            current = current.next\n        return None\n\n    def delete(self, value):\n        if not self.head:\n            return\n        if self.head.value == value:\n            self.head = self.head.next\n            return\n        current = self.head\n        while current.next:\n            if current.next.value == value:\n                current.next = current.next.next\n                return\n            current = current.next"
+            },
+            {
+              "type": "table",
+              "headers": ["Operation", "Array", "Linked List"],
+              "rows": [
+                ["Access", "O(1)", "O(n)"],
+                ["Search", "O(n)", "O(n)"],
+                ["Insert (head)", "O(n)", "O(1)"],
+                ["Delete (head)", "O(n)", "O(1)"]
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "sorting",
+      "title": "Sorting Algorithms",
+      "displayMode": "pages",
+      "pages": [
+        {
+          "id": "sorting-1",
+          "title": "Why Sorting Matters",
+          "content": "",
+          "blocks": [
+            {
+              "type": "text",
+              "content": "**Sorting** is one of the most fundamental operations in computer science. Sorted data enables efficient searching (binary search), simplifies data analysis, and is a prerequisite for many algorithms."
+            },
+            {
+              "type": "text",
+              "content": "Common sorting algorithms and their complexities:"
+            },
+            {
+              "type": "table",
+              "headers": ["Algorithm", "Best", "Average", "Worst"],
+              "rows": [
+                ["Bubble Sort", "O(n)", "O(n\u00b2)", "O(n\u00b2)"],
+                ["Merge Sort", "O(n log n)", "O(n log n)", "O(n log n)"],
+                ["Quick Sort", "O(n log n)", "O(n log n)", "O(n\u00b2)"]
+              ]
+            }
+          ]
+        },
+        {
+          "id": "sorting-2",
+          "title": "Merge Sort",
+          "content": "",
+          "blocks": [
+            {
+              "type": "text",
+              "content": "**Merge sort** is a *divide-and-conquer* algorithm. It splits the array in half, recursively sorts each half, then merges the sorted halves."
+            },
+            {
+              "type": "code",
+              "language": "python",
+              "content": "def merge_sort(arr):\n    if len(arr) <= 1:\n        return arr\n\n    mid = len(arr) // 2\n    left = merge_sort(arr[:mid])\n    right = merge_sort(arr[mid:])\n\n    return merge(left, right)\n\ndef merge(left, right):\n    result = []\n    i = j = 0\n\n    while i < len(left) and j < len(right):\n        if left[i] <= right[j]:\n            result.append(left[i])\n            i += 1\n        else:\n            result.append(right[j])\n            j += 1\n\n    result.extend(left[i:])\n    result.extend(right[j:])\n    return result"
+            },
+            {
+              "type": "text",
+              "content": "Merge sort guarantees ***O(n log n)*** time in all cases but requires *O(n)* extra space for the merge step."
+            }
+          ]
+        },
+        {
+          "id": "sorting-3",
+          "title": "Quick Sort",
+          "content": "",
+          "blocks": [
+            {
+              "type": "text",
+              "content": "**Quick sort** picks a pivot element, partitions the array around it (elements smaller than the pivot go left, larger go right), and recursively sorts each partition."
+            },
+            {
+              "type": "code",
+              "language": "python",
+              "content": "def quick_sort(arr, low=0, high=None):\n    if high is None:\n        high = len(arr) - 1\n    if low < high:\n        pivot_index = partition(arr, low, high)\n        quick_sort(arr, low, pivot_index - 1)\n        quick_sort(arr, pivot_index + 1, high)\n\ndef partition(arr, low, high):\n    pivot = arr[high]\n    i = low - 1\n\n    for j in range(low, high):\n        if arr[j] <= pivot:\n            i += 1\n            arr[i], arr[j] = arr[j], arr[i]\n\n    arr[i + 1], arr[high] = arr[high], arr[i + 1]\n    return i + 1"
+            },
+            {
+              "type": "text",
+              "content": "Quick sort is ***O(n log n)*** on average and sorts **in-place** (no extra array needed), making it very cache-friendly and fast in practice."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trees",
+      "title": "Trees & Binary Search Trees",
+      "displayMode": "pages",
+      "pages": [
+        {
+          "id": "trees-1",
+          "title": "Tree Fundamentals",
+          "content": "",
+          "blocks": [
+            {
+              "type": "text",
+              "content": "A **tree** is a hierarchical data structure consisting of nodes connected by edges. Key terminology:"
+            },
+            {
+              "type": "text",
+              "content": "**Root** — The topmost node\n**Parent** — A node with children\n**Leaf** — A node with no children\n**Height** — Longest path from root to a leaf\n**Depth** — Distance from the root to a node"
+            },
+            {
+              "type": "text",
+              "content": "A **binary tree** is a tree where each node has at most *two* children: a left child and a right child."
+            }
+          ]
+        },
+        {
+          "id": "trees-2",
+          "title": "Binary Search Tree",
+          "content": "",
+          "blocks": [
+            {
+              "type": "text",
+              "content": "A **binary search tree (BST)** maintains the invariant that for every node, all values in the left subtree are *smaller* and all values in the right subtree are *larger*."
+            },
+            {
+              "type": "code",
+              "language": "python",
+              "content": "class TreeNode:\n    def __init__(self, value):\n        self.value = value\n        self.left = None\n        self.right = None\n\nclass BST:\n    def __init__(self):\n        self.root = None\n\n    def insert(self, value):\n        if not self.root:\n            self.root = TreeNode(value)\n        else:\n            self._insert(self.root, value)\n\n    def _insert(self, node, value):\n        if value < node.value:\n            if node.left is None:\n                node.left = TreeNode(value)\n            else:\n                self._insert(node.left, value)\n        else:\n            if node.right is None:\n                node.right = TreeNode(value)\n            else:\n                self._insert(node.right, value)\n\n    def search(self, value):\n        return self._search(self.root, value)\n\n    def _search(self, node, value):\n        if node is None:\n            return False\n        if value == node.value:\n            return True\n        elif value < node.value:\n            return self._search(node.left, value)\n        else:\n            return self._search(node.right, value)"
+            },
+            {
+              "type": "text",
+              "content": "In a balanced BST, search, insert, and delete are all ***O(log n)***. In the worst case (a skewed tree), they degrade to *O(n)*."
+            }
+          ]
+        },
+        {
+          "id": "trees-3",
+          "title": "Tree Traversals",
+          "content": "",
+          "blocks": [
+            {
+              "type": "text",
+              "content": "There are three standard depth-first traversals of a binary tree:"
+            },
+            {
+              "type": "text",
+              "content": "**In-order** — Left, Root, Right (gives sorted order for BSTs)\n**Pre-order** — Root, Left, Right\n**Post-order** — Left, Right, Root"
+            },
+            {
+              "type": "code",
+              "language": "python",
+              "content": "def in_order(node):\n    if node:\n        in_order(node.left)\n        print(node.value, end=\" \")\n        in_order(node.right)\n\ndef pre_order(node):\n    if node:\n        print(node.value, end=\" \")\n        pre_order(node.left)\n        pre_order(node.right)\n\ndef post_order(node):\n    if node:\n        post_order(node.left)\n        post_order(node.right)\n        print(node.value, end=\" \")"
+            },
+            {
+              "type": "text",
+              "content": "An **in-order** traversal of a BST visits nodes in ascending sorted order."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
