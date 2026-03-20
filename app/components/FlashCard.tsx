@@ -12,11 +12,12 @@ function darken(hex: string, amount = 0.15): string {
 
 interface FlashCardProps {
   card: Flashcard;
+  color: string;
   isRevealed: boolean;
   onTap: () => void;
 }
 
-export function FlashCard({ card, isRevealed, onTap }: FlashCardProps) {
+export function FlashCard({ card, color, isRevealed, onTap }: FlashCardProps) {
   const coverOpacity = useRef(new Animated.Value(1)).current;
   const [answerLayout, setAnswerLayout] = useState({ width: 0, height: 0 });
 
@@ -93,11 +94,11 @@ export function FlashCard({ card, isRevealed, onTap }: FlashCardProps) {
 
   return (
     <TouchableOpacity
-      style={[styles.card, { backgroundColor: card.color }]}
+      style={[styles.card, { backgroundColor: color }]}
       onPress={onTap}
       activeOpacity={0.95}
     >
-      <View style={[styles.categoryTag, { backgroundColor: card.color, borderColor: darken(card.color) }]}>
+      <View style={[styles.categoryTag, { backgroundColor: color, borderColor: darken(color) }]}>
         <Text style={styles.categoryTagText}>{card.category}</Text>
       </View>
       {renderContent()}

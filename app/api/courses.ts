@@ -1,6 +1,6 @@
 import { Course, CourseSection } from '../types/course';
 import { DiscoverItem } from '../types/discover';
-import { Flashcard } from '../types/flashcard';
+import { Flashcard, FlashcardDeck } from '../types/flashcard';
 import { Quiz, Question } from '../types/quiz';
 
 export interface QuizSummary {
@@ -59,10 +59,18 @@ export async function fetchQuiz(apiHost: string, quizId: string): Promise<{ id: 
   return res.json();
 }
 
-export async function fetchFlashcards(apiHost: string): Promise<Flashcard[]> {
+export async function fetchFlashcardDecks(apiHost: string): Promise<FlashcardDeck[]> {
   const res = await fetchWithTimeout(`${apiHost}/beta/v1/review`);
   if (!res.ok) {
-    throw new Error(`Failed to fetch flashcards: ${res.status}`);
+    throw new Error(`Failed to fetch flashcard decks: ${res.status}`);
+  }
+  return res.json();
+}
+
+export async function fetchFlashcardDeck(apiHost: string, deckId: string): Promise<{ id: string; cards: Flashcard[] }> {
+  const res = await fetchWithTimeout(`${apiHost}/beta/v1/review/${deckId}`);
+  if (!res.ok) {
+    throw new Error(`Failed to fetch flashcard deck: ${res.status}`);
   }
   return res.json();
 }

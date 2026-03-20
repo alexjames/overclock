@@ -16,16 +16,16 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../context/ThemeContext';
 import { useApiHost } from '../../context/ApiHostContext';
-import { fetchQuizList, fetchQuiz, fetchFlashcards, QuizSummary } from '../../api/courses';
+import { fetchQuizList, fetchQuiz, fetchFlashcardDecks, fetchFlashcardDeck, QuizSummary } from '../../api/courses';
 import { QuizContainer } from '../../components/quiz/QuizContainer';
 import { FlashCard } from '../../components/FlashCard';
 import { Question, QuizResult } from '../../types/quiz';
-import { Flashcard } from '../../types/flashcard';
+import { Flashcard, FlashcardDeck } from '../../types/flashcard';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 type Segment = 'quizzes' | 'flashcards';
-type ScreenMode = 'list' | 'loading_quiz' | 'quiz' | 'results';
+type ScreenMode = 'list' | 'loading_quiz' | 'quiz' | 'results' | 'deck';
 
 export default function PracticeScreen() {
   const { colors } = useTheme();
@@ -45,9 +45,12 @@ export default function PracticeScreen() {
   const [quizResult, setQuizResult] = useState<QuizResult | null>(null);
 
   // Flashcard state
-  const [flashcards, setFlashcards] = useState<Flashcard[]>([]);
-  const [flashcardLoading, setFlashcardLoading] = useState(true);
-  const [flashcardError, setFlashcardError] = useState<string | null>(null);
+  const [decks, setDecks] = useState<FlashcardDeck[]>([]);
+  const [decksLoading, setDecksLoading] = useState(true);
+  const [decksError, setDecksError] = useState<string | null>(null);
+  const [activeDeck, setActiveDeck] = useState<FlashcardDeck | null>(null);
+  const [deckCards, setDeckCards] = useState<Flashcard[]>([]);
+  const [deckCardsLoading, setDeckCardsLoading] = useState(false);
   const [revealedCards, setRevealedCards] = useState<Set<string>>(new Set());
   const [hasScrolled, setHasScrolled] = useState(false);
   const hintOpacity = useRef(new Animated.Value(1)).current;
@@ -71,16 +74,16 @@ export default function PracticeScreen() {
     }
   }, [apiHost]);
 
-  // Load flashcards
-  const loadFlashcards = useCallback(async () => {
+  // Load flashcard decks
+  const loadDecks = useCallback(async () => {
     try {
-      setFlashcardError(null);
-      const cards = await fetchFlashcards(apiHost);
-      setFlashcards(cards);
+      setDecksError(null);
+      const list = await fetchFlashcardDecks(apiHost);
+      setDecks(list ?? []);
     } catch (err: any) {
-      setFlashcardError(err.message);
+      setDecksError(err.message);
     } finally {
-      setFlashcardLoading(false);
+      setDecksLoading(false);
     }
   }, [apiHost]);
 
@@ -91,11 +94,10 @@ export default function PracticeScreen() {
 
   useEffect(() => {
     if (activeSegment === 'flashcards') {
-      setFlashcardLoading(true);
-      setRevealedCards(new Set());
-      loadFlashcards();
+      setDecksLoading(true);
+      loadDecks();
     }
-  }, [activeSegment, loadFlashcards]);
+  }, [activeSegment, loadDecks]);
 
   // Quiz handlers
   const handleStartQuiz = async (quiz: QuizSummary) => {
@@ -130,6 +132,30 @@ export default function PracticeScreen() {
     loadQuizList();
   };
 
+  // Flashcard deck handlers
+  const handleOpenDeck = async (deck: FlashcardDeck) => {
+    setActiveDeck(deck);
+    setDeckCardsLoading(true);
+    setRevealedCards(new Set());
+    setHasScrolled(false);
+    hintOpacity.setValue(1);
+    setScreenMode('deck');
+    try {
+      const data = await fetchFlashcardDeck(apiHost, deck.id);
+      setDeckCards(data.cards ?? []);
+    } catch {
+      setDeckCards([]);
+    } finally {
+      setDeckCardsLoading(false);
+    }
+  };
+
+  const handleExitDeck = () => {
+    setActiveDeck(null);
+    setDeckCards([]);
+    setScreenMode('list');
+  };
+
   // Flashcard handlers
   const handleFlashcardScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     if (!hasScrolled && event.nativeEvent.contentOffset.y > 10) {
@@ -154,7 +180,18 @@ export default function PracticeScreen() {
     });
   };
 
-  // --- Full-screen quiz mode (hides segmented control) ---
+  // Derive a light tint from the deck color for the card background
+  const getDeckCardColor = (hexColor: string): string => {
+    const n = parseInt(hexColor.replace('#', ''), 16);
+    const r = (n >> 16) & 0xff;
+    const g = (n >> 8) & 0xff;
+    const b = n & 0xff;
+    // Blend with white at 85% white
+    const blend = (c: number) => Math.round(c * 0.18 + 255 * 0.82);
+    return `rgb(${blend(r)}, ${blend(g)}, ${blend(b)})`;
+  };
+
+  // --- Full-screen quiz mode ---
   if (screenMode === 'quiz' && activeQuestions.length > 0) {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
@@ -219,8 +256,68 @@ export default function PracticeScreen() {
     );
   }
 
+  // --- Deck card view mode ---
+  if (screenMode === 'deck' && activeDeck) {
+    const cardColor = getDeckCardColor(activeDeck.color);
+    return (
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
+        <View style={[styles.topBar, { borderBottomColor: colors.border }]}>
+          <TouchableOpacity onPress={handleExitDeck} style={styles.exitButton}>
+            <Ionicons name="arrow-back" size={24} color={colors.text} />
+          </TouchableOpacity>
+          <Text style={[styles.quizTitle, { color: colors.text }]} numberOfLines={1}>
+            {activeDeck.title}
+          </Text>
+          <View style={styles.placeholder} />
+        </View>
+
+        {deckCardsLoading && (
+          <View style={styles.centered}>
+            <ActivityIndicator size="large" color={colors.primary} />
+          </View>
+        )}
+
+        {!deckCardsLoading && deckCards.length === 0 && (
+          <View style={styles.centered}>
+            <Ionicons name="albums-outline" size={64} color={colors.textMuted} />
+            <Text style={[styles.emptyText, { color: colors.textMuted }]}>No cards in this deck</Text>
+          </View>
+        )}
+
+        {!deckCardsLoading && deckCards.length > 0 && (
+          <>
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              snapToOffsets={deckCards.map((_, i) => i * cardHeight)}
+              decelerationRate="fast"
+              disableIntervalMomentum
+              onScroll={handleFlashcardScroll}
+              scrollEventThrottle={16}
+            >
+              {deckCards.map((card) => (
+                <View key={card.id} style={[styles.cardContainer, { height: cardHeight }]}>
+                  <FlashCard
+                    card={card}
+                    color={cardColor}
+                    isRevealed={revealedCards.has(card.id)}
+                    onTap={() => handleCardTap(card.id)}
+                  />
+                </View>
+              ))}
+            </ScrollView>
+            <Animated.View style={[styles.swipeHint, { opacity: hintOpacity }]}>
+              <Text style={[styles.swipeHintText, { color: colors.textMuted }]}>
+                Swipe up for next card
+              </Text>
+            </Animated.View>
+          </>
+        )}
+      </SafeAreaView>
+    );
+  }
+
   // --- Main list view with segmented control ---
-  const isLoading = activeSegment === 'quizzes' ? quizLoading : flashcardLoading;
+  const isLoading = activeSegment === 'quizzes' ? quizLoading : decksLoading;
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
@@ -298,21 +395,21 @@ export default function PracticeScreen() {
             </View>
           )}
 
-          <View style={styles.quizList}>
+          <View style={styles.listContent}>
             {quizzes.map((quiz) => (
               <TouchableOpacity
                 key={quiz.id}
-                style={[styles.quizCard, { backgroundColor: colors.card, borderColor: colors.border }]}
+                style={[styles.deckCard, { backgroundColor: colors.card, borderColor: colors.border }]}
                 onPress={() => handleStartQuiz(quiz)}
                 activeOpacity={0.7}
               >
-                <View style={styles.quizCardLeft}>
-                  <View style={[styles.courseIcon, { backgroundColor: quiz.color }]}>
+                <View style={styles.deckCardLeft}>
+                  <View style={[styles.deckIcon, { backgroundColor: quiz.color }]}>
                     <Ionicons name={quiz.icon as any} size={24} color="white" />
                   </View>
-                  <View style={styles.quizCardInfo}>
-                    <Text style={[styles.quizCardTitle, { color: colors.text }]}>{quiz.title}</Text>
-                    <Text style={[styles.quizCardSubtitle, { color: colors.textMuted }]}>
+                  <View style={styles.deckCardInfo}>
+                    <Text style={[styles.deckCardTitle, { color: colors.text }]}>{quiz.title}</Text>
+                    <Text style={[styles.deckCardSubtitle, { color: colors.textMuted }]}>
                       {quiz.questionCount} question{quiz.questionCount !== 1 ? 's' : ''}
                     </Text>
                   </View>
@@ -327,52 +424,48 @@ export default function PracticeScreen() {
         </ScrollView>
       )}
 
-      {/* Flashcards segment */}
+      {/* Flashcards segment — deck list */}
       {!isLoading && activeSegment === 'flashcards' && (
-        <>
-          {flashcardError && (
-            <View style={styles.centered}>
+        <ScrollView showsVerticalScrollIndicator={false}>
+          {decksError && (
+            <View style={styles.errorContainer}>
               <Text style={[styles.errorText, { color: colors.text }]}>Failed to load flashcards</Text>
-              <Text style={[styles.errorDetail, { color: colors.textMuted }]}>{flashcardError}</Text>
+              <Text style={[styles.errorDetail, { color: colors.textMuted }]}>{decksError}</Text>
             </View>
           )}
 
-          {!flashcardError && flashcards.length === 0 && (
-            <View style={styles.centered}>
+          {!decksError && decks.length === 0 && (
+            <View style={styles.emptyContainer}>
               <Ionicons name="albums-outline" size={64} color={colors.textMuted} />
-              <Text style={[styles.emptyText, { color: colors.textMuted }]}>No flashcards available</Text>
+              <Text style={[styles.emptyText, { color: colors.textMuted }]}>No flashcard decks available</Text>
             </View>
           )}
 
-          {!flashcardError && flashcards.length > 0 && (
-            <>
-              <ScrollView
-                showsVerticalScrollIndicator={false}
-                snapToOffsets={flashcards.map((_, i) => i * cardHeight)}
-                decelerationRate="fast"
-                disableIntervalMomentum
-                onScroll={handleFlashcardScroll}
-                scrollEventThrottle={16}
+          <View style={styles.listContent}>
+            {decks.map((deck) => (
+              <TouchableOpacity
+                key={deck.id}
+                style={[styles.deckCard, { backgroundColor: colors.card, borderColor: colors.border }]}
+                onPress={() => handleOpenDeck(deck)}
+                activeOpacity={0.7}
               >
-                {flashcards.map((card) => (
-                  <View key={card.id} style={[styles.cardContainer, { height: cardHeight }]}>
-                    <FlashCard
-                      card={card}
-                      isRevealed={revealedCards.has(card.id)}
-                      onTap={() => handleCardTap(card.id)}
-                    />
+                <View style={styles.deckCardLeft}>
+                  <View style={[styles.deckIcon, { backgroundColor: deck.color }]}>
+                    <Ionicons name={deck.icon as any} size={24} color="white" />
                   </View>
-                ))}
-              </ScrollView>
-
-              <Animated.View style={[styles.swipeHint, { opacity: hintOpacity }]}>
-                <Text style={[styles.swipeHintText, { color: colors.textMuted }]}>
-                  Swipe up for next card
-                </Text>
-              </Animated.View>
-            </>
-          )}
-        </>
+                  <View style={styles.deckCardInfo}>
+                    <Text style={[styles.deckCardTitle, { color: colors.text }]}>{deck.title}</Text>
+                    <Text style={[styles.deckCardSubtitle, { color: colors.textMuted }]}>
+                      {deck.count} card{deck.count !== 1 ? 's' : ''}
+                    </Text>
+                  </View>
+                </View>
+                <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
+              </TouchableOpacity>
+            ))}
+          </View>
+          <View style={styles.bottomPadding} />
+        </ScrollView>
       )}
     </SafeAreaView>
   );
@@ -468,11 +561,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginTop: 16,
   },
-  quizList: {
+  listContent: {
     paddingHorizontal: 24,
     marginTop: 16,
   },
-  quizCard: {
+  deckCard: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -481,12 +574,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginBottom: 12,
   },
-  quizCardLeft: {
+  deckCardLeft: {
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
   },
-  courseIcon: {
+  deckIcon: {
     width: 44,
     height: 44,
     borderRadius: 12,
@@ -494,14 +587,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginRight: 14,
   },
-  quizCardInfo: {
+  deckCardInfo: {
     flex: 1,
   },
-  quizCardTitle: {
+  deckCardTitle: {
     fontSize: 16,
     fontWeight: '600',
   },
-  quizCardSubtitle: {
+  deckCardSubtitle: {
     fontSize: 13,
     marginTop: 2,
   },

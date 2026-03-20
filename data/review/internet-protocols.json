@@ -1,0 +1,253 @@
+{
+  "id": "internet-protocols",
+  "title": "Internet Protocols",
+  "color": "#3B82F6",
+  "icon": "globe",
+  "cards": [
+    {
+      "id": "ip-fc-1",
+      "type": "tap_reveal",
+      "category": "OSI Model",
+      "question": "What does the OSI model stand for?",
+      "answer": "Open Systems Interconnection"
+    },
+    {
+      "id": "ip-fc-2",
+      "type": "tap_reveal",
+      "category": "OSI Model",
+      "question": "How many layers does the OSI model have?",
+      "answer": "7 layers"
+    },
+    {
+      "id": "ip-fc-3",
+      "type": "tap_reveal",
+      "category": "Application Layer",
+      "question": "Which OSI layer do web browsers and email clients operate at?",
+      "answer": "Application Layer (Layer 7)"
+    },
+    {
+      "id": "ip-fc-4",
+      "type": "tap_reveal",
+      "category": "Application Layer",
+      "question": "Name four protocols that operate at the Application Layer.",
+      "answer": "HTTP, FTP, SMTP, DNS"
+    },
+    {
+      "id": "ip-fc-5",
+      "type": "tap_reveal",
+      "category": "Presentation Layer",
+      "question": "What three main operations does the Presentation Layer perform?",
+      "answer": "Translation, encryption, and compression"
+    },
+    {
+      "id": "ip-fc-6",
+      "type": "tap_reveal",
+      "category": "Presentation Layer",
+      "question": "SSL and TLS are associated with which OSI layer?",
+      "answer": "Presentation Layer (Layer 6)"
+    },
+    {
+      "id": "ip-fc-7",
+      "type": "tap_reveal",
+      "category": "Session Layer",
+      "question": "What is the primary responsibility of the Session Layer?",
+      "answer": "Establishing, maintaining, and closing sessions between devices"
+    },
+    {
+      "id": "ip-fc-8",
+      "type": "tap_reveal",
+      "category": "Session Layer",
+      "question": "Name three protocols that operate at the Session Layer.",
+      "answer": "NetBIOS, RPC, PPTP"
+    },
+    {
+      "id": "ip-fc-9",
+      "type": "tap_reveal",
+      "category": "Transport Layer",
+      "question": "What does the Transport Layer guarantee between two communicating devices?",
+      "answer": "End-to-end data delivery"
+    },
+    {
+      "id": "ip-fc-10",
+      "type": "tap_reveal",
+      "category": "Transport Layer",
+      "question": "Name three protocols that operate at the Transport Layer.",
+      "answer": "TCP, UDP, SCTP"
+    },
+    {
+      "id": "ip-fc-11",
+      "type": "tap_reveal",
+      "category": "Network Layer",
+      "question": "What unit of data does the Network Layer route?",
+      "answer": "Packets"
+    },
+    {
+      "id": "ip-fc-12",
+      "type": "tap_reveal",
+      "category": "Network Layer",
+      "question": "Name three protocols that operate at the Network Layer.",
+      "answer": "IP, ICMP, IGMP"
+    },
+    {
+      "id": "ip-fc-13",
+      "type": "tap_reveal",
+      "category": "Data Link Layer",
+      "question": "What unit of data does the Data Link Layer work with?",
+      "answer": "Frames"
+    },
+    {
+      "id": "ip-fc-14",
+      "type": "tap_reveal",
+      "category": "Data Link Layer",
+      "question": "Which three types of devices operate at the Data Link Layer?",
+      "answer": "Switches, bridges, and NICs"
+    },
+    {
+      "id": "ip-fc-15",
+      "type": "tap_reveal",
+      "category": "Physical Layer",
+      "question": "What does the Physical Layer transmit?",
+      "answer": "Raw bits over a physical medium"
+    },
+    {
+      "id": "ip-fc-16",
+      "type": "tap_reveal",
+      "category": "Physical Layer",
+      "question": "Which devices operate at the Physical Layer?",
+      "answer": "Hubs, repeaters, and modems"
+    },
+    {
+      "id": "ip-fc-17",
+      "type": "tap_reveal",
+      "category": "OSI Model",
+      "question": "List the 7 OSI layers from highest to lowest.",
+      "answer": "Application, Presentation, Session, Transport, Network, Data Link, Physical"
+    },
+    {
+      "id": "ip-fc-18",
+      "type": "tap_reveal",
+      "category": "Data Link Layer",
+      "question": "Which two protocols are associated with both the Data Link and Physical layers?",
+      "answer": "Ethernet (IEEE 802.3) and WiFi (IEEE 802.11)"
+    },
+    {
+      "id": "ip-fc-19",
+      "type": "tap_reveal",
+      "category": "Network Layer",
+      "question": "What are the two main functions of the Network Layer?",
+      "answer": "Routing and logical addressing"
+    },
+    {
+      "id": "ip-fc-20",
+      "type": "tap_reveal",
+      "category": "Transport Layer",
+      "question": "What four functions does the Transport Layer perform?",
+      "answer": "Segmentation, acknowledgement, re-delivery, and flow control"
+    },
+    {
+      "id": "ip-fc-21",
+      "type": "fill_blank",
+      "category": "OSI Model",
+      "question": "The OSI model has _____ layers.",
+      "answer": "7"
+    },
+    {
+      "id": "ip-fc-22",
+      "type": "fill_blank",
+      "category": "Application Layer",
+      "question": "HTTP and FTP are protocols at the _____ layer.",
+      "answer": "Application"
+    },
+    {
+      "id": "ip-fc-23",
+      "type": "fill_blank",
+      "category": "Presentation Layer",
+      "question": "SSL and TLS handle _____ at the Presentation Layer.",
+      "answer": "encryption"
+    },
+    {
+      "id": "ip-fc-24",
+      "type": "fill_blank",
+      "category": "Session Layer",
+      "question": "The Session Layer manages _____ between communicating devices.",
+      "answer": "sessions"
+    },
+    {
+      "id": "ip-fc-25",
+      "type": "fill_blank",
+      "category": "Transport Layer",
+      "question": "TCP and UDP operate at the _____ layer.",
+      "answer": "Transport"
+    },
+    {
+      "id": "ip-fc-26",
+      "type": "fill_blank",
+      "category": "Network Layer",
+      "question": "The Network Layer breaks data into _____ and routes them to their destination.",
+      "answer": "packets"
+    },
+    {
+      "id": "ip-fc-27",
+      "type": "fill_blank",
+      "category": "Data Link Layer",
+      "question": "The Data Link Layer breaks packets into _____ for node-to-node delivery.",
+      "answer": "frames"
+    },
+    {
+      "id": "ip-fc-28",
+      "type": "fill_blank",
+      "category": "Physical Layer",
+      "question": "The Physical Layer transmits raw _____ over cables, fiber optics, and radio waves.",
+      "answer": "bits"
+    },
+    {
+      "id": "ip-fc-29",
+      "type": "fill_blank",
+      "category": "Network Layer",
+      "question": "IP, ICMP, and IGMP are protocols at the _____ layer.",
+      "answer": "Network"
+    },
+    {
+      "id": "ip-fc-30",
+      "type": "fill_blank",
+      "category": "OSI Model",
+      "question": "The OSI model allows _____ across diverse networking systems.",
+      "answer": "interoperability"
+    },
+    {
+      "id": "ip-fc-31",
+      "type": "fill_blank",
+      "category": "Presentation Layer",
+      "question": "JSON and XML are data formats associated with the _____ layer.",
+      "answer": "Presentation"
+    },
+    {
+      "id": "ip-fc-32",
+      "type": "fill_blank",
+      "category": "Data Link Layer",
+      "question": "Switches and bridges operate at the _____ layer.",
+      "answer": "Data Link"
+    },
+    {
+      "id": "ip-fc-33",
+      "type": "fill_blank",
+      "category": "Transport Layer",
+      "question": "The Transport Layer uses _____ control to regulate data transmission speed.",
+      "answer": "flow"
+    },
+    {
+      "id": "ip-fc-34",
+      "type": "fill_blank",
+      "category": "Session Layer",
+      "question": "NetBIOS and RPC are protocols at the _____ layer.",
+      "answer": "Session"
+    },
+    {
+      "id": "ip-fc-35",
+      "type": "fill_blank",
+      "category": "Physical Layer",
+      "question": "Hubs and repeaters operate at the _____ layer.",
+      "answer": "Physical"
+    }
+  ]
+}

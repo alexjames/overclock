@@ -71,6 +71,63 @@ func main() {
 	reviewDir := filepath.Join(dataDir, "review")
 	quizDir := filepath.Join(dataDir, "quiz")
 
+	// Load flashcard decks from data/review/*.json files.
+	type deckSummary struct {
+		ID    string `json:"id"`
+		Title string `json:"title"`
+		Color string `json:"color"`
+		Icon  string `json:"icon"`
+		Count int    `json:"count"`
+	}
+
+	deckSummaries := make([]deckSummary, 0)
+	deckCards := make(map[string][]interface{}) // deckId -> cards
+
+	reviewEntries, err := os.ReadDir(reviewDir)
+	if err != nil {
+		log.Printf("warning: could not read review directory %s: %v", reviewDir, err)
+		reviewEntries = nil
+	}
+	for _, entry := range reviewEntries {
+		name := entry.Name()
+		if entry.IsDir() || !strings.HasSuffix(name, ".json") {
+			continue
+		}
+		raw, err := os.ReadFile(filepath.Join(reviewDir, name))
+		if err != nil {
+			log.Printf("warning: failed to read review file %s: %v", name, err)
+			continue
+		}
+		var deck map[string]interface{}
+		if err := json.Unmarshal(raw, &deck); err != nil {
+			log.Printf("warning: failed to parse review file %s: %v", name, err)
+			continue
+		}
+		id, _ := deck["id"].(string)
+		title, _ := deck["title"].(string)
+		color, _ := deck["color"].(string)
+		icon, _ := deck["icon"].(string)
+		cards, _ := deck["cards"].([]interface{})
+		if id == "" || len(cards) == 0 {
+			continue
+		}
+		deckSummaries = append(deckSummaries, deckSummary{
+			ID:    id,
+			Title: title,
+			Color: color,
+			Icon:  icon,
+			Count: len(cards),
+		})
+		deckCards[id] = cards
+		log.Printf("loaded flashcard deck: %s (%d cards) from %s", id, len(cards), name)
+	}
+
+	deckListJSON, err := json.Marshal(deckSummaries)
+	if err != nil {
+		log.Fatalf("failed to marshal deck summaries: %v", err)
+	}
+	log.Printf("loaded %d flashcard decks", len(deckSummaries))
+
 	// Load discover content (returned by /beta/v1/discover).
 	discoverPath := filepath.Join(dataDir, "discover", "discover.json")
 	discoverRaw, err := os.ReadFile(discoverPath)
@@ -226,59 +283,36 @@ func main() {
 		})
 	})
 
+	// GET /beta/v1/review — list all flashcard decks
 	http.HandleFunc("/beta/v1/review", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodGet {
 			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 			return
 		}
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(deckListJSON)
+	})
 
-		// Read all JSON files in the review directory on each request.
-		entries, err := os.ReadDir(reviewDir)
-		if err != nil {
-			http.Error(w, "failed to read review dir", http.StatusInternalServerError)
+	// GET /beta/v1/review/{deckId} — get all cards for a deck (shuffled)
+	http.HandleFunc("/beta/v1/review/", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet {
+			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 			return
 		}
-
-		// Collect all card groups across all files.
-		type cardGroup map[string]interface{}
-		var groups []cardGroup
-		for _, entry := range entries {
-			if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".json") {
-				continue
-			}
-			raw, err := os.ReadFile(filepath.Join(reviewDir, entry.Name()))
-			if err != nil {
-				continue
-			}
-			var cards []cardGroup
-			if err := json.Unmarshal(raw, &cards); err != nil {
-				continue
-			}
-			groups = append(groups, cards...)
+		deckID := strings.TrimPrefix(r.URL.Path, "/beta/v1/review/")
+		cards, ok := deckCards[deckID]
+		if !ok {
+			http.NotFound(w, r)
+			return
 		}
-
-		// Shuffle groups and pick up to 12, then resolve one question per group.
-		rand.Shuffle(len(groups), func(i, j int) { groups[i], groups[j] = groups[j], groups[i] })
-		if len(groups) > 12 {
-			groups = groups[:12]
-		}
-
-		result := make([]map[string]interface{}, 0, len(groups))
-		for _, g := range groups {
-			card := make(map[string]interface{})
-			for k, v := range g {
-				card[k] = v
-			}
-			// Pick one random question from the questions slice and promote it.
-			if qs, ok := g["questions"].([]interface{}); ok && len(qs) > 0 {
-				card["question"] = qs[rand.Intn(len(qs))]
-				delete(card, "questions")
-			}
-			result = append(result, card)
-		}
-
+		shuffled := make([]interface{}, len(cards))
+		copy(shuffled, cards)
+		rand.Shuffle(len(shuffled), func(i, j int) { shuffled[i], shuffled[j] = shuffled[j], shuffled[i] })
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(result)
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"id":    deckID,
+			"cards": shuffled,
+		})
 	})
 
 	http.HandleFunc("/beta/v1/discover", func(w http.ResponseWriter, r *http.Request) {
