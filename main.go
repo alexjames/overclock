@@ -313,7 +313,6 @@ func main() {
 		for c := range byCategory {
 			cats = append(cats, c)
 		}
-		// Sort categories numerically.
 		for i := 0; i < len(cats); i++ {
 			for j := i + 1; j < len(cats); j++ {
 				if cats[j] < cats[i] {
@@ -328,26 +327,58 @@ func main() {
 			rand.Shuffle(len(s), func(i, j int) { s[i], s[j] = s[j], s[i] })
 		}
 
-		// Cycle through categories, picking one question per category, no duplicates.
-		// Track per-category index to avoid re-picking.
-		catIndex := make(map[int]int)
+		// Group categories into sections. Each unique section bucket gets an
+		// equal share of the 10 selected slots. Within each section bucket,
+		// categories are cycled so variety is maintained.
+		// Section assignment: categories are grouped into contiguous runs
+		// separated by gaps >= 2 (e.g. 1-8 = OSI, 9 = DNS).
+		type sectionBucket struct {
+			cats []int
+		}
+		var sections []sectionBucket
+		for _, c := range cats {
+			if len(sections) == 0 || c-sections[len(sections)-1].cats[len(sections[len(sections)-1].cats)-1] >= 2 {
+				sections = append(sections, sectionBucket{cats: []int{c}})
+			} else {
+				sections[len(sections)-1].cats = append(sections[len(sections)-1].cats, c)
+			}
+		}
+
+		// Allocate slots per section (distribute 10 evenly, remainder to first sections).
+		numSections := len(sections)
+		slotsPerSection := make([]int, numSections)
+		base := 10 / numSections
+		remainder := 10 % numSections
+		for i := range slotsPerSection {
+			slotsPerSection[i] = base
+			if i < remainder {
+				slotsPerSection[i]++
+			}
+		}
+
+		// For each section, cycle through its categories picking one at a time.
 		selected := make([]interface{}, 0, 10)
-		for len(selected) < 10 {
-			progress := false
-			for _, c := range cats {
-				if len(selected) >= 10 {
+		for si, sec := range sections {
+			catIndex := make(map[int]int)
+			quota := slotsPerSection[si]
+			picked := 0
+			for picked < quota {
+				progress := false
+				for _, c := range sec.cats {
+					if picked >= quota {
+						break
+					}
+					idx := catIndex[c]
+					if idx < len(byCategory[c]) {
+						selected = append(selected, byCategory[c][idx])
+						catIndex[c] = idx + 1
+						picked++
+						progress = true
+					}
+				}
+				if !progress {
 					break
 				}
-				idx := catIndex[c]
-				if idx < len(byCategory[c]) {
-					selected = append(selected, byCategory[c][idx])
-					catIndex[c] = idx + 1
-					progress = true
-				}
-			}
-			if !progress {
-				// All categories exhausted before reaching 10.
-				break
 			}
 		}
 
@@ -413,24 +444,54 @@ func main() {
 			rand.Shuffle(len(s), func(i, j int) { s[i], s[j] = s[j], s[i] })
 		}
 
-		// Cycle through categories picking one at a time until 10 selected.
-		catIndex := make(map[int]int)
+		// Group categories into sections (contiguous runs; gap >= 2 = new section).
+		type sectionBucket struct {
+			cats []int
+		}
+		var sections []sectionBucket
+		for _, c := range cats {
+			if len(sections) == 0 || c-sections[len(sections)-1].cats[len(sections[len(sections)-1].cats)-1] >= 2 {
+				sections = append(sections, sectionBucket{cats: []int{c}})
+			} else {
+				sections[len(sections)-1].cats = append(sections[len(sections)-1].cats, c)
+			}
+		}
+
+		// Allocate 10 slots evenly across sections.
+		numSections := len(sections)
+		slotsPerSection := make([]int, numSections)
+		base := 10 / numSections
+		remainder := 10 % numSections
+		for i := range slotsPerSection {
+			slotsPerSection[i] = base
+			if i < remainder {
+				slotsPerSection[i]++
+			}
+		}
+
+		// For each section, cycle through its categories to fill its quota.
 		selected := make([]interface{}, 0, 10)
-		for len(selected) < 10 {
-			progress := false
-			for _, c := range cats {
-				if len(selected) >= 10 {
+		for si, sec := range sections {
+			catIndex := make(map[int]int)
+			quota := slotsPerSection[si]
+			picked := 0
+			for picked < quota {
+				progress := false
+				for _, c := range sec.cats {
+					if picked >= quota {
+						break
+					}
+					idx := catIndex[c]
+					if idx < len(byCategory[c]) {
+						selected = append(selected, byCategory[c][idx])
+						catIndex[c] = idx + 1
+						picked++
+						progress = true
+					}
+				}
+				if !progress {
 					break
 				}
-				idx := catIndex[c]
-				if idx < len(byCategory[c]) {
-					selected = append(selected, byCategory[c][idx])
-					catIndex[c] = idx + 1
-					progress = true
-				}
-			}
-			if !progress {
-				break
 			}
 		}
 
