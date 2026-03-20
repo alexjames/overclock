@@ -17,7 +17,7 @@
         },
         {
           "type": "text",
-          "content": "When a user types in a URL such as `www.google.com` into a browser, it makes a request to DNS to find out the IP address of Google's web server."
+          "content": "When a user types in a URL such as [www.google.com]{#3B82F6} into a browser, it makes a request to DNS to find out the IP address of Google's web server."
         }
       ]
     },
@@ -51,13 +51,24 @@
           "content": "DNS is an **application layer protocol** implemented by a hierarchy of name servers."
         },
         {
+          "type": "image",
+          "url": "https://overclock-img.buildbreak.net/images/courses/internet-protocols/dns-hierarchy.png"
+        },
+        {
           "type": "text",
           "content": "🌍 **Root Name Servers**\nHold the addresses of TLD name servers (.com, .net, etc.). There are 13 logical root \"servers\" around the world, each replicated by hundreds of physical hosts for fault-tolerance."
         },
         {
           "type": "text",
           "content": "📂 **Top-Level Domain (TLD) Name Servers**\nCorrespond to top-level domains like .com, .net, .org. These servers hold addresses of authoritative name servers for each domain."
-        },
+        }
+      ]
+    },
+    {
+      "id": "dns-3",
+      "title": "DNS Hierarchy",
+      "content": "",
+      "blocks": [
         {
           "type": "text",
           "content": "✅ **Authoritative Name Servers**\nStore DNS records for a domain and are the source of truth. They may delegate some records to another authoritative name server for management."

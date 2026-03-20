@@ -51,6 +51,7 @@ export function FormattedText({ children, style }: FormattedTextProps) {
           style={[
             part.bold && styles.boldText,
             part.italic && styles.italicText,
+            part.color ? { color: part.color } : undefined,
           ]}
         >
           {part.text}
@@ -61,46 +62,37 @@ export function FormattedText({ children, style }: FormattedTextProps) {
 }
 
 // Shared formatting parser
+// Supports: **bold**, *italic*, ***bold+italic***, [text]{#color}
 function parseFormatting(text: string) {
-  const parts: Array<{ text: string; bold?: boolean; italic?: boolean }> = [];
+  const parts: Array<{ text: string; bold?: boolean; italic?: boolean; color?: string }> = [];
   let currentIndex = 0;
 
-  // Regex to match **bold**, *italic*, or ***bold+italic***
-  const regex = /(\*\*\*[^*]+\*\*\*|\*\*[^*]+\*\*|\*[^*]+\*)/g;
+  const regex = /(\*\*\*[^*]+\*\*\*|\*\*[^*]+\*\*|\*[^*]+\*|\[[^\]]+\]\{#[0-9a-fA-F]{3,6}\})/g;
   let match;
 
   while ((match = regex.exec(text)) !== null) {
-    // Add text before the match
     if (match.index > currentIndex) {
       parts.push({ text: text.substring(currentIndex, match.index) });
     }
 
     const matchedText = match[0];
     if (matchedText.startsWith('***') && matchedText.endsWith('***')) {
-      // Bold + Italic
-      parts.push({
-        text: matchedText.slice(3, -3),
-        bold: true,
-        italic: true,
-      });
+      parts.push({ text: matchedText.slice(3, -3), bold: true, italic: true });
     } else if (matchedText.startsWith('**') && matchedText.endsWith('**')) {
-      // Bold
-      parts.push({
-        text: matchedText.slice(2, -2),
-        bold: true,
-      });
+      parts.push({ text: matchedText.slice(2, -2), bold: true });
     } else if (matchedText.startsWith('*') && matchedText.endsWith('*')) {
-      // Italic
-      parts.push({
-        text: matchedText.slice(1, -1),
-        italic: true,
-      });
+      parts.push({ text: matchedText.slice(1, -1), italic: true });
+    } else {
+      // [text]{#color}
+      const colorMatch = matchedText.match(/^\[([^\]]+)\]\{(#[0-9a-fA-F]{3,6})\}$/);
+      if (colorMatch) {
+        parts.push({ text: colorMatch[1], color: colorMatch[2] });
+      }
     }
 
     currentIndex = match.index + matchedText.length;
   }
 
-  // Add remaining text
   if (currentIndex < text.length) {
     parts.push({ text: text.substring(currentIndex) });
   }
