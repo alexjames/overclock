@@ -31,7 +31,7 @@ func main() {
 	}
 	coursesJSON := indexRaw
 
-	// Load all other JSON files in the data directory as individual course files.
+	// Load courses: flat JSON files and/or subdirectories of section files.
 	courseByID := make(map[string]map[string]interface{})
 
 	entries, err := os.ReadDir(coursesDir)
@@ -41,31 +41,106 @@ func main() {
 
 	for _, entry := range entries {
 		name := entry.Name()
-		if entry.IsDir() || !strings.HasSuffix(name, ".json") || name == "courses_index.json" {
+
+		// Flat course file (legacy / single-file courses).
+		if !entry.IsDir() {
+			if !strings.HasSuffix(name, ".json") || name == "courses_index.json" {
+				continue
+			}
+			filePath := filepath.Join(coursesDir, name)
+			raw, err := os.ReadFile(filePath)
+			if err != nil {
+				log.Printf("warning: failed to read %s: %v", filePath, err)
+				continue
+			}
+			var course map[string]interface{}
+			if err := json.Unmarshal(raw, &course); err != nil {
+				log.Printf("warning: failed to parse %s: %v", filePath, err)
+				continue
+			}
+			id, ok := course["id"].(string)
+			if !ok {
+				log.Printf("warning: %s has no string 'id' field, skipping", filePath)
+				continue
+			}
+			courseByID[id] = course
+			log.Printf("loaded course: %s from %s", id, name)
 			continue
 		}
 
-		filePath := filepath.Join(coursesDir, name)
-		raw, err := os.ReadFile(filePath)
-		if err != nil {
-			log.Printf("warning: failed to read %s: %v", filePath, err)
-			continue
+		// Subdirectory — section files ordered by sections.json if present,
+		// otherwise alphabetically.
+		courseID := name
+		sectionDir := filepath.Join(coursesDir, courseID)
+
+		// Determine ordered list of section entries from sections.json if present,
+		// otherwise fall back to alphabetical order.
+		type sectionEntry struct {
+			File  string `json:"file"`
+			ID    string `json:"id"`
+			Title string `json:"title"`
+		}
+		var sectionEntryList []sectionEntry
+		orderRaw, err := os.ReadFile(filepath.Join(sectionDir, "sections.json"))
+		if err == nil {
+			if err := json.Unmarshal(orderRaw, &sectionEntryList); err != nil {
+				log.Printf("warning: failed to parse sections.json for %s: %v", courseID, err)
+				sectionEntryList = nil
+			}
+		}
+		if len(sectionEntryList) == 0 {
+			dirEntries, err := os.ReadDir(sectionDir)
+			if err != nil {
+				log.Printf("warning: failed to read course dir %s: %v", sectionDir, err)
+				continue
+			}
+			for _, se := range dirEntries {
+				sname := se.Name()
+				if !se.IsDir() && strings.HasSuffix(sname, ".json") && sname != "sections.json" {
+					sectionEntryList = append(sectionEntryList, sectionEntry{File: sname})
+				}
+			}
 		}
 
-		var course map[string]interface{}
-		if err := json.Unmarshal(raw, &course); err != nil {
-			log.Printf("warning: failed to parse %s: %v", filePath, err)
-			continue
+		var sections []interface{}
+		for _, entry := range sectionEntryList {
+			raw, err := os.ReadFile(filepath.Join(sectionDir, entry.File))
+			if err != nil {
+				log.Printf("warning: failed to read section %s: %v", entry.File, err)
+				continue
+			}
+			var section map[string]interface{}
+			if err := json.Unmarshal(raw, &section); err != nil {
+				log.Printf("warning: failed to parse section %s: %v", entry.File, err)
+				continue
+			}
+			// sections.json id/title take precedence over what's in the file.
+			if entry.ID != "" {
+				section["id"] = entry.ID
+			}
+			if entry.Title != "" {
+				section["title"] = entry.Title
+			}
+			sections = append(sections, section)
+			log.Printf("loaded section: %s/%s", courseID, entry.File)
 		}
 
-		id, ok := course["id"].(string)
-		if !ok {
-			log.Printf("warning: %s has no string 'id' field, skipping", filePath)
-			continue
+		// Build the course object from the index entry, merging in sections.
+		course := map[string]interface{}{
+			"id":       courseID,
+			"sections": sections,
 		}
-
-		courseByID[id] = course
-		log.Printf("loaded course: %s from %s", id, name)
+		// Overlay any metadata from the index for this course.
+		for _, idx := range indexCheck {
+			if idx["id"] == courseID {
+				for k, v := range idx {
+					course[k] = v
+				}
+				break
+			}
+		}
+		courseByID[courseID] = course
+		log.Printf("loaded course: %s (%d sections) from directory", courseID, len(sections))
 	}
 
 	reviewDir := filepath.Join(dataDir, "review")
@@ -400,12 +475,54 @@ func main() {
 		// GET /beta/v1/courses/{courseId}/sections
 		if len(parts) == 2 && parts[1] == "sections" {
 			courseID := parts[0]
-			course, ok := courseByID[courseID]
-			if !ok {
+			if _, ok := courseByID[courseID]; !ok {
 				http.NotFound(w, r)
 				return
 			}
 
+			// For directory-based courses, read sections.json directly so the
+			// response always reflects the authoritative order and metadata.
+			type sectionEntry struct {
+				File  string `json:"file"`
+				ID    string `json:"id"`
+				Title string `json:"title"`
+			}
+			sectionDir := filepath.Join(coursesDir, courseID)
+			orderRaw, err := os.ReadFile(filepath.Join(sectionDir, "sections.json"))
+			if err == nil {
+				var entries []sectionEntry
+				if json.Unmarshal(orderRaw, &entries) == nil {
+					summaries := make([]map[string]interface{}, 0, len(entries))
+					for _, e := range entries {
+						summary := map[string]interface{}{
+							"id":    e.ID,
+							"title": e.Title,
+						}
+						// Merge any non-content fields from the section file itself.
+						raw, err := os.ReadFile(filepath.Join(sectionDir, e.File))
+						if err == nil {
+							var sec map[string]interface{}
+							if json.Unmarshal(raw, &sec) == nil {
+								for k, v := range sec {
+									if k != "pages" && k != "slides" && k != "quiz" && k != "spanningImages" {
+										summary[k] = v
+									}
+								}
+							}
+						}
+						// sections.json id/title always win.
+						summary["id"] = e.ID
+						summary["title"] = e.Title
+						summaries = append(summaries, summary)
+					}
+					w.Header().Set("Content-Type", "application/json")
+					json.NewEncoder(w).Encode(summaries)
+					return
+				}
+			}
+
+			// Fallback: use in-memory sections (flat course files).
+			course := courseByID[courseID]
 			rawSections, _ := course["sections"].([]interface{})
 			var summaries []map[string]interface{}
 			for _, s := range rawSections {
@@ -421,7 +538,6 @@ func main() {
 				}
 				summaries = append(summaries, summary)
 			}
-
 			w.Header().Set("Content-Type", "application/json")
 			json.NewEncoder(w).Encode(summaries)
 			return

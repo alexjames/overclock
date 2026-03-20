@@ -1,0 +1,163 @@
+{
+  "id": "dns",
+  "title": "DNS",
+  "pages": [
+    {
+      "id": "dns-1",
+      "title": "What is DNS?",
+      "content": "",
+      "blocks": [
+        {
+          "type": "text",
+          "content": "The **Domain Name System (DNS)** is a distributed directory service that stores mappings of domain names to their associated IP addresses."
+        },
+        {
+          "type": "text",
+          "content": "Commonly referred to as the **\"phone book of the internet\"**, it is a decentralized global database that runs over millions of servers managed by ISPs and other organizations."
+        },
+        {
+          "type": "text",
+          "content": "When a user types in a URL such as `www.google.com` into a browser, it makes a request to DNS to find out the IP address of Google's web server."
+        }
+      ]
+    },
+    {
+      "id": "dns-2",
+      "title": "A Brief History",
+      "content": "",
+      "blocks": [
+        {
+          "type": "text",
+          "content": "In the early days of the internet, domain-IP mappings were stored statically in `/etc/hosts` files on individual hosts. This quickly became unscalable as people were sharing and manually updating these files."
+        },
+        {
+          "type": "text",
+          "content": "DNS was created as a solution to this problem."
+        },
+        {
+          "type": "code",
+          "language": "/etc/hosts",
+          "content": "127.0.0.1  localhost\n185.233.11.2  example.com"
+        }
+      ]
+    },
+    {
+      "id": "dns-3",
+      "title": "DNS Hierarchy",
+      "content": "",
+      "blocks": [
+        {
+          "type": "text",
+          "content": "DNS is an **application layer protocol** implemented by a hierarchy of name servers."
+        },
+        {
+          "type": "text",
+          "content": "🌍 **Root Name Servers**\nHold the addresses of TLD name servers (.com, .net, etc.). There are 13 logical root \"servers\" around the world, each replicated by hundreds of physical hosts for fault-tolerance."
+        },
+        {
+          "type": "text",
+          "content": "📂 **Top-Level Domain (TLD) Name Servers**\nCorrespond to top-level domains like .com, .net, .org. These servers hold addresses of authoritative name servers for each domain."
+        },
+        {
+          "type": "text",
+          "content": "✅ **Authoritative Name Servers**\nStore DNS records for a domain and are the source of truth. They may delegate some records to another authoritative name server for management."
+        }
+      ]
+    },
+    {
+      "id": "dns-4",
+      "title": "DNS Resolver",
+      "content": "",
+      "blocks": [
+        {
+          "type": "text",
+          "content": "A **DNS resolver** receives requests from clients such as web browsers and is responsible for querying other DNS servers until the requested record is found."
+        },
+        {
+          "type": "text",
+          "content": "ISPs typically host DNS resolvers, which resolve DNS requests on behalf of hosts on their networks."
+        }
+      ]
+    },
+    {
+      "id": "dns-5",
+      "title": "Steps in a DNS Request",
+      "content": "",
+      "blocks": [
+        {
+          "type": "text",
+          "content": "**Steps in a DNS request:**"
+        },
+        {
+          "type": "text",
+          "content": "1️⃣ A client makes a request to a DNS resolver.\n2️⃣ The resolver queries a root name server. The root server responds with the address of a TLD name server.\n3️⃣ The resolver queries the TLD server. The TLD server responds with the address of the domain's authoritative name server.\n4️⃣ The resolver queries the domain's name server. The name server responds with the requested DNS record.\n5️⃣ The resolver returns the record to the client."
+        }
+      ]
+    },
+    {
+      "id": "dns-6",
+      "title": "DNS Caching",
+      "content": "",
+      "blocks": [
+        {
+          "type": "text",
+          "content": "DNS resolution requires multiple requests to various name servers and is considered an **expensive operation**. It is common to cache DNS results with a **Time To Live (TTL)** expiration period to reduce requests and improve latency."
+        },
+        {
+          "type": "text",
+          "content": "DNS caching can occur at several layers:\n• Browser cache\n• Operating System DNS cache\n• Organization's local DNS server cache\n• ISP's DNS resolver cache"
+        },
+        {
+          "type": "text",
+          "content": "When a DNS query returns a cached response, it is a **non-authoritative result** — it did not originate from an authoritative name server.\n\nCaching is one reason DNS changes can take hours to propagate globally. DNS trades off **strong consistency** for **high read performance**."
+        }
+      ]
+    },
+    {
+      "id": "dns-7",
+      "title": "DNS at Scale",
+      "content": "",
+      "blocks": [
+        {
+          "type": "text",
+          "content": "📊 **Some Stats**"
+        },
+        {
+          "type": "text",
+          "content": "• Millions of organizations around the world manage DNS records.\n• The global DNS database consists of **billions of records**.\n• There are **trillions of DNS queries** processed every day."
+        },
+        {
+          "type": "text",
+          "content": "DNS is a **read-heavy system** — there are orders of magnitude more reads than writes."
+        }
+      ]
+    },
+    {
+      "id": "dns-8",
+      "title": "Why DNS Isn't Centralized",
+      "content": "",
+      "blocks": [
+        {
+          "type": "text",
+          "content": "DNS is implemented as a distributed service for several reasons:"
+        },
+        {
+          "type": "text",
+          "content": "⚠️ **Single Point of Failure**\nAs a critical dependency for the internet, a single centralized service would be catastrophic. In 2025, a DNS error in AWS US-East-1 caused outages across many large websites with estimated losses in the hundreds of millions."
+        },
+        {
+          "type": "text",
+          "content": "📈 **Traffic Volume**\nWith trillions of requests processed daily, a centralized service does not scale."
+        },
+        {
+          "type": "text",
+          "content": "🌐 **Geographical Distribution**\nSpreading DNS data across multiple geographical servers reduces the latency of lookup requests."
+        },
+        {
+          "type": "text",
+          "content": "🔧 **Maintenance**\nLesser operational overhead as third-party DNS operators fully manage the domains they control."
+        }
+      ]
+    }
+  ]
+}
