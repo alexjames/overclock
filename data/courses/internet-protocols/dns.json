@@ -88,6 +88,10 @@
         {
           "type": "text",
           "content": "ISPs typically host DNS resolvers, which resolve DNS requests on behalf of hosts on their networks."
+        },
+        {
+          "type": "image",
+          "url": "https://overclock-img.buildbreak.net/images/courses/internet-protocols/dns-resolver1.png"
         }
       ]
     },
@@ -97,8 +101,68 @@
       "content": "",
       "blocks": [
         {
+          "type": "image",
+          "url": "https://overclock-img.buildbreak.net/images/courses/internet-protocols/dns-query-1.png"
+        },
+        {
           "type": "text",
-          "content": "**Steps in a DNS request:**"
+          "content": "1️⃣ A client makes a request to a DNS resolver."
+        }
+      ]
+    },
+    {
+      "id": "dns-5",
+      "title": "Steps in a DNS Request",
+      "content": "",
+      "blocks": [
+        {
+          "type": "image",
+          "url": "https://overclock-img.buildbreak.net/images/courses/internet-protocols/dns-query-2.png"
+        },
+        {
+          "type": "text",
+          "content": "1️⃣ A client makes a request to a DNS resolver.\n2️⃣ The resolver queries a root name server. The root server responds with the address of a TLD name server."
+        }
+      ]
+    },
+    {
+      "id": "dns-5",
+      "title": "Steps in a DNS Request",
+      "content": "",
+      "blocks": [
+        {
+          "type": "image",
+          "url": "https://overclock-img.buildbreak.net/images/courses/internet-protocols/dns-query-3.png"
+        },
+        {
+          "type": "text",
+          "content": "1️⃣ A client makes a request to a DNS resolver.\n2️⃣ The resolver queries a root name server. The root server responds with the address of a TLD name server.\n3️⃣ The resolver queries the TLD server. The TLD server responds with the address of the domain's authoritative name server."
+        }
+      ]
+    },
+    {
+      "id": "dns-5",
+      "title": "Steps in a DNS Request",
+      "content": "",
+      "blocks": [
+        {
+          "type": "image",
+          "url": "https://overclock-img.buildbreak.net/images/courses/internet-protocols/dns-query-4.png"
+        },
+        {
+          "type": "text",
+          "content": "1️⃣ A client makes a request to a DNS resolver.\n2️⃣ The resolver queries a root name server. The root server responds with the address of a TLD name server.\n3️⃣ The resolver queries the TLD server. The TLD server responds with the address of the domain's authoritative name server.\n4️⃣ The resolver queries the domain's name server. The name server responds with the requested DNS record."
+        }
+      ]
+    },
+    {
+      "id": "dns-5",
+      "title": "Steps in a DNS Request",
+      "content": "",
+      "blocks": [
+        {
+          "type": "image",
+          "url": "https://overclock-img.buildbreak.net/images/courses/internet-protocols/dns-query-5.png"
         },
         {
           "type": "text",
