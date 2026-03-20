@@ -92,7 +92,7 @@ func main() {
 		QuestionCount int    `json:"questionCount"`
 	}
 
-	var quizSummaries []quizSummary
+	quizSummaries := make([]quizSummary, 0)
 	quizQuestions := make(map[string][]interface{}) // quizId -> questions
 
 	for id, course := range courseByID {

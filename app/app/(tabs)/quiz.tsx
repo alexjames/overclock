@@ -62,7 +62,7 @@ export default function PracticeScreen() {
     try {
       setQuizError(null);
       const list = await fetchQuizList(apiHost);
-      setQuizzes(list);
+      setQuizzes(list ?? []);
     } catch (err: any) {
       setQuizError(err.message);
     } finally {

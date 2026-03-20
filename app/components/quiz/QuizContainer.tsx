@@ -55,11 +55,10 @@ export function QuizContainer({ questions, onComplete, onExit }: QuizContainerPr
 
   const handleNext = () => {
     if (isLastQuestion) {
-      const finalCorrect = correctCount + (checkAnswer() && !isSubmitted ? 1 : 0);
       onComplete({
         totalQuestions: questions.length,
-        correctAnswers: isSubmitted ? correctCount : finalCorrect,
-        percentage: Math.round(((isSubmitted ? correctCount : finalCorrect) / questions.length) * 100),
+        correctAnswers: correctCount,
+        percentage: Math.round((correctCount / questions.length) * 100),
       });
     } else {
       setCurrentIndex((prev) => prev + 1);
