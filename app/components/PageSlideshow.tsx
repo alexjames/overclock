@@ -112,14 +112,12 @@ function TutorialSlide() {
 // ─── Content slide ─────────────────────────────────────────────────────────────
 
 function ContentSlide({ page }: { page: CoursePage }) {
-  const { colors, isDark } = useTheme();
+  const { colors } = useTheme();
   return (
     <ScrollView
       style={styles.contentScroll}
       contentContainerStyle={styles.contentScrollInner}
-      showsVerticalScrollIndicator={true}
-      indicatorStyle={isDark ? 'white' : 'black'}
-      scrollIndicatorInsets={{ right: 2 }}
+      showsVerticalScrollIndicator={false}
     >
       <Text style={[styles.pageTitle, { color: colors.text }]}>{page.title}</Text>
       {page.blocks && page.blocks.length > 0 ? (

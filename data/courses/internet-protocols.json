@@ -102,6 +102,17 @@
             {
               "type": "text",
               "content": "This layer **transforms data** so that it is consumable by the application layer above it. Depending on the protocol, this layer is responsible for operations such as translation, encryption and compression. It allows interoperability across devices that may use different underlying data formats."
+            }
+          ]
+        },
+        {
+          "id": "osi-5",
+          "title": "Presentation Layer (Layer 6)",
+          "content": "",
+          "blocks": [
+            {
+              "type": "text",
+              "content": "⬜ Application\n🟦 Presentation\n⬜ Session\n⬜ Transport\n⬜ Network\n⬜ Data Link\n⬜ Physical"
             },
             {
               "type": "text",
