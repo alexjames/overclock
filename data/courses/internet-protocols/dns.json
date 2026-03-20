@@ -9,11 +9,11 @@
       "blocks": [
         {
           "type": "text",
-          "content": "The **Domain Name System (DNS)** is a distributed directory service that stores mappings of domain names to their associated IP addresses."
+          "content": "The **Domain Name System (DNS)** is a **distributed directory service** that stores mappings of domain names to their associated IP addresses."
         },
         {
           "type": "text",
-          "content": "Commonly referred to as the **\"phone book of the internet\"**, it is a decentralized global database that runs over millions of servers managed by ISPs and other organizations."
+          "content": "Commonly referred to as the \"phone book of the internet\", it is a decentralized global database that runs over millions of servers managed by ISPs and other organizations."
         },
         {
           "type": "text",
@@ -28,7 +28,7 @@
       "blocks": [
         {
           "type": "text",
-          "content": "In the early days of the internet, domain-IP mappings were stored statically in `/etc/hosts` files on individual hosts. This quickly became unscalable as people were sharing and manually updating these files."
+          "content": "In the early days of the internet, domain-IP mappings were stored statically in ***/etc/hosts*** files on individual hosts. This quickly became unscalable as people were sharing and manually updating these files."
         },
         {
           "type": "text",
@@ -191,16 +191,12 @@
     },
     {
       "id": "dns-7",
-      "title": "DNS at Scale",
+      "title": "DNS Stats",
       "content": "",
       "blocks": [
         {
           "type": "text",
-          "content": "📊 **Some Stats**"
-        },
-        {
-          "type": "text",
-          "content": "• Millions of organizations around the world manage DNS records.\n• The global DNS database consists of **billions of records**.\n• There are **trillions of DNS queries** processed every day."
+          "content": "• **Millions** of organizations around the world manage DNS records.\n• The global DNS database consists of **billions** of DNS records.\n• There are **trillions** of DNS queries processed every day."
         },
         {
           "type": "text",
