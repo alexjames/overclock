@@ -163,18 +163,66 @@ func main() {
 			return
 		}
 
-		// Shuffle and pick up to 10 random questions.
-		shuffled := make([]interface{}, len(questions))
-		copy(shuffled, questions)
-		rand.Shuffle(len(shuffled), func(i, j int) { shuffled[i], shuffled[j] = shuffled[j], shuffled[i] })
-		if len(shuffled) > 10 {
-			shuffled = shuffled[:10]
+		// Group questions by category. Questions with no category get category 0.
+		byCategory := make(map[int][]interface{})
+		for _, q := range questions {
+			qmap, _ := q.(map[string]interface{})
+			cat := 0
+			if qmap != nil {
+				if cv, ok := qmap["category"].(float64); ok {
+					cat = int(cv)
+				}
+			}
+			byCategory[cat] = append(byCategory[cat], q)
+		}
+
+		// Collect and sort category keys for deterministic cycling order.
+		cats := make([]int, 0, len(byCategory))
+		for c := range byCategory {
+			cats = append(cats, c)
+		}
+		// Sort categories numerically.
+		for i := 0; i < len(cats); i++ {
+			for j := i + 1; j < len(cats); j++ {
+				if cats[j] < cats[i] {
+					cats[i], cats[j] = cats[j], cats[i]
+				}
+			}
+		}
+
+		// Shuffle questions within each category.
+		for c := range byCategory {
+			s := byCategory[c]
+			rand.Shuffle(len(s), func(i, j int) { s[i], s[j] = s[j], s[i] })
+		}
+
+		// Cycle through categories, picking one question per category, no duplicates.
+		// Track per-category index to avoid re-picking.
+		catIndex := make(map[int]int)
+		selected := make([]interface{}, 0, 10)
+		for len(selected) < 10 {
+			progress := false
+			for _, c := range cats {
+				if len(selected) >= 10 {
+					break
+				}
+				idx := catIndex[c]
+				if idx < len(byCategory[c]) {
+					selected = append(selected, byCategory[c][idx])
+					catIndex[c] = idx + 1
+					progress = true
+				}
+			}
+			if !progress {
+				// All categories exhausted before reaching 10.
+				break
+			}
 		}
 
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(map[string]interface{}{
 			"id":        quizID,
-			"questions": shuffled,
+			"questions": selected,
 		})
 	})
 
