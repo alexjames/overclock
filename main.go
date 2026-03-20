@@ -69,6 +69,7 @@ func main() {
 	}
 
 	reviewDir := filepath.Join(dataDir, "review")
+	quizDir := filepath.Join(dataDir, "quiz")
 
 	// Load discover content (returned by /beta/v1/discover).
 	discoverPath := filepath.Join(dataDir, "discover", "discover.json")
@@ -83,7 +84,7 @@ func main() {
 	discoverJSON := discoverRaw
 	log.Printf("loaded %d discover items", len(discoverCheck))
 
-	// Build quiz data: one quiz per course, aggregating questions from all sections.
+	// Load quiz data from data/quiz/*.json files.
 	type quizSummary struct {
 		ID            string `json:"id"`
 		Title         string `json:"title"`
@@ -95,48 +96,50 @@ func main() {
 	quizSummaries := make([]quizSummary, 0)
 	quizQuestions := make(map[string][]interface{}) // quizId -> questions
 
-	for id, course := range courseByID {
-		title, _ := course["title"].(string)
-		color, _ := course["color"].(string)
-		icon, _ := course["icon"].(string)
-
-		rawSections, _ := course["sections"].([]interface{})
-		var allQuestions []interface{}
-		for _, s := range rawSections {
-			sec, ok := s.(map[string]interface{})
-			if !ok {
-				continue
-			}
-			quiz, ok := sec["quiz"].(map[string]interface{})
-			if !ok {
-				continue
-			}
-			questions, ok := quiz["questions"].([]interface{})
-			if !ok {
-				continue
-			}
-			allQuestions = append(allQuestions, questions...)
-		}
-
-		if len(allQuestions) == 0 {
+	quizEntries, err := os.ReadDir(quizDir)
+	if err != nil {
+		log.Printf("warning: could not read quiz directory %s: %v", quizDir, err)
+		quizEntries = nil
+	}
+	for _, entry := range quizEntries {
+		name := entry.Name()
+		if entry.IsDir() || !strings.HasSuffix(name, ".json") {
 			continue
 		}
-
+		raw, err := os.ReadFile(filepath.Join(quizDir, name))
+		if err != nil {
+			log.Printf("warning: failed to read quiz file %s: %v", name, err)
+			continue
+		}
+		var quiz map[string]interface{}
+		if err := json.Unmarshal(raw, &quiz); err != nil {
+			log.Printf("warning: failed to parse quiz file %s: %v", name, err)
+			continue
+		}
+		id, _ := quiz["id"].(string)
+		title, _ := quiz["title"].(string)
+		color, _ := quiz["color"].(string)
+		icon, _ := quiz["icon"].(string)
+		questions, _ := quiz["questions"].([]interface{})
+		if id == "" || len(questions) == 0 {
+			continue
+		}
 		quizSummaries = append(quizSummaries, quizSummary{
 			ID:            id,
 			Title:         title,
 			Color:         color,
 			Icon:          icon,
-			QuestionCount: len(allQuestions),
+			QuestionCount: len(questions),
 		})
-		quizQuestions[id] = allQuestions
+		quizQuestions[id] = questions
+		log.Printf("loaded quiz: %s (%d questions) from %s", id, len(questions), name)
 	}
 
 	quizListJSON, err := json.Marshal(quizSummaries)
 	if err != nil {
 		log.Fatalf("failed to marshal quiz summaries: %v", err)
 	}
-	log.Printf("built %d quizzes", len(quizSummaries))
+	log.Printf("loaded %d quizzes", len(quizSummaries))
 
 	http.HandleFunc("/beta/v1/quiz", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodGet {
@@ -160,10 +163,18 @@ func main() {
 			return
 		}
 
+		// Shuffle and pick up to 10 random questions.
+		shuffled := make([]interface{}, len(questions))
+		copy(shuffled, questions)
+		rand.Shuffle(len(shuffled), func(i, j int) { shuffled[i], shuffled[j] = shuffled[j], shuffled[i] })
+		if len(shuffled) > 10 {
+			shuffled = shuffled[:10]
+		}
+
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(map[string]interface{}{
 			"id":        quizID,
-			"questions": questions,
+			"questions": shuffled,
 		})
 	})
 

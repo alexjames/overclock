@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../../context/ThemeContext';
 import { Question, QuestionFormat, QuizResult } from '../../types/quiz';
 import { MultipleChoice } from './MultipleChoice';
@@ -13,6 +14,9 @@ interface QuizContainerProps {
 
 export function QuizContainer({ questions, onComplete, onExit }: QuizContainerProps) {
   const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
+  // Extra bottom padding to clear the floating nav bar (height 64 + bottom offset 12 + gap)
+  const navBarClearance = insets.bottom + 64 + 12 + 8;
   const scrollViewRef = useRef<ScrollView>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, any>>({});
@@ -127,7 +131,7 @@ export function QuizContainer({ questions, onComplete, onExit }: QuizContainerPr
       </ScrollView>
 
       {/* Bottom bar with action button */}
-      <View style={styles.bottomBar}>
+      <View style={[styles.bottomBar, { paddingBottom: navBarClearance }]}>
         {!isSubmitted ? (
           <TouchableOpacity
             style={[

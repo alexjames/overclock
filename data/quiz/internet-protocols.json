@@ -1,0 +1,383 @@
+{
+  "id": "internet-protocols",
+  "title": "Internet Protocols",
+  "color": "#3B82F6",
+  "icon": "globe",
+  "questions": [
+    {
+      "id": "osi-q1",
+      "format": "MULTIPLE_CHOICE",
+      "question": "How many layers does the OSI model have?",
+      "options": ["5", "6", "7", "9"],
+      "correctAnswerIndex": 2,
+      "explanation": "The OSI model is a 7-layer reference model that standardizes communications protocols."
+    },
+    {
+      "id": "osi-q2",
+      "format": "MULTIPLE_CHOICE",
+      "question": "What does OSI stand for in the context of networking?",
+      "options": ["Open Systems Interface", "Open Systems Interconnection", "Operating System Integration", "Open Source Infrastructure"],
+      "correctAnswerIndex": 1,
+      "explanation": "OSI stands for Open Systems Interconnection, a reference model that standardizes communications protocols."
+    },
+    {
+      "id": "osi-q3",
+      "format": "MULTIPLE_CHOICE",
+      "question": "Which layer of the OSI model is responsible for the user interface and is used by applications like web browsers?",
+      "options": ["Presentation Layer", "Session Layer", "Transport Layer", "Application Layer"],
+      "correctAnswerIndex": 3,
+      "explanation": "Layer 7, the Application Layer, is the end user layer. Web browsers and email clients use protocols at this layer to access network services."
+    },
+    {
+      "id": "osi-q4",
+      "format": "MULTIPLE_CHOICE",
+      "question": "Which layer is responsible for data translation, encryption, and compression?",
+      "options": ["Application Layer", "Presentation Layer", "Session Layer", "Transport Layer"],
+      "correctAnswerIndex": 1,
+      "explanation": "The Presentation Layer (Layer 6) transforms data so it is consumable by the Application Layer, handling translation, encryption, and compression."
+    },
+    {
+      "id": "osi-q5",
+      "format": "MULTIPLE_CHOICE",
+      "question": "Which layer manages the establishment, maintenance, and closing of sessions between two communicating devices?",
+      "options": ["Transport Layer", "Network Layer", "Session Layer", "Presentation Layer"],
+      "correctAnswerIndex": 2,
+      "explanation": "The Session Layer (Layer 5) manages sessions (connections) between two communicating devices, including establishing, maintaining, and closing connections."
+    },
+    {
+      "id": "osi-q6",
+      "format": "MULTIPLE_CHOICE",
+      "question": "Which layer is responsible for end-to-end data delivery between two communicating devices?",
+      "options": ["Network Layer", "Data Link Layer", "Session Layer", "Transport Layer"],
+      "correctAnswerIndex": 3,
+      "explanation": "The Transport Layer (Layer 4) is responsible for end-to-end data delivery, including segmentation, acknowledgement, re-delivery, and traffic control."
+    },
+    {
+      "id": "osi-q7",
+      "format": "MULTIPLE_CHOICE",
+      "question": "What is the primary function of the Network Layer?",
+      "options": ["Physical addressing and error detection", "End-to-end data delivery", "Routing and logical addressing", "Node-to-node delivery over a physical link"],
+      "correctAnswerIndex": 2,
+      "explanation": "The Network Layer (Layer 3) is responsible for routing and logical addressing, transmitting data across networks and determining the best path for packets."
+    },
+    {
+      "id": "osi-q8",
+      "format": "MULTIPLE_CHOICE",
+      "question": "What unit of data does the Data Link Layer break packets into?",
+      "options": ["Segments", "Datagrams", "Frames", "Bits"],
+      "correctAnswerIndex": 2,
+      "explanation": "The Data Link Layer breaks packets into smaller units called data frames and ensures they are delivered to the next node."
+    },
+    {
+      "id": "osi-q9",
+      "format": "MULTIPLE_CHOICE",
+      "question": "Which devices operate at the Data Link Layer?",
+      "options": ["Hubs and repeaters", "Routers and firewalls", "Switches, bridges, and NICs", "Modems and access points"],
+      "correctAnswerIndex": 2,
+      "explanation": "Switches, bridges, and NICs (Network Interface Cards) are common networking devices that operate at the Data Link Layer (Layer 2)."
+    },
+    {
+      "id": "osi-q10",
+      "format": "MULTIPLE_CHOICE",
+      "question": "Which layer is responsible for the physical transmission of raw bits?",
+      "options": ["Data Link Layer", "Physical Layer", "Network Layer", "Transport Layer"],
+      "correctAnswerIndex": 1,
+      "explanation": "The Physical Layer (Layer 1) is concerned with the physical transmission of raw bits over a physical medium such as cables, fiber optics, and radio waves."
+    },
+    {
+      "id": "osi-q11",
+      "format": "MULTIPLE_CHOICE",
+      "question": "Which of the following is an example protocol at the Application Layer?",
+      "options": ["TCP", "IP", "HTTP", "PPP"],
+      "correctAnswerIndex": 2,
+      "explanation": "HTTP is an Application Layer (Layer 7) protocol. TCP operates at the Transport Layer, IP at the Network Layer, and PPP at the Data Link Layer."
+    },
+    {
+      "id": "osi-q12",
+      "format": "MULTIPLE_CHOICE",
+      "question": "SSL and TLS are examples of protocols associated with which OSI layer?",
+      "options": ["Application Layer", "Session Layer", "Presentation Layer", "Transport Layer"],
+      "correctAnswerIndex": 2,
+      "explanation": "SSL and TLS are encryption protocols associated with the Presentation Layer (Layer 6), which handles encryption as one of its main functions."
+    },
+    {
+      "id": "osi-q13",
+      "format": "MULTIPLE_CHOICE",
+      "question": "Which protocols operate at the Session Layer?",
+      "options": ["HTTP, FTP, SMTP", "TCP, UDP, SCTP", "NetBIOS, RPC, PPTP", "IP, ICMP, IGMP"],
+      "correctAnswerIndex": 2,
+      "explanation": "NetBIOS, RPC, and PPTP are example protocols that operate at the Session Layer (Layer 5)."
+    },
+    {
+      "id": "osi-q14",
+      "format": "MULTIPLE_CHOICE",
+      "question": "TCP, UDP, and SCTP operate at which OSI layer?",
+      "options": ["Application Layer", "Network Layer", "Session Layer", "Transport Layer"],
+      "correctAnswerIndex": 3,
+      "explanation": "TCP, UDP, and SCTP are Transport Layer (Layer 4) protocols responsible for end-to-end data delivery."
+    },
+    {
+      "id": "osi-q15",
+      "format": "MULTIPLE_CHOICE",
+      "question": "IP, ICMP, and IGMP are example protocols of which layer?",
+      "options": ["Transport Layer", "Network Layer", "Data Link Layer", "Physical Layer"],
+      "correctAnswerIndex": 1,
+      "explanation": "IP, ICMP, and IGMP operate at the Network Layer (Layer 3), which handles routing and logical addressing."
+    },
+    {
+      "id": "osi-q16",
+      "format": "MULTIPLE_CHOICE",
+      "question": "Ethernet (IEEE 802.3) and WiFi (IEEE 802.11) are protocols associated with which layer?",
+      "options": ["Physical Layer", "Network Layer", "Data Link Layer", "Transport Layer"],
+      "correctAnswerIndex": 2,
+      "explanation": "Ethernet (IEEE 802.3) and WiFi (IEEE 802.11) operate at the Data Link Layer (Layer 2), which handles node-to-node delivery over a physical link."
+    },
+    {
+      "id": "osi-q17",
+      "format": "MULTIPLE_CHOICE",
+      "question": "Which of the following is a benefit of the OSI model's modular design?",
+      "options": ["It forces all devices to use the same hardware", "Each layer handles specific functions independently", "It eliminates the need for encryption", "It merges all networking functions into one layer"],
+      "correctAnswerIndex": 1,
+      "explanation": "Modularity is a key benefit of the OSI model — each layer handles specific functions, making the system easier to design, troubleshoot, and maintain."
+    },
+    {
+      "id": "osi-q18",
+      "format": "MULTIPLE_CHOICE",
+      "question": "What does the Network Layer use to route data to its destination?",
+      "options": ["MAC addresses", "Port numbers", "Packets", "Data frames"],
+      "correctAnswerIndex": 2,
+      "explanation": "The Network Layer reassembles data from the Transport Layer into smaller units called packets and determines the best path to route them to their destination."
+    },
+    {
+      "id": "osi-q19",
+      "format": "MULTIPLE_CHOICE",
+      "question": "Which physical media is associated with the Physical Layer?",
+      "options": ["IP addresses and MAC addresses", "Copper cables, fiber optics, and radio waves", "Data frames and packets", "Sessions and connections"],
+      "correctAnswerIndex": 1,
+      "explanation": "The Physical Layer is concerned with transmission over physical media such as copper cables, fiber optics, and radio waves."
+    },
+    {
+      "id": "osi-q20",
+      "format": "MULTIPLE_CHOICE",
+      "question": "Which layer performs checkpointing and synchronization between communicating devices?",
+      "options": ["Transport Layer", "Presentation Layer", "Network Layer", "Session Layer"],
+      "correctAnswerIndex": 3,
+      "explanation": "The Session Layer (Layer 5) is responsible for session management, checkpointing, and synchronization between two communicating devices."
+    },
+    {
+      "id": "osi-q21",
+      "format": "MULTIPLE_CHOICE",
+      "question": "JSON and XML are data formats associated with which OSI layer?",
+      "options": ["Application Layer", "Presentation Layer", "Session Layer", "Transport Layer"],
+      "correctAnswerIndex": 1,
+      "explanation": "JSON and XML are data formatting standards associated with the Presentation Layer (Layer 6), which handles data translation and formatting."
+    },
+    {
+      "id": "osi-q22",
+      "format": "MULTIPLE_CHOICE",
+      "question": "Which OSI layer provides a framework for designing complex protocols, aiding structured development?",
+      "options": ["A single dedicated layer", "The OSI model as a whole", "Only the Application Layer", "Only the Transport Layer"],
+      "correctAnswerIndex": 1,
+      "explanation": "The OSI model as a whole provides the benefit of structured development — a framework for designing complex protocols across all its layers."
+    },
+    {
+      "id": "osi-q23",
+      "format": "MULTIPLE_CHOICE",
+      "question": "What is the main function of the Physical Layer?",
+      "options": ["Logical addressing", "Node-to-node delivery", "Transmission of bits, modulation/demodulation, and signal encoding", "End-to-end data delivery"],
+      "correctAnswerIndex": 2,
+      "explanation": "The Physical Layer's main functions are the transmission of bits, modulation/demodulation, and signal encoding over a physical medium."
+    },
+    {
+      "id": "osi-q24",
+      "format": "MULTIPLE_CHOICE",
+      "question": "Which devices operate at the Physical Layer?",
+      "options": ["Switches and bridges", "Routers and gateways", "Hubs, repeaters, and modems", "Firewalls and load balancers"],
+      "correctAnswerIndex": 2,
+      "explanation": "Hubs, repeaters, and modems are devices that operate at the Physical Layer (Layer 1), dealing with raw bit transmission."
+    },
+    {
+      "id": "osi-q25",
+      "format": "MULTIPLE_CHOICE",
+      "question": "The Transport Layer's flow control function is best described as:",
+      "options": ["Routing packets across multiple networks", "Regulating the rate of data transmission to prevent congestion", "Translating data formats between sender and receiver", "Managing sessions between applications"],
+      "correctAnswerIndex": 1,
+      "explanation": "Flow control at the Transport Layer regulates the rate of data transmission to prevent the receiver from being overwhelmed, ensuring reliable delivery."
+    },
+    {
+      "id": "osi-q26",
+      "format": "TRUE_FALSE",
+      "question": "The OSI model has exactly 7 layers.",
+      "correctAnswer": true,
+      "explanation": "The OSI model is a 7-layer reference model standardizing communications protocols."
+    },
+    {
+      "id": "osi-q27",
+      "format": "TRUE_FALSE",
+      "question": "The Application Layer (Layer 7) is the lowest layer of the OSI model.",
+      "correctAnswer": false,
+      "explanation": "The Application Layer is Layer 7, the highest layer. The Physical Layer (Layer 1) is the lowest."
+    },
+    {
+      "id": "osi-q28",
+      "format": "TRUE_FALSE",
+      "question": "The Presentation Layer is responsible for data encryption and compression.",
+      "correctAnswer": true,
+      "explanation": "The Presentation Layer (Layer 6) handles translation, encryption, and compression of data."
+    },
+    {
+      "id": "osi-q29",
+      "format": "TRUE_FALSE",
+      "question": "TCP operates at the Network Layer of the OSI model.",
+      "correctAnswer": false,
+      "explanation": "TCP operates at the Transport Layer (Layer 4), not the Network Layer (Layer 3)."
+    },
+    {
+      "id": "osi-q30",
+      "format": "TRUE_FALSE",
+      "question": "The Session Layer is responsible for establishing, maintaining, and closing connections between devices.",
+      "correctAnswer": true,
+      "explanation": "The Session Layer (Layer 5) manages sessions between communicating devices, including establishing, maintaining, and closing connections."
+    },
+    {
+      "id": "osi-q31",
+      "format": "TRUE_FALSE",
+      "question": "IP is an example of a Transport Layer protocol.",
+      "correctAnswer": false,
+      "explanation": "IP (Internet Protocol) operates at the Network Layer (Layer 3), not the Transport Layer."
+    },
+    {
+      "id": "osi-q32",
+      "format": "TRUE_FALSE",
+      "question": "The Data Link Layer handles node-to-node delivery of data over a physical link.",
+      "correctAnswer": true,
+      "explanation": "The Data Link Layer (Layer 2) handles node-to-node delivery of data, breaking packets into frames and ensuring delivery to the next node."
+    },
+    {
+      "id": "osi-q33",
+      "format": "TRUE_FALSE",
+      "question": "Routers are the primary devices associated with the Data Link Layer.",
+      "correctAnswer": false,
+      "explanation": "Routers operate at the Network Layer (Layer 3). The Data Link Layer is associated with switches, bridges, and NICs."
+    },
+    {
+      "id": "osi-q34",
+      "format": "TRUE_FALSE",
+      "question": "The Physical Layer transmits raw bits over physical media such as cables and fiber optics.",
+      "correctAnswer": true,
+      "explanation": "The Physical Layer (Layer 1) is concerned with the physical transmission of raw bits over physical media including copper cables, fiber optics, and radio waves."
+    },
+    {
+      "id": "osi-q35",
+      "format": "TRUE_FALSE",
+      "question": "HTTP is an example of a Transport Layer protocol.",
+      "correctAnswer": false,
+      "explanation": "HTTP is an Application Layer (Layer 7) protocol, not a Transport Layer protocol."
+    },
+    {
+      "id": "osi-q36",
+      "format": "TRUE_FALSE",
+      "question": "Modularity is one of the key benefits of the OSI model.",
+      "correctAnswer": true,
+      "explanation": "Modularity is a key benefit of the OSI model — each layer handles specific functions independently."
+    },
+    {
+      "id": "osi-q37",
+      "format": "TRUE_FALSE",
+      "question": "The OSI model allows interoperability across diverse networking systems.",
+      "correctAnswer": true,
+      "explanation": "The OSI model is a reference model that standardizes communications protocols, allowing interoperability across diverse networking systems."
+    },
+    {
+      "id": "osi-q38",
+      "format": "TRUE_FALSE",
+      "question": "SSL and TLS are encryption protocols associated with the Session Layer.",
+      "correctAnswer": false,
+      "explanation": "SSL and TLS are associated with the Presentation Layer (Layer 6), not the Session Layer."
+    },
+    {
+      "id": "osi-q39",
+      "format": "TRUE_FALSE",
+      "question": "The Transport Layer is responsible for segmentation and re-assembly of data.",
+      "correctAnswer": true,
+      "explanation": "Segmentation and re-assembly is a main function of the Transport Layer (Layer 4), along with flow control and error correction."
+    },
+    {
+      "id": "osi-q40",
+      "format": "TRUE_FALSE",
+      "question": "The Network Layer determines the best path to route packets to their destination.",
+      "correctAnswer": true,
+      "explanation": "The Network Layer (Layer 3) takes data from the Transport Layer, reassembles it into packets, and determines the best path to route them to their destination."
+    },
+    {
+      "id": "osi-q41",
+      "format": "TRUE_FALSE",
+      "question": "SMTP is an example of a Network Layer protocol.",
+      "correctAnswer": false,
+      "explanation": "SMTP (Simple Mail Transfer Protocol) is an Application Layer (Layer 7) protocol used for email, not a Network Layer protocol."
+    },
+    {
+      "id": "osi-q42",
+      "format": "TRUE_FALSE",
+      "question": "The Presentation Layer allows interoperability across devices that use different underlying data formats.",
+      "correctAnswer": true,
+      "explanation": "The Presentation Layer transforms data so it is consumable by the Application Layer, enabling interoperability across devices with different underlying data formats."
+    },
+    {
+      "id": "osi-q43",
+      "format": "TRUE_FALSE",
+      "question": "Hubs operate at the Data Link Layer of the OSI model.",
+      "correctAnswer": false,
+      "explanation": "Hubs operate at the Physical Layer (Layer 1). The Data Link Layer is associated with switches, bridges, and NICs."
+    },
+    {
+      "id": "osi-q44",
+      "format": "TRUE_FALSE",
+      "question": "The OSI model helps make it easier to debug and isolate network problems.",
+      "correctAnswer": true,
+      "explanation": "Troubleshooting is one of the key benefits of the OSI model — its layered structure makes it easier to debug and isolate problems."
+    },
+    {
+      "id": "osi-q45",
+      "format": "TRUE_FALSE",
+      "question": "NetBIOS and RPC are example protocols of the Session Layer.",
+      "correctAnswer": true,
+      "explanation": "NetBIOS, RPC, and PPTP are example protocols that operate at the Session Layer (Layer 5)."
+    },
+    {
+      "id": "osi-q46",
+      "format": "TRUE_FALSE",
+      "question": "The Data Link Layer uses IP addresses for physical addressing.",
+      "correctAnswer": false,
+      "explanation": "The Data Link Layer uses MAC addresses (physical addresses) for node-to-node delivery. IP addresses are used at the Network Layer."
+    },
+    {
+      "id": "osi-q47",
+      "format": "TRUE_FALSE",
+      "question": "JPG and MPEG are compression formats associated with the Presentation Layer.",
+      "correctAnswer": true,
+      "explanation": "JPG and MPEG are compression formats associated with the Presentation Layer (Layer 6), which handles data compression among its main functions."
+    },
+    {
+      "id": "osi-q48",
+      "format": "TRUE_FALSE",
+      "question": "UDP operates at the Transport Layer of the OSI model.",
+      "correctAnswer": true,
+      "explanation": "UDP (User Datagram Protocol) is a Transport Layer (Layer 4) protocol, alongside TCP and SCTP."
+    },
+    {
+      "id": "osi-q49",
+      "format": "TRUE_FALSE",
+      "question": "The Physical Layer is responsible for routing packets between different networks.",
+      "correctAnswer": false,
+      "explanation": "Routing is a function of the Network Layer (Layer 3). The Physical Layer only handles the transmission of raw bits over a physical medium."
+    },
+    {
+      "id": "osi-q50",
+      "format": "TRUE_FALSE",
+      "question": "The OSI model is described as a reference model rather than a strict implementation standard.",
+      "correctAnswer": true,
+      "explanation": "The OSI model is a reference model that standardizes communications protocols — it provides a conceptual framework rather than a strict implementation mandate."
+    }
+  ]
+}
