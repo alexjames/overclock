@@ -87,24 +87,74 @@ export default function CourseDetailScreen() {
         {/* Sections List */}
         <View style={styles.sectionsContainer}>
           <Text style={[styles.sectionsTitle, { color: colors.text }]}>Sections</Text>
-          {sections.map((section, index) => (
-            <TouchableOpacity
-              key={section.id}
-              style={[styles.sectionCard, { backgroundColor: colors.card, borderColor: colors.border }]}
-              onPress={() => handleSectionPress(section)}
-              activeOpacity={0.7}
-            >
-              <View style={styles.sectionContent}>
-                <View style={[styles.sectionNumber, { backgroundColor: colors.primary }]}>
-                  <Text style={styles.sectionNumberText}>{index + 1}</Text>
+          {(() => {
+            // Group sections into runs: ungrouped sections stand alone, grouped sections are collected together
+            type GroupRun =
+              | { kind: 'ungrouped'; section: CourseSection; index: number }
+              | { kind: 'group'; label: string; items: { section: CourseSection; index: number }[] };
+            const runs: GroupRun[] = [];
+            sections.forEach((section, i) => {
+              if (!section.group) {
+                runs.push({ kind: 'ungrouped', section, index: i });
+              } else {
+                const last = runs[runs.length - 1];
+                if (last && last.kind === 'group' && last.label === section.group) {
+                  last.items.push({ section, index: i });
+                } else {
+                  runs.push({ kind: 'group', label: section.group, items: [{ section, index: i }] });
+                }
+              }
+            });
+            return runs.map((run, runIdx) => {
+              if (run.kind === 'ungrouped') {
+                return (
+                  <TouchableOpacity
+                    key={run.section.id}
+                    style={[styles.sectionCard, { backgroundColor: colors.card, borderColor: colors.border }, runIdx > 0 && styles.sectionCardSpacing]}
+                    onPress={() => handleSectionPress(run.section)}
+                    activeOpacity={0.7}
+                  >
+                    <View style={styles.sectionContent}>
+                      <View style={[styles.sectionNumber, { backgroundColor: colors.primary }]}>
+                        <Text style={styles.sectionNumberText}>{run.index + 1}</Text>
+                      </View>
+                      <View style={styles.sectionInfo}>
+                        <Text style={[styles.sectionTitle, { color: colors.text }]}>{run.section.title}</Text>
+                      </View>
+                    </View>
+                    <Ionicons name="chevron-forward" size={24} color={colors.textMuted} />
+                  </TouchableOpacity>
+                );
+              }
+              return (
+                <View key={`group-${run.label}-${runIdx}`} style={runIdx > 0 && styles.sectionCardSpacing}>
+                  <Text style={[styles.groupLabel, { color: colors.textMuted }]}>{run.label}</Text>
+                  <View style={[styles.groupContainer, { backgroundColor: colors.card, borderColor: colors.border }]}>
+                    {run.items.map(({ section, index }, itemIdx) => (
+                      <View key={section.id}>
+                        {itemIdx > 0 && <View style={[styles.groupDivider, { backgroundColor: colors.border }]} />}
+                        <TouchableOpacity
+                          style={styles.groupSectionRow}
+                          onPress={() => handleSectionPress(section)}
+                          activeOpacity={0.7}
+                        >
+                          <View style={styles.sectionContent}>
+                            <View style={[styles.sectionNumber, { backgroundColor: colors.primary }]}>
+                              <Text style={styles.sectionNumberText}>{index + 1}</Text>
+                            </View>
+                            <View style={styles.sectionInfo}>
+                              <Text style={[styles.sectionTitle, { color: colors.text }]}>{section.title}</Text>
+                            </View>
+                          </View>
+                          <Ionicons name="chevron-forward" size={24} color={colors.textMuted} />
+                        </TouchableOpacity>
+                      </View>
+                    ))}
+                  </View>
                 </View>
-                <View style={styles.sectionInfo}>
-                  <Text style={[styles.sectionTitle, { color: colors.text }]}>{section.title}</Text>
-                </View>
-              </View>
-              <Ionicons name="chevron-forward" size={24} color={colors.textMuted} />
-            </TouchableOpacity>
-          ))}
+              );
+            });
+          })()}
         </View>
 
         <View style={styles.bottomPadding} />
@@ -173,7 +223,9 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 16,
     borderWidth: 1,
-    marginBottom: 12,
+  },
+  sectionCardSpacing: {
+    marginTop: 12,
   },
   sectionContent: {
     flexDirection: 'row',
@@ -200,6 +252,28 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     marginBottom: 4,
+  },
+  groupLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+    marginBottom: 8,
+  },
+  groupContainer: {
+    borderRadius: 16,
+    borderWidth: 1,
+    overflow: 'hidden',
+  },
+  groupSectionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 16,
+  },
+  groupDivider: {
+    height: 1,
+    marginLeft: 16,
   },
   errorText: {
     fontSize: 18,

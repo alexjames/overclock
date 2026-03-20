@@ -622,6 +622,7 @@ func main() {
 				File  string `json:"file"`
 				ID    string `json:"id"`
 				Title string `json:"title"`
+				Group string `json:"group"`
 			}
 			sectionDir := filepath.Join(coursesDir, courseID)
 			orderRaw, err := os.ReadFile(filepath.Join(sectionDir, "sections.json"))
@@ -646,9 +647,12 @@ func main() {
 								}
 							}
 						}
-						// sections.json id/title always win.
+						// sections.json id/title/group always win.
 						summary["id"] = e.ID
 						summary["title"] = e.Title
+						if e.Group != "" {
+							summary["group"] = e.Group
+						}
 						summaries = append(summaries, summary)
 					}
 					w.Header().Set("Content-Type", "application/json")

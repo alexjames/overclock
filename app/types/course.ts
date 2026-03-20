@@ -36,6 +36,7 @@ export type SectionDisplayMode = 'slideshow' | 'pages';
 export interface CourseSection {
   id: string;
   title: string;
+  group?: string;
   pages: CoursePage[];
   displayMode?: SectionDisplayMode; // defaults to 'slideshow'
   quiz?: SectionQuiz;

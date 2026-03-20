@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find c:UsersdarkmSoftwareoverclockappapp -type f -name *sections* -o -name *Sections*)"
+    ]
+  }
+}

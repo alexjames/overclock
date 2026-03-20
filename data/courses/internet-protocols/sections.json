@@ -1,4 +1,4 @@
 [
   { "file": "osi-model.json", "id": "osi-model", "title": "OSI Model" },
-  { "file": "dns.json", "id": "dns", "title": "DNS" }
+  { "file": "dns.json", "id": "dns", "title": "DNS", "group": "DNS" }
 ]
