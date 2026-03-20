@@ -52,11 +52,12 @@
         },
         {
           "type": "image",
-          "url": "https://overclock-img.buildbreak.net/images/courses/internet-protocols/dns-hierarchy.png"
+          "url": "https://overclock-img.buildbreak.net/images/courses/internet-protocols/dns-hierarchy1.png",
+          "scale": 1.1
         },
         {
           "type": "text",
-          "content": "🌍 **Root Name Servers**\nHold the addresses of TLD name servers (.com, .net, etc.). There are 13 logical root \"servers\" around the world, each replicated by hundreds of physical hosts for fault-tolerance."
+          "content": "\n🌍 **Root Name Servers**\nHold the addresses of TLD name servers (.com, .net, etc.). There are 13 logical root \"servers\" around the world, each replicated by hundreds of physical hosts for fault-tolerance."
         },
         {
           "type": "text",

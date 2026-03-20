@@ -10,7 +10,7 @@ export type TextAlign = 'left' | 'center' | 'right';
 export type ContentBlock =
   | { type: 'text'; content: string; align?: TextAlign }
   | { type: 'code'; content: string; language?: string }
-  | { type: 'image'; url: string; caption?: string; position?: ImagePosition }
+  | { type: 'image'; url: string; caption?: string; position?: ImagePosition; scale?: number }
   | { type: 'table'; headers: string[]; rows: string[][] }
   | { type: 'chart'; chartType: 'bar' | 'line' | 'pie'; title: string; data: ChartData[] };
 

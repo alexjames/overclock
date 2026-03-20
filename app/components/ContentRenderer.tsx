@@ -15,9 +15,11 @@ export function ContentRenderer({ blocks }: ContentRendererProps) {
       {blocks.map((block, index) => {
         // Positioned images are absolutely placed — rendered outside normal flow
         if (block.type === 'image' && block.position) {
+          const s = block.scale ?? 1;
+          const pw = (screenWidth - 72) * s;
           return (
             <View key={index} style={[styles.positionedImageContainer, resolveAbsoluteStyle(block.position)]}>
-              <Image source={{ uri: block.url }} style={styles.image} resizeMode="contain" />
+              <Image source={{ uri: block.url }} style={{ width: pw, height: 200 * s, borderRadius: 12 }} resizeMode="contain" />
               {block.caption && (
                 <Text style={[styles.caption, { color: colors.textMuted }]}>{block.caption}</Text>
               )}
@@ -107,7 +109,7 @@ function renderBlock(block: ContentBlock, colors: any) {
     case 'code':
       return <CodeBlock content={block.content} language={block.language} colors={colors} />;
     case 'image':
-      return <ImageBlock url={block.url} caption={block.caption} colors={colors} />;
+      return <ImageBlock url={block.url} caption={block.caption} scale={block.scale} colors={colors} />;
     case 'table':
       return <TableBlock headers={block.headers} rows={block.rows} colors={colors} />;
     case 'chart':
@@ -162,7 +164,7 @@ function resolveAbsoluteStyle(position: ImagePosition): object {
 }
 
 // Image Block (no position — inline flow)
-function ImageBlock({ url, caption, colors }: { url: string; caption?: string; colors: any }) {
+function ImageBlock({ url, caption, scale = 1, colors }: { url: string; caption?: string; scale?: number; colors: any }) {
   const [aspectRatio, setAspectRatio] = React.useState<number | undefined>(undefined);
 
   React.useEffect(() => {
@@ -171,13 +173,15 @@ function ImageBlock({ url, caption, colors }: { url: string; caption?: string; c
     });
   }, [url]);
 
+  const baseWidth = (screenWidth - 72) * scale;
+
   return (
     <View style={styles.imageContainer}>
       <Image
         source={{ uri: url }}
         style={aspectRatio !== undefined
-          ? { width: screenWidth - 72, aspectRatio, borderRadius: 12 }
-          : styles.image}
+          ? { width: baseWidth, aspectRatio, borderRadius: 12 }
+          : { width: baseWidth, height: 200 * scale, borderRadius: 12 }}
         resizeMode="contain"
       />
       {caption && (
