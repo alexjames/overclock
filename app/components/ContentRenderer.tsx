@@ -1,13 +1,14 @@
 import React from 'react';
-import { View, Text, Image, ScrollView, StyleSheet, Dimensions, TextStyle } from 'react-native';
+import { View, Text, Image, ScrollView, StyleSheet, Dimensions, TextStyle, Modal, PanResponder, Animated, Pressable } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
 import { ContentBlock, ChartData, ImagePosition, TextAlign } from '../types/course';
 
 interface ContentRendererProps {
   blocks: ContentBlock[];
+  onLongPressImage?: (url: string) => void;
 }
 
-export function ContentRenderer({ blocks }: ContentRendererProps) {
+export function ContentRenderer({ blocks, onLongPressImage }: ContentRendererProps) {
   const { colors } = useTheme();
 
   return (
@@ -28,7 +29,7 @@ export function ContentRenderer({ blocks }: ContentRendererProps) {
         }
         return (
           <View key={index} style={block.type === 'image' ? styles.blockContainerImage : styles.blockContainer}>
-            {renderBlock(block, colors)}
+            {renderBlock(block, colors, onLongPressImage)}
           </View>
         );
       })}
@@ -102,14 +103,14 @@ function parseFormatting(text: string) {
   return parts;
 }
 
-function renderBlock(block: ContentBlock, colors: any) {
+function renderBlock(block: ContentBlock, colors: any, onLongPressImage?: (url: string) => void) {
   switch (block.type) {
     case 'text':
       return <TextBlock content={block.content} align={block.align} colors={colors} />;
     case 'code':
       return <CodeBlock content={block.content} language={block.language} colors={colors} />;
     case 'image':
-      return <ImageBlock url={block.url} caption={block.caption} scale={block.scale} colors={colors} />;
+      return <ImageBlock url={block.url} caption={block.caption} scale={block.scale} onLongPress={onLongPressImage} colors={colors} />;
     case 'table':
       return <TableBlock headers={block.headers} rows={block.rows} colors={colors} />;
     case 'chart':
@@ -164,8 +165,10 @@ function resolveAbsoluteStyle(position: ImagePosition): object {
 }
 
 // Image Block (no position — inline flow)
-function ImageBlock({ url, caption, scale = 1, colors }: { url: string; caption?: string; scale?: number; colors: any }) {
+function ImageBlock({ url, caption, scale = 1, onLongPress, colors }: { url: string; caption?: string; scale?: number; onLongPress?: (url: string) => void; colors: any }) {
   const [aspectRatio, setAspectRatio] = React.useState<number | undefined>(undefined);
+  const [enlarged, setEnlarged] = React.useState(false);
+  const pan = React.useRef(new Animated.ValueXY({ x: 0, y: 0 })).current;
 
   React.useEffect(() => {
     Image.getSize(url, (w, h) => {
@@ -173,20 +176,66 @@ function ImageBlock({ url, caption, scale = 1, colors }: { url: string; caption?
     });
   }, [url]);
 
+  const panResponder = React.useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onPanResponderGrant: () => {
+        pan.setOffset({ x: (pan.x as any)._value, y: (pan.y as any)._value });
+        pan.setValue({ x: 0, y: 0 });
+      },
+      onPanResponderMove: Animated.event([null, { dx: pan.x, dy: pan.y }], { useNativeDriver: false }),
+      onPanResponderRelease: () => {
+        pan.flattenOffset();
+        setEnlarged(false);
+        pan.setValue({ x: 0, y: 0 });
+      },
+      onPanResponderTerminate: () => {
+        pan.flattenOffset();
+        setEnlarged(false);
+        pan.setValue({ x: 0, y: 0 });
+      },
+    })
+  ).current;
+
   const baseWidth = (screenWidth - 72) * scale;
+  const imageStyle = aspectRatio !== undefined
+    ? { width: baseWidth, aspectRatio, borderRadius: 12 }
+    : { width: baseWidth, height: 200 * scale, borderRadius: 12 };
+
+  const enlargedWidth = screenWidth - 32;
+  const enlargedStyle = aspectRatio !== undefined
+    ? { width: enlargedWidth, aspectRatio, borderRadius: 12 }
+    : { width: enlargedWidth, height: 260, borderRadius: 12 };
+
+  const handleLongPress = () => {
+    pan.setValue({ x: 0, y: 0 });
+    if (onLongPress) {
+      onLongPress(url);
+    } else {
+      setEnlarged(true);
+    }
+  };
 
   return (
     <View style={styles.imageContainer}>
-      <Image
-        source={{ uri: url }}
-        style={aspectRatio !== undefined
-          ? { width: baseWidth, aspectRatio, borderRadius: 12 }
-          : { width: baseWidth, height: 200 * scale, borderRadius: 12 }}
-        resizeMode="contain"
-      />
+      <Pressable onLongPress={handleLongPress} delayLongPress={300}>
+        <Image source={{ uri: url }} style={imageStyle} resizeMode="contain" />
+      </Pressable>
       {caption && (
         <Text style={[styles.caption, { color: colors.textMuted }]}>{caption}</Text>
       )}
+
+      {/* Own modal — only used when not inside PageSlideshow (no onLongPress callback) */}
+      <Modal visible={enlarged} transparent animationType="fade" statusBarTranslucent>
+        <View style={styles.enlargedOverlay}>
+          <Animated.View
+            style={[styles.enlargedContainer, { transform: pan.getTranslateTransform() }]}
+            {...panResponder.panHandlers}
+          >
+            <Image source={{ uri: url }} style={enlargedStyle} resizeMode="contain" />
+          </Animated.View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -342,6 +391,16 @@ const styles = StyleSheet.create({
   imageContainer: {
     alignItems: 'center',
     marginVertical: 2,
+  },
+  enlargedOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.85)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  enlargedContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   image: {
     width: screenWidth - 72,

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -6,6 +6,11 @@ import {
   ScrollView,
   TouchableOpacity,
   Dimensions,
+  Modal,
+  Image,
+  Animated,
+  PanResponder,
+  GestureResponderEvent,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -30,6 +35,31 @@ export function PageSlideshow({ pages, onComplete }: PageSlideshowProps) {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const [index, setIndex] = useState(0);
+  const [enlargedUrl, setEnlargedUrl] = useState<string | null>(null);
+  const pan = useRef(new Animated.ValueXY({ x: 0, y: 0 })).current;
+  const slideTouch = useRef<{ x: number; t: number } | null>(null);
+
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onPanResponderGrant: () => {
+        pan.setOffset({ x: (pan.x as any)._value, y: (pan.y as any)._value });
+        pan.setValue({ x: 0, y: 0 });
+      },
+      onPanResponderMove: Animated.event([null, { dx: pan.x, dy: pan.y }], { useNativeDriver: false }),
+      onPanResponderRelease: () => {
+        pan.flattenOffset();
+      },
+      onPanResponderTerminate: () => {
+        pan.flattenOffset();
+      },
+    })
+  ).current;
+
+  const handleLongPressImage = (url: string) => {
+    pan.setValue({ x: 0, y: 0 });
+    setEnlargedUrl(url);
+  };
 
   const total = pages.length; // number of content slides
   const lastIndex = total + 1; // completion slide index
@@ -47,35 +77,64 @@ export function PageSlideshow({ pages, onComplete }: PageSlideshowProps) {
         {showRing && <ProgressRing total={total} current={index - 1} />}
       </View>
 
-      {/* Slide area */}
-      <View style={styles.slideArea}>
+      {/* Slide area — touch handler on the container detects taps vs long presses */}
+      <View
+        style={styles.slideArea}
+        onTouchStart={(e) => {
+          if (index === lastIndex) return;
+          slideTouch.current = { x: e.nativeEvent.pageX, t: Date.now() };
+        }}
+        onTouchEnd={(e) => {
+          if (index === lastIndex) return;
+          const s = slideTouch.current;
+          if (!s) return;
+          const duration = Date.now() - s.t;
+          const dx = Math.abs(e.nativeEvent.pageX - s.x);
+          const dy = Math.abs(e.nativeEvent.pageY - (e.nativeEvent.pageY));
+          // Only navigate on a quick short tap
+          if (duration < 300 && dx < 10) {
+            if (s.x < SCREEN_WIDTH / 2) {
+              if (index > 0) setIndex(index - 1);
+            } else {
+              if (index < lastIndex) setIndex(index + 1);
+            }
+          }
+          slideTouch.current = null;
+        }}
+      >
         {index === 0 && <TutorialSlide />}
         {index > 0 && index <= total && (
-          <ContentSlide page={pages[index - 1]} />
+          <ContentSlide page={pages[index - 1]} onLongPressImage={handleLongPressImage} />
         )}
         {index === lastIndex && (
           <CompletionSlide onDone={onComplete} />
         )}
-
-        {/* Tap zones — hidden on completion slide so only the Done button registers */}
-        {index !== lastIndex && (
-          <>
-            <TouchableOpacity
-              style={styles.tapZoneLeft}
-              onPress={() => { if (index > 0) setIndex(index - 1); }}
-              activeOpacity={1}
-            />
-            <TouchableOpacity
-              style={styles.tapZoneRight}
-              onPress={() => { if (index < lastIndex) setIndex(index + 1); }}
-              activeOpacity={1}
-            />
-          </>
-        )}
       </View>
+
+      {/* Enlarged image modal — rendered at PageSlideshow level to sit above tap zones */}
+      <Modal visible={!!enlargedUrl} transparent={false} animationType="fade" statusBarTranslucent>
+        <View style={styles.enlargedOverlay} {...panResponder.panHandlers}>
+          <TouchableOpacity
+            style={[styles.enlargedClose, { top: insets.top + 12 }]}
+            onPress={() => { setEnlargedUrl(null); pan.setValue({ x: 0, y: 0 }); }}
+          >
+            <Ionicons name="close" size={22} color="#000" />
+          </TouchableOpacity>
+          <Animated.View style={{ transform: pan.getTranslateTransform() }}>
+            {enlargedUrl && (
+              <Image
+                source={{ uri: enlargedUrl }}
+                style={{ width: (SCREEN_WIDTH - 32) * 2, height: undefined, aspectRatio: 16 / 9, borderRadius: 12 }}
+                resizeMode="contain"
+              />
+            )}
+          </Animated.View>
+        </View>
+      </Modal>
     </View>
   );
 }
+
 
 // ─── Tutorial slide ────────────────────────────────────────────────────────────
 
@@ -111,7 +170,7 @@ function TutorialSlide() {
 
 // ─── Content slide ─────────────────────────────────────────────────────────────
 
-function ContentSlide({ page }: { page: CoursePage }) {
+function ContentSlide({ page, onLongPressImage }: { page: CoursePage; onLongPressImage?: (url: string) => void }) {
   const { colors } = useTheme();
   return (
     <ScrollView
@@ -121,7 +180,7 @@ function ContentSlide({ page }: { page: CoursePage }) {
     >
       <Text style={[styles.pageTitle, { color: colors.text }]}>{page.title}</Text>
       {page.blocks && page.blocks.length > 0 ? (
-        <ContentRenderer blocks={page.blocks} />
+        <ContentRenderer blocks={page.blocks} onLongPressImage={onLongPressImage} />
       ) : (
         <FormattedText style={[styles.pageContent, { color: colors.text }]}>{page.content}</FormattedText>
       )}
@@ -170,21 +229,6 @@ const styles = StyleSheet.create({
   slideArea: {
     flex: 1,
   },
-  tapZoneLeft: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    width: SCREEN_WIDTH / 2,
-    bottom: 0,
-  },
-  tapZoneRight: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    width: SCREEN_WIDTH / 2,
-    bottom: 0,
-  },
-
   // Tutorial
   tutorialContainer: {
     flex: 1,
@@ -274,5 +318,22 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 17,
     fontWeight: '600',
+  },
+  enlargedOverlay: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  enlargedClose: {
+    position: 'absolute',
+    left: 16,
+    zIndex: 10,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(0,0,0,0.12)',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
