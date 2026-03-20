@@ -10,6 +10,83 @@ import (
 	"strings"
 )
 
+// selectEvenlyAcrossSections picks `total` items distributed evenly across
+// sections. Within each section, items are grouped by their numeric `category`
+// field and cycled through so variety is maintained. Items are shuffled within
+// each category before selection.
+func selectEvenlyAcrossSections(sections [][]interface{}, total int) []interface{} {
+	n := len(sections)
+	if n == 0 {
+		return nil
+	}
+
+	// Allocate slots per section evenly; remainder goes to earlier sections.
+	slots := make([]int, n)
+	base := total / n
+	rem := total % n
+	for i := range slots {
+		slots[i] = base
+		if i < rem {
+			slots[i]++
+		}
+	}
+
+	selected := make([]interface{}, 0, total)
+	for si, sec := range sections {
+		// Group by category within this section.
+		byCategory := make(map[int][]interface{})
+		for _, item := range sec {
+			cat := 0
+			if m, ok := item.(map[string]interface{}); ok {
+				if cv, ok := m["category"].(float64); ok {
+					cat = int(cv)
+				}
+			}
+			byCategory[cat] = append(byCategory[cat], item)
+		}
+		// Sort category keys.
+		cats := make([]int, 0, len(byCategory))
+		for c := range byCategory {
+			cats = append(cats, c)
+		}
+		for i := 0; i < len(cats); i++ {
+			for j := i + 1; j < len(cats); j++ {
+				if cats[j] < cats[i] {
+					cats[i], cats[j] = cats[j], cats[i]
+				}
+			}
+		}
+		// Shuffle within each category.
+		for c := range byCategory {
+			s := byCategory[c]
+			rand.Shuffle(len(s), func(i, j int) { s[i], s[j] = s[j], s[i] })
+		}
+		// Cycle through categories picking one at a time until quota filled.
+		catIdx := make(map[int]int)
+		quota := slots[si]
+		picked := 0
+		for picked < quota {
+			progress := false
+			for _, c := range cats {
+				if picked >= quota {
+					break
+				}
+				idx := catIdx[c]
+				if idx < len(byCategory[c]) {
+					selected = append(selected, byCategory[c][idx])
+					catIdx[c] = idx + 1
+					picked++
+					progress = true
+				}
+			}
+			if !progress {
+				break
+			}
+		}
+	}
+	return selected
+}
+
 func main() {
 	dataDir := os.Getenv("DATA_DIR")
 	if dataDir == "" {
@@ -156,7 +233,8 @@ func main() {
 	}
 
 	deckSummaries := make([]deckSummary, 0)
-	deckCards := make(map[string][]interface{}) // deckId -> cards
+	deckCards := make(map[string][]interface{})    // deckId -> all cards
+	deckSections := make(map[string][][]interface{}) // deckId -> per-section card slices
 
 	reviewEntries, err := os.ReadDir(reviewDir)
 	if err != nil {
@@ -165,7 +243,81 @@ func main() {
 	}
 	for _, entry := range reviewEntries {
 		name := entry.Name()
-		if entry.IsDir() || !strings.HasSuffix(name, ".json") {
+
+		if entry.IsDir() {
+			// Subdirectory: merge all section files into one deck, tracking per-section slices.
+			deckID := name
+			subDir := filepath.Join(reviewDir, name)
+			subEntries, err := os.ReadDir(subDir)
+			if err != nil {
+				log.Printf("warning: failed to read review subdir %s: %v", subDir, err)
+				continue
+			}
+			var allCards []interface{}
+			var secSlices [][]interface{}
+			var title, color, icon string
+			for _, se := range subEntries {
+				sname := se.Name()
+				if se.IsDir() || !strings.HasSuffix(sname, ".json") {
+					continue
+				}
+				raw, err := os.ReadFile(filepath.Join(subDir, sname))
+				if err != nil {
+					log.Printf("warning: failed to read review section %s/%s: %v", name, sname, err)
+					continue
+				}
+				var sec map[string]interface{}
+				if err := json.Unmarshal(raw, &sec); err != nil {
+					log.Printf("warning: failed to parse review section %s/%s: %v", name, sname, err)
+					continue
+				}
+				if cards, ok := sec["cards"].([]interface{}); ok && len(cards) > 0 {
+					allCards = append(allCards, cards...)
+					secSlices = append(secSlices, cards)
+				}
+				if t, ok := sec["title"].(string); ok && title == "" {
+					title = t
+				}
+				if c, ok := sec["color"].(string); ok && color == "" {
+					color = c
+				}
+				if ic, ok := sec["icon"].(string); ok && icon == "" {
+					icon = ic
+				}
+			}
+			// Flat metadata file overrides.
+			metaPath := filepath.Join(reviewDir, name+".json")
+			if raw, err := os.ReadFile(metaPath); err == nil {
+				var meta map[string]interface{}
+				if json.Unmarshal(raw, &meta) == nil {
+					if t, ok := meta["title"].(string); ok {
+						title = t
+					}
+					if c, ok := meta["color"].(string); ok {
+						color = c
+					}
+					if ic, ok := meta["icon"].(string); ok {
+						icon = ic
+					}
+				}
+			}
+			if len(allCards) == 0 {
+				continue
+			}
+			deckSummaries = append(deckSummaries, deckSummary{
+				ID:    deckID,
+				Title: title,
+				Color: color,
+				Icon:  icon,
+				Count: len(allCards),
+			})
+			deckCards[deckID] = allCards
+			deckSections[deckID] = secSlices
+			log.Printf("loaded flashcard deck: %s (%d cards, %d sections) from directory", deckID, len(allCards), len(secSlices))
+			continue
+		}
+
+		if !strings.HasSuffix(name, ".json") {
 			continue
 		}
 		raw, err := os.ReadFile(filepath.Join(reviewDir, name))
@@ -226,7 +378,8 @@ func main() {
 	}
 
 	quizSummaries := make([]quizSummary, 0)
-	quizQuestions := make(map[string][]interface{}) // quizId -> questions
+	quizQuestions := make(map[string][]interface{})    // quizId -> all questions
+	quizSections := make(map[string][][]interface{})   // quizId -> per-section question slices
 
 	quizEntries, err := os.ReadDir(quizDir)
 	if err != nil {
@@ -235,7 +388,81 @@ func main() {
 	}
 	for _, entry := range quizEntries {
 		name := entry.Name()
-		if entry.IsDir() || !strings.HasSuffix(name, ".json") {
+
+		if entry.IsDir() {
+			// Subdirectory: merge all section files into one quiz, tracking per-section slices.
+			quizID := name
+			subDir := filepath.Join(quizDir, name)
+			subEntries, err := os.ReadDir(subDir)
+			if err != nil {
+				log.Printf("warning: failed to read quiz subdir %s: %v", subDir, err)
+				continue
+			}
+			var allQuestions []interface{}
+			var secSlices [][]interface{}
+			var title, color, icon string
+			for _, se := range subEntries {
+				sname := se.Name()
+				if se.IsDir() || !strings.HasSuffix(sname, ".json") {
+					continue
+				}
+				raw, err := os.ReadFile(filepath.Join(subDir, sname))
+				if err != nil {
+					log.Printf("warning: failed to read quiz section %s/%s: %v", name, sname, err)
+					continue
+				}
+				var sec map[string]interface{}
+				if err := json.Unmarshal(raw, &sec); err != nil {
+					log.Printf("warning: failed to parse quiz section %s/%s: %v", name, sname, err)
+					continue
+				}
+				if qs, ok := sec["questions"].([]interface{}); ok && len(qs) > 0 {
+					allQuestions = append(allQuestions, qs...)
+					secSlices = append(secSlices, qs)
+				}
+				if t, ok := sec["title"].(string); ok && title == "" {
+					title = t
+				}
+				if c, ok := sec["color"].(string); ok && color == "" {
+					color = c
+				}
+				if ic, ok := sec["icon"].(string); ok && icon == "" {
+					icon = ic
+				}
+			}
+			// Flat metadata file overrides.
+			metaPath := filepath.Join(quizDir, name+".json")
+			if raw, err := os.ReadFile(metaPath); err == nil {
+				var meta map[string]interface{}
+				if json.Unmarshal(raw, &meta) == nil {
+					if t, ok := meta["title"].(string); ok {
+						title = t
+					}
+					if c, ok := meta["color"].(string); ok {
+						color = c
+					}
+					if ic, ok := meta["icon"].(string); ok {
+						icon = ic
+					}
+				}
+			}
+			if len(allQuestions) == 0 {
+				continue
+			}
+			quizSummaries = append(quizSummaries, quizSummary{
+				ID:            quizID,
+				Title:         title,
+				Color:         color,
+				Icon:          icon,
+				QuestionCount: len(allQuestions),
+			})
+			quizQuestions[quizID] = allQuestions
+			quizSections[quizID] = secSlices
+			log.Printf("loaded quiz: %s (%d questions, %d sections) from directory", quizID, len(allQuestions), len(secSlices))
+			continue
+		}
+
+		if !strings.HasSuffix(name, ".json") {
 			continue
 		}
 		raw, err := os.ReadFile(filepath.Join(quizDir, name))
@@ -295,92 +522,14 @@ func main() {
 			return
 		}
 
-		// Group questions by category. Questions with no category get category 0.
-		byCategory := make(map[int][]interface{})
-		for _, q := range questions {
-			qmap, _ := q.(map[string]interface{})
-			cat := 0
-			if qmap != nil {
-				if cv, ok := qmap["category"].(float64); ok {
-					cat = int(cv)
-				}
-			}
-			byCategory[cat] = append(byCategory[cat], q)
+		// Use per-section slices if available (directory-based quiz), otherwise
+		// treat all questions as a single section.
+		sections := quizSections[quizID]
+		if len(sections) == 0 {
+			sections = [][]interface{}{questions}
 		}
 
-		// Collect and sort category keys for deterministic cycling order.
-		cats := make([]int, 0, len(byCategory))
-		for c := range byCategory {
-			cats = append(cats, c)
-		}
-		for i := 0; i < len(cats); i++ {
-			for j := i + 1; j < len(cats); j++ {
-				if cats[j] < cats[i] {
-					cats[i], cats[j] = cats[j], cats[i]
-				}
-			}
-		}
-
-		// Shuffle questions within each category.
-		for c := range byCategory {
-			s := byCategory[c]
-			rand.Shuffle(len(s), func(i, j int) { s[i], s[j] = s[j], s[i] })
-		}
-
-		// Group categories into sections. Each unique section bucket gets an
-		// equal share of the 10 selected slots. Within each section bucket,
-		// categories are cycled so variety is maintained.
-		// Section assignment: categories are grouped into contiguous runs
-		// separated by gaps >= 2 (e.g. 1-8 = OSI, 9 = DNS).
-		type sectionBucket struct {
-			cats []int
-		}
-		var sections []sectionBucket
-		for _, c := range cats {
-			if len(sections) == 0 || c-sections[len(sections)-1].cats[len(sections[len(sections)-1].cats)-1] >= 2 {
-				sections = append(sections, sectionBucket{cats: []int{c}})
-			} else {
-				sections[len(sections)-1].cats = append(sections[len(sections)-1].cats, c)
-			}
-		}
-
-		// Allocate slots per section (distribute 10 evenly, remainder to first sections).
-		numSections := len(sections)
-		slotsPerSection := make([]int, numSections)
-		base := 10 / numSections
-		remainder := 10 % numSections
-		for i := range slotsPerSection {
-			slotsPerSection[i] = base
-			if i < remainder {
-				slotsPerSection[i]++
-			}
-		}
-
-		// For each section, cycle through its categories picking one at a time.
-		selected := make([]interface{}, 0, 10)
-		for si, sec := range sections {
-			catIndex := make(map[int]int)
-			quota := slotsPerSection[si]
-			picked := 0
-			for picked < quota {
-				progress := false
-				for _, c := range sec.cats {
-					if picked >= quota {
-						break
-					}
-					idx := catIndex[c]
-					if idx < len(byCategory[c]) {
-						selected = append(selected, byCategory[c][idx])
-						catIndex[c] = idx + 1
-						picked++
-						progress = true
-					}
-				}
-				if !progress {
-					break
-				}
-			}
-		}
+		selected := selectEvenlyAcrossSections(sections, 10)
 
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(map[string]interface{}{
@@ -412,88 +561,14 @@ func main() {
 			return
 		}
 
-		// Group cards by category.
-		byCategory := make(map[int][]interface{})
-		for _, c := range cards {
-			cmap, _ := c.(map[string]interface{})
-			cat := 0
-			if cmap != nil {
-				if cv, ok := cmap["category"].(float64); ok {
-					cat = int(cv)
-				}
-			}
-			byCategory[cat] = append(byCategory[cat], c)
+		// Use per-section slices if available (directory-based deck), otherwise
+		// treat all cards as a single section.
+		sections := deckSections[deckID]
+		if len(sections) == 0 {
+			sections = [][]interface{}{cards}
 		}
 
-		// Collect and sort category keys.
-		cats := make([]int, 0, len(byCategory))
-		for c := range byCategory {
-			cats = append(cats, c)
-		}
-		for i := 0; i < len(cats); i++ {
-			for j := i + 1; j < len(cats); j++ {
-				if cats[j] < cats[i] {
-					cats[i], cats[j] = cats[j], cats[i]
-				}
-			}
-		}
-
-		// Shuffle within each category.
-		for c := range byCategory {
-			s := byCategory[c]
-			rand.Shuffle(len(s), func(i, j int) { s[i], s[j] = s[j], s[i] })
-		}
-
-		// Group categories into sections (contiguous runs; gap >= 2 = new section).
-		type sectionBucket struct {
-			cats []int
-		}
-		var sections []sectionBucket
-		for _, c := range cats {
-			if len(sections) == 0 || c-sections[len(sections)-1].cats[len(sections[len(sections)-1].cats)-1] >= 2 {
-				sections = append(sections, sectionBucket{cats: []int{c}})
-			} else {
-				sections[len(sections)-1].cats = append(sections[len(sections)-1].cats, c)
-			}
-		}
-
-		// Allocate 10 slots evenly across sections.
-		numSections := len(sections)
-		slotsPerSection := make([]int, numSections)
-		base := 10 / numSections
-		remainder := 10 % numSections
-		for i := range slotsPerSection {
-			slotsPerSection[i] = base
-			if i < remainder {
-				slotsPerSection[i]++
-			}
-		}
-
-		// For each section, cycle through its categories to fill its quota.
-		selected := make([]interface{}, 0, 10)
-		for si, sec := range sections {
-			catIndex := make(map[int]int)
-			quota := slotsPerSection[si]
-			picked := 0
-			for picked < quota {
-				progress := false
-				for _, c := range sec.cats {
-					if picked >= quota {
-						break
-					}
-					idx := catIndex[c]
-					if idx < len(byCategory[c]) {
-						selected = append(selected, byCategory[c][idx])
-						catIndex[c] = idx + 1
-						picked++
-						progress = true
-					}
-				}
-				if !progress {
-					break
-				}
-			}
-		}
+		selected := selectEvenlyAcrossSections(sections, 10)
 
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(map[string]interface{}{

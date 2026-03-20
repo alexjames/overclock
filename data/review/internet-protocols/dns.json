@@ -1,0 +1,81 @@
+{
+  "cards": [
+    {
+      "id": "dns-fc-1",
+      "type": "tap_reveal",
+      "category": 9,
+      "question": "What is DNS?",
+      "answer": "DNS (Domain Name System) is a distributed directory service that maps domain names to IP addresses."
+    },
+    {
+      "id": "dns-fc-2",
+      "type": "tap_reveal",
+      "category": 9,
+      "question": "What are the three types of name servers in the DNS hierarchy?",
+      "answer": "Root name servers, TLD (Top-Level Domain) name servers, and Authoritative name servers."
+    },
+    {
+      "id": "dns-fc-3",
+      "type": "tap_reveal",
+      "category": 9,
+      "question": "What is the role of a TLD name server?",
+      "answer": "TLD name servers hold the addresses of authoritative name servers for each domain."
+    },
+    {
+      "id": "dns-fc-4",
+      "type": "tap_reveal",
+      "category": 9,
+      "question": "What is an authoritative name server?",
+      "answer": "An authoritative name server stores DNS records for a domain."
+    },
+    {
+      "id": "dns-fc-5",
+      "type": "tap_reveal",
+      "category": 9,
+      "question": "What does a DNS resolver do?",
+      "answer": "A DNS resolver receives requests from clients and queries the DNS name servers until the requested record is found."
+    },
+    {
+      "id": "dns-fc-6",
+      "type": "tap_reveal",
+      "category": 9,
+      "question": "Why is DNS resolution considered an expensive operation?",
+      "answer": "DNS resolution requires multiple round-trip requests to different name servers (root, TLD, authoritative), adding latency before a connection can be established."
+    },
+    {
+      "id": "dns-fc-7",
+      "type": "tap_reveal",
+      "category": 9,
+      "question": "What controls how long a record is cached?",
+      "answer": "TTL (Time To Live)"
+    },
+    {
+      "id": "dns-fc-8",
+      "type": "tap_reveal",
+      "category": 9,
+      "question": "Name four layers at which DNS caching can occur.",
+      "answer": "Browser cache, OS DNS cache, organization's local DNS server cache, ISP's DNS resolver cache."
+    },
+    {
+      "id": "dns-fc-11",
+      "type": "fill_blank",
+      "category": 9,
+      "question": "DNS maps _____ to IP addresses.",
+      "answer": "domain names"
+    },
+    {
+      "id": "dns-fc-13",
+      "type": "fill_blank",
+      "category": 9,
+      "question": "A cached DNS result is called a _____ result because it did not come from an authoritative name server.",
+      "answer": "non-authoritative"
+    },
+    {
+      "id": "dns-fc-14",
+      "type": "fill_blank",
+      "category": 9,
+      "question": "There are _____ logical root name servers in the DNS hierarchy.",
+      "answer": "13"
+    }
+  ]
+}

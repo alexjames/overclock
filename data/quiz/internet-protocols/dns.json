@@ -1,0 +1,136 @@
+{
+  "questions": [
+    {
+      "id": "dns-q1",
+      "format": "MULTIPLE_CHOICE",
+      "category": 9,
+      "question": "What does DNS stand for?",
+      "options": ["Dynamic Naming Service", "Domain Name System", "Distributed Network Service", "Domain Network Standard"],
+      "correctAnswerIndex": 1,
+      "explanation": "DNS stands for Domain Name System — a distributed directory service that maps domain names to IP addresses."
+    },
+    {
+      "id": "dns-q2",
+      "format": "MULTIPLE_CHOICE",
+      "category": 9,
+      "question": "What is the primary function of DNS?",
+      "options": ["Encrypting web traffic", "Mapping domain names to IP addresses", "Routing packets across networks", "Assigning MAC addresses to devices"],
+      "correctAnswerIndex": 1,
+      "explanation": "DNS maps domain names (like www.google.com) to their associated IP addresses so clients can reach the correct servers."
+    },
+    {
+      "id": "dns-q4",
+      "format": "MULTIPLE_CHOICE",
+      "category": 9,
+      "question": "At which layer of the OSI model is DNS implemented?",
+      "options": ["Transport Layer", "Network Layer", "Application Layer", "Session Layer"],
+      "correctAnswerIndex": 2,
+      "explanation": "DNS is an application layer protocol implemented by a hierarchy of name servers."
+    },
+    {
+      "id": "dns-q5",
+      "format": "MULTIPLE_CHOICE",
+      "category": 9,
+      "question": "How many logical root name servers exist in the DNS hierarchy?",
+      "options": ["7", "10", "13", "26"],
+      "correctAnswerIndex": 2,
+      "explanation": "There are 13 logical root 'servers' around the world, each replicated by hundreds of physical hosts for fault-tolerance."
+    },
+    {
+      "id": "dns-q6",
+      "format": "MULTIPLE_CHOICE",
+      "category": 9,
+      "question": "What does a root name server respond with when queried?",
+      "options": ["The IP address of the requested domain", "The address of a TLD name server", "The address of the authoritative name server", "A cached DNS record"],
+      "correctAnswerIndex": 1,
+      "explanation": "Root name servers hold the addresses of TLD name servers. When queried, they respond with the address of the appropriate TLD name server."
+    },
+    {
+      "id": "dns-q7",
+      "format": "MULTIPLE_CHOICE",
+      "category": 9,
+      "question": "Which DNS server is the definitive source of truth for a domain's DNS records?",
+      "options": ["Root name server", "TLD name server", "DNS resolver", "Authoritative name server"],
+      "correctAnswerIndex": 3,
+      "explanation": "Authoritative name servers store DNS records for a domain and are the source of truth. They may delegate some records to another authoritative name server."
+    },
+    {
+      "id": "dns-q8",
+      "format": "MULTIPLE_CHOICE",
+      "category": 9,
+      "question": "What is the role of a DNS resolver?",
+      "options": ["Store DNS records for a domain", "Hold addresses of TLD name servers", "Query other DNS servers until the record is found", "Assign TTL values to DNS records"],
+      "correctAnswerIndex": 2,
+      "explanation": "A DNS resolver receives requests from clients (like web browsers) and is responsible for querying other DNS servers until the requested record is found."
+    },
+    {
+      "id": "dns-q9",
+      "format": "MULTIPLE_CHOICE",
+      "category": 9,
+      "question": "Who typically hosts DNS resolvers for end users?",
+      "options": ["Root name server operators", "ISPs", "Domain registrars", "Web hosting providers"],
+      "correctAnswerIndex": 1,
+      "explanation": "ISPs typically host DNS resolvers, which resolve DNS requests on behalf of hosts on their networks."
+    },
+    {
+      "id": "dns-q11",
+      "format": "MULTIPLE_CHOICE",
+      "category": 9,
+      "question": "What mechanism does DNS use to reduce repeated lookups and improve latency?",
+      "options": ["Load balancing", "Caching with TTL", "Replication", "Compression"],
+      "correctAnswerIndex": 1,
+      "explanation": "DNS caches results with a Time To Live (TTL) expiration period to reduce the number of requests and improve latency."
+    },
+    {
+      "id": "dns-q12",
+      "format": "MULTIPLE_CHOICE",
+      "category": 9,
+      "question": "What does TTL stand for in DNS caching?",
+      "options": ["Transfer Timeout Level", "Time To Live", "Total Traffic Load", "Top-Level Latency"],
+      "correctAnswerIndex": 1,
+      "explanation": "TTL stands for Time To Live — the expiration period for a cached DNS record."
+    },
+    {
+      "id": "dns-q13",
+      "format": "MULTIPLE_CHOICE",
+      "category": 9,
+      "question": "When a DNS query returns a cached response, it is called a:",
+      "options": ["Authoritative result", "Non-authoritative result", "Recursive result", "Delegated result"],
+      "correctAnswerIndex": 1,
+      "explanation": "A cached DNS response is a non-authoritative result — it did not originate directly from an authoritative name server."
+    },
+    {
+      "id": "dns-q14",
+      "format": "MULTIPLE_CHOICE",
+      "category": 9,
+      "question": "Which of the following is NOT a layer where DNS caching can occur?",
+      "options": ["Browser cache", "Operating System DNS cache", "Domain registrar cache", "ISP's DNS resolver cache"],
+      "correctAnswerIndex": 2,
+      "explanation": "DNS caching occurs in the browser, OS, organization's local DNS server, and ISP's resolver. It's not standard for domain registrars to maintain a caching layer."
+    },
+    {
+      "id": "dns-q17",
+      "format": "TRUE_FALSE",
+      "category": 9,
+      "question": "A DNS change propagates globally instantly once made.",
+      "correctAnswer": false,
+      "explanation": "DNS changes can take hours to propagate globally because of TTL-based caching at multiple layers. DNS trades strong consistency for high read performance."
+    },
+    {
+      "id": "dns-q18",
+      "format": "TRUE_FALSE",
+      "category": 9,
+      "question": "DNS is a read-heavy system with orders of magnitude more reads than writes.",
+      "correctAnswer": true,
+      "explanation": "DNS is a read-heavy system — trillions of DNS queries are processed every day, vastly outnumbering the number of DNS record updates."
+    },
+    {
+      "id": "dns-q20",
+      "format": "TRUE_FALSE",
+      "category": 9,
+      "question": "Authoritative name servers may delegate some DNS records to another authoritative name server.",
+      "correctAnswer": true,
+      "explanation": "Authoritative name servers are the source of truth for a domain and may delegate some records to another authoritative name server for management purposes."
+    }
+  ]
+}
