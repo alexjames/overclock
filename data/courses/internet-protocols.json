@@ -19,6 +19,17 @@
               "content": "The OSI model is a 7 layer **reference model** that standardizes communications protocols, allowing interoperability across diverse networking systems."
             },
             {
+              "type": "image",
+              "url": "https://overclock-img.buildbreak.net/images/courses/internet-protocols/osi.jpg"
+            }
+          ]
+        },
+        {
+          "id": "osi-2",
+          "title": "OSI Model: Benefits",
+          "content": "",
+          "blocks": [
+            {
               "type": "text",
               "content": "The key benefits of the OSI model are:"
             },
@@ -37,13 +48,17 @@
           ]
         },
         {
-          "id": "osi-2",
+          "id": "osi-3",
           "title": "The 7 Layers",
           "content": "",
           "blocks": [
             {
               "type": "text",
-              "content": "The OSI model is divided into 7 layers, each responsible for a specific aspect of network communication. Let's look at each layer from top to bottom."
+              "content": "Each layer of the OSI model is responsible for a ***specific aspect*** of network communication."
+            },
+            {
+              "type": "text",
+              "content": "Let's look at each layer from top to bottom."
             },
             {
               "type": "image",
@@ -53,7 +68,7 @@
           ]
         },
         {
-          "id": "osi-3",
+          "id": "osi-4",
           "title": "Application Layer (Layer 7)",
           "content": "",
           "blocks": [
@@ -76,7 +91,7 @@
           ]
         },
         {
-          "id": "osi-4",
+          "id": "osi-5",
           "title": "Presentation Layer (Layer 6)",
           "content": "",
           "blocks": [
@@ -90,12 +105,12 @@
             },
             {
               "type": "text",
-              "content": "**Example Protocols**\n• *Data Formatting* — JSON, XML\n• *Compression* — JPG, PNG, MPEG\n• *Encryption* — SSL, TLS\n• *Data Serialization* — XDR, NDR, ASN.1"
+              "content": "**Example Protocols/Data Formats**\n• *Data Formatting* — JSON, XML\n• *Compression* — JPG, PNG, MPEG\n• *Encryption* — SSL, TLS\n• *Data Serialization* — XDR, NDR, ASN.1"
             }
           ]
         },
         {
-          "id": "osi-5",
+          "id": "osi-6",
           "title": "Session Layer (Layer 5)",
           "content": "",
           "blocks": [
@@ -105,7 +120,7 @@
             },
             {
               "type": "text",
-              "content": "The session layer **manages sessions (connections)** between two communicating devices. This includes establishing, maintaining and closing connections."
+              "content": "The session layer manages **sessions** (connections) between two communicating devices. This includes establishing, maintaining and closing connections."
             },
             {
               "type": "text",
@@ -118,7 +133,7 @@
           ]
         },
         {
-          "id": "osi-6",
+          "id": "osi-7",
           "title": "Transport Layer (Layer 4)",
           "content": "",
           "blocks": [
@@ -141,7 +156,7 @@
           ]
         },
         {
-          "id": "osi-7",
+          "id": "osi-8",
           "title": "Network Layer (Layer 3)",
           "content": "",
           "blocks": [
@@ -164,7 +179,7 @@
           ]
         },
         {
-          "id": "osi-8",
+          "id": "osi-9",
           "title": "Data Link Layer (Layer 2)",
           "content": "",
           "blocks": [
@@ -187,7 +202,7 @@
           ]
         },
         {
-          "id": "osi-9",
+          "id": "osi-10",
           "title": "Physical Layer (Layer 1)",
           "content": "",
           "blocks": [
