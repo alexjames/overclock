@@ -25,7 +25,7 @@ export function ContentRenderer({ blocks }: ContentRendererProps) {
           );
         }
         return (
-          <View key={index} style={styles.blockContainer}>
+          <View key={index} style={block.type === 'image' ? styles.blockContainerImage : styles.blockContainer}>
             {renderBlock(block, colors)}
           </View>
         );
@@ -163,9 +163,23 @@ function resolveAbsoluteStyle(position: ImagePosition): object {
 
 // Image Block (no position — inline flow)
 function ImageBlock({ url, caption, colors }: { url: string; caption?: string; colors: any }) {
+  const [aspectRatio, setAspectRatio] = React.useState<number | undefined>(undefined);
+
+  React.useEffect(() => {
+    Image.getSize(url, (w, h) => {
+      if (h > 0) setAspectRatio(w / h);
+    });
+  }, [url]);
+
   return (
     <View style={styles.imageContainer}>
-      <Image source={{ uri: url }} style={styles.image} resizeMode="contain" />
+      <Image
+        source={{ uri: url }}
+        style={aspectRatio !== undefined
+          ? { width: screenWidth - 72, aspectRatio, borderRadius: 12 }
+          : styles.image}
+        resizeMode="contain"
+      />
       {caption && (
         <Text style={[styles.caption, { color: colors.textMuted }]}>{caption}</Text>
       )}
@@ -305,6 +319,9 @@ const styles = StyleSheet.create({
   blockContainer: {
     marginBottom: 16,
   },
+  blockContainerImage: {
+    marginBottom: 4,
+  },
   text: {
     fontSize: 17,
     lineHeight: 30,
@@ -320,7 +337,7 @@ const styles = StyleSheet.create({
   },
   imageContainer: {
     alignItems: 'center',
-    marginVertical: 8,
+    marginVertical: 2,
   },
   image: {
     width: screenWidth - 72,
