@@ -105,7 +105,11 @@
             },
             {
               "type": "text",
-              "content": "**Example Protocols/Data Formats**\n• *Data Formatting* — JSON, XML\n• *Compression* — JPG, PNG, MPEG\n• *Encryption* — SSL, TLS\n• *Data Serialization* — XDR, NDR, ASN.1"
+              "content": "⚙️ **Main Functions** — translation, encryption, compression"
+            },
+            {
+              "type": "text",
+              "content": "🌐 **Example Protocols/Data Formats**\n• *Data Formatting* — JSON, XML\n• *Compression* — JPG, PNG, MPEG\n• *Encryption* — SSL, TLS\n• *Data Serialization* — XDR, NDR, ASN.1"
             }
           ]
         },
@@ -124,11 +128,11 @@
             },
             {
               "type": "text",
-              "content": "**Main Functions** — Session management, checkpointing and synchronization"
+              "content": "⚙️ **Main Functions** — Session management, checkpointing and synchronization"
             },
             {
               "type": "text",
-              "content": "**Example Protocols** — NetBIOS, RPC, PPTP"
+              "content": "🌐 **Example Protocols** — NetBIOS, RPC, PPTP"
             }
           ]
         },
@@ -147,11 +151,11 @@
             },
             {
               "type": "text",
-              "content": "**Main Functions** — Segmentation and re-assembly, flow control, error correction"
+              "content": "⚙️ **Main Functions** — Segmentation and re-assembly, flow control, error correction"
             },
             {
               "type": "text",
-              "content": "**Example Protocols** — TCP, UDP, SCTP"
+              "content": "🌐 **Example Protocols** — TCP, UDP, SCTP"
             }
           ]
         },
@@ -170,11 +174,11 @@
             },
             {
               "type": "text",
-              "content": "**Main Functions** — Routing, logical addressing"
+              "content": "⚙️ **Main Functions** — Routing, logical addressing"
             },
             {
               "type": "text",
-              "content": "**Example Protocols** — IP, ICMP, IGMP"
+              "content": "🌐 **Example Protocols** — IP, ICMP, IGMP"
             }
           ]
         },
@@ -193,11 +197,11 @@
             },
             {
               "type": "text",
-              "content": "**Main Functions** — Physical addressing, flow control (between nodes), error detection"
+              "content": "⚙️ **Main Functions** — Physical addressing, flow control (between nodes), error detection"
             },
             {
               "type": "text",
-              "content": "**Example Protocols** — Ethernet (IEEE 802.3), WiFi (IEEE 802.11), PPP"
+              "content": "🌐 **Example Protocols** — Ethernet (IEEE 802.3), WiFi (IEEE 802.11), PPP"
             }
           ]
         },
@@ -212,19 +216,15 @@
             },
             {
               "type": "text",
-              "content": "This layer is concerned with the **physical transmission of raw bits** over a physical medium, such as cables, fiber optics and radio waves. Hubs, repeaters and modems operate at this layer."
+              "content": "This layer is concerned with the **physical transmission of raw bits** over a physical medium, such as cables, fiber optics and radio waves. Devices such as hubs, repeaters and modems operate at this layer."
             },
             {
               "type": "text",
-              "content": "**Main Functions** — Bit transmission"
+              "content": "⚙️ **Main Functions** — transmission of bits, modulation/demodulation, signal encoding"
             },
             {
               "type": "text",
-              "content": "**Physical Media** — Copper cables, fiber optics, radio waves"
-            },
-            {
-              "type": "text",
-              "content": "**Devices** — Hubs, repeaters, modems"
+              "content": "🌐 **Example Protocols** — Usually same as Layer 2 i.e. Ethernet, WiFi, etc."
             }
           ]
         }
