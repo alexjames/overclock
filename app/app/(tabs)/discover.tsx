@@ -166,13 +166,21 @@ function DiscoverItemPage({ item, insetBottom }: DiscoverItemPageProps) {
                   </Text>
                   <Text style={styles.slideTitle}>{slide.title}</Text>
                   <View style={styles.divider} />
-                  {slide.blocks.map((block, i) =>
-                    block.type === 'text' ? (
-                      <FormattedText key={i} style={styles.bodyText}>
-                        {block.content}
-                      </FormattedText>
-                    ) : null
-                  )}
+                  {slide.blocks.map((block, i) => {
+                    if (block.type === 'text') {
+                      return (
+                        <FormattedText key={i} style={styles.bodyText}>
+                          {block.content}
+                        </FormattedText>
+                      );
+                    }
+                    if (block.type === 'table') {
+                      return (
+                        <DiscoverTable key={i} headers={block.headers} rows={block.rows} color={item.color} />
+                      );
+                    }
+                    return null;
+                  })}
                 </View>
               </View>
               {/* Dot indicators sit in normal flow just below the card */}
@@ -196,6 +204,57 @@ function DiscoverItemPage({ item, insetBottom }: DiscoverItemPageProps) {
     </View>
   );
 }
+
+function DiscoverTable({ headers, rows, color }: { headers: string[]; rows: string[][]; color: string }) {
+  return (
+    <View style={[tableStyles.table, { borderColor: color + '40' }]}>
+      <View style={[tableStyles.headerRow, { backgroundColor: color }]}>
+        {headers.map((h, i) => (
+          <Text key={i} style={tableStyles.headerCell}>{h}</Text>
+        ))}
+      </View>
+      {rows.map((row, ri) => (
+        <View key={ri} style={[tableStyles.row, { backgroundColor: ri % 2 === 0 ? color + '10' : '#FFFFFF', borderColor: color + '30' }]}>
+          {row.map((cell, ci) => (
+            <Text key={ci} style={[tableStyles.cell, { color: '#111827' }]}>{cell}</Text>
+          ))}
+        </View>
+      ))}
+    </View>
+  );
+}
+
+const tableStyles = StyleSheet.create({
+  table: {
+    borderWidth: 1,
+    borderRadius: 10,
+    overflow: 'hidden',
+    marginTop: 12,
+  },
+  headerRow: {
+    flexDirection: 'row',
+  },
+  headerCell: {
+    flex: 1,
+    padding: 8,
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    textAlign: 'center',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  row: {
+    flexDirection: 'row',
+    borderTopWidth: 1,
+  },
+  cell: {
+    flex: 1,
+    padding: 8,
+    fontSize: 11,
+    textAlign: 'center',
+  },
+});
 
 const styles = StyleSheet.create({
   fullScreen: {

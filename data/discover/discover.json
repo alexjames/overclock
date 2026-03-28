@@ -85,6 +85,114 @@
     ]
   },
   {
+    "id": "dns-root-servers",
+    "title": "DNS Root Servers",
+    "color": "#0EA5E9",
+    "slides": [
+      {
+        "id": "dns-root-1",
+        "title": "13 Root Name Servers",
+        "blocks": [
+          {
+            "type": "text",
+            "content": "The root DNS system consists of 13 named root server clusters (A–M), but each represents many physical servers distributed globally using anycast routing."
+          },
+          {
+            "type": "table",
+            "headers": [
+              "Name",
+              "IPv4",
+              "Operator"
+            ],
+            "rows": [
+              [
+                "a.root-servers.net",
+                "198.41.0.4",
+                "Verisign"
+              ],
+              [
+                "b.root-servers.net",
+                "170.247.170.2",
+                "USC-ISI"
+              ],
+              [
+                "c.root-servers.net",
+                "192.33.4.12",
+                "Cogent"
+              ],
+              [
+                "d.root-servers.net",
+                "199.7.91.13",
+                "U Maryland"
+              ],
+              [
+                "e.root-servers.net",
+                "192.203.230.10",
+                "NASA"
+              ],
+              [
+                "f.root-servers.net",
+                "192.5.5.241",
+                "ISC"
+              ]
+            ]
+          }
+        ]
+      },
+      {
+        "id": "dns-root-2",
+        "title": "13 Root Name Servers",
+        "blocks": [
+          {
+            "type": "table",
+            "headers": [
+              "Name",
+              "IPv4",
+              "Operator"
+            ],
+            "rows": [
+              [
+                "g.root-servers.net",
+                "192.112.36.4",
+                "DISA"
+              ],
+              [
+                "h.root-servers.net",
+                "198.97.190.53",
+                "ARL"
+              ],
+              [
+                "i.root-servers.net",
+                "192.36.148.17",
+                "Netnod"
+              ],
+              [
+                "j.root-servers.net",
+                "192.58.128.30",
+                "Verisign"
+              ],
+              [
+                "k.root-servers.net",
+                "193.0.14.129",
+                "RIPE NCC"
+              ],
+              [
+                "l.root-servers.net",
+                "199.7.83.42",
+                "ICANN"
+              ],
+              [
+                "m.root-servers.net",
+                "202.12.27.33",
+                "WIDE"
+              ]
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
     "id": "side-channel",
     "title": "Side-Channel Attacks",
     "color": "#EC4899",
