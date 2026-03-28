@@ -37,7 +37,16 @@ export function PageSlideshow({ pages, onComplete }: PageSlideshowProps) {
   const [index, setIndex] = useState(0);
   const [enlargedUrl, setEnlargedUrl] = useState<string | null>(null);
   const pan = useRef(new Animated.ValueXY({ x: 0, y: 0 })).current;
+  const scale = useRef(new Animated.Value(1)).current;
+  const lastScale = useRef(1);
+  const initialPinchDistance = useRef<number | null>(null);
   const slideTouch = useRef<{ x: number; t: number } | null>(null);
+
+  function getPinchDistance(touches: { pageX: number; pageY: number }[]) {
+    const dx = touches[0].pageX - touches[1].pageX;
+    const dy = touches[0].pageY - touches[1].pageY;
+    return Math.sqrt(dx * dx + dy * dy);
+  }
 
   const panResponder = useRef(
     PanResponder.create({
@@ -45,19 +54,39 @@ export function PageSlideshow({ pages, onComplete }: PageSlideshowProps) {
       onPanResponderGrant: () => {
         pan.setOffset({ x: (pan.x as any)._value, y: (pan.y as any)._value });
         pan.setValue({ x: 0, y: 0 });
+        initialPinchDistance.current = null;
       },
-      onPanResponderMove: Animated.event([null, { dx: pan.x, dy: pan.y }], { useNativeDriver: false }),
+      onPanResponderMove: (evt, gestureState) => {
+        const touches = evt.nativeEvent.touches;
+        if (touches.length === 2) {
+          const dist = getPinchDistance(touches as any);
+          if (initialPinchDistance.current === null) {
+            initialPinchDistance.current = dist;
+          }
+          const newScale = Math.max(0.5, Math.min(5, lastScale.current * (dist / initialPinchDistance.current)));
+          scale.setValue(newScale);
+        } else {
+          initialPinchDistance.current = null;
+          Animated.event([null, { dx: pan.x, dy: pan.y }], { useNativeDriver: false })(evt, gestureState);
+        }
+      },
       onPanResponderRelease: () => {
+        lastScale.current = (scale as any)._value;
         pan.flattenOffset();
+        initialPinchDistance.current = null;
       },
       onPanResponderTerminate: () => {
+        lastScale.current = (scale as any)._value;
         pan.flattenOffset();
+        initialPinchDistance.current = null;
       },
     })
   ).current;
 
   const handleLongPressImage = (url: string) => {
     pan.setValue({ x: 0, y: 0 });
+    scale.setValue(1);
+    lastScale.current = 1;
     setEnlargedUrl(url);
   };
 
@@ -116,15 +145,15 @@ export function PageSlideshow({ pages, onComplete }: PageSlideshowProps) {
         <View style={styles.enlargedOverlay} {...panResponder.panHandlers}>
           <TouchableOpacity
             style={[styles.enlargedClose, { top: insets.top + 12 }]}
-            onPress={() => { setEnlargedUrl(null); pan.setValue({ x: 0, y: 0 }); }}
+            onPress={() => { setEnlargedUrl(null); pan.setValue({ x: 0, y: 0 }); scale.setValue(1); lastScale.current = 1; }}
           >
             <Ionicons name="close" size={22} color="#000" />
           </TouchableOpacity>
-          <Animated.View style={{ transform: pan.getTranslateTransform() }}>
+          <Animated.View style={{ transform: [...pan.getTranslateTransform(), { scale }] }}>
             {enlargedUrl && (
               <Image
                 source={{ uri: enlargedUrl }}
-                style={{ width: (SCREEN_WIDTH - 32) * 2, height: undefined, aspectRatio: 16 / 9, borderRadius: 12 }}
+                style={{ width: SCREEN_WIDTH - 32, height: undefined, aspectRatio: 16 / 9, borderRadius: 12 }}
                 resizeMode="contain"
               />
             )}

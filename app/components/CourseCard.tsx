@@ -4,18 +4,27 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../context/ThemeContext';
 import { Course } from '../types/course';
 
-const CARD_WIDTH = (Dimensions.get('window').width - 48 - 16) / 2;
+const SCREEN_WIDTH = Dimensions.get('window').width;
+const GRID_CARD_WIDTH = (SCREEN_WIDTH - 48 - 16) / 2;
+// Show 2 full cards + ~1/3 of a third peeking: left padding=24, gap=16 between cards
+// total space for 2.4 card-widths = SCREEN_WIDTH - 24 (left pad) - 2*16 (two gaps)
+const HORIZONTAL_CARD_WIDTH = Math.floor((SCREEN_WIDTH - 24 - 32) / 2.4);
 
 interface CourseCardProps {
   course: Course;
   onPress: () => void;
+  variant?: 'grid' | 'horizontal';
 }
 
-export function CourseCard({ course, onPress }: CourseCardProps) {
+export function CourseCard({ course, onPress, variant = 'grid' }: CourseCardProps) {
   const { colors } = useTheme();
+  const isHorizontal = variant === 'horizontal';
 
   return (
-    <Pressable onPress={onPress} style={styles.container}>
+    <Pressable
+      onPress={onPress}
+      style={[styles.container, { width: isHorizontal ? HORIZONTAL_CARD_WIDTH : GRID_CARD_WIDTH }]}
+    >
       <View style={[styles.imageContainer, { backgroundColor: course.color }]}>
         <Ionicons
           name={course.icon as any}
@@ -34,7 +43,6 @@ export function CourseCard({ course, onPress }: CourseCardProps) {
 
 const styles = StyleSheet.create({
   container: {
-    width: CARD_WIDTH,
     borderRadius: 16,
     overflow: 'hidden',
     marginRight: 16,

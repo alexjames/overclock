@@ -14,6 +14,7 @@ function RootContent() {
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="course" />
+        <Stack.Screen name="courses" />
       </Stack>
     </View>
   );

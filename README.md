@@ -62,32 +62,6 @@ docker-compose stop
 
 The `scripts/md_to_course.py` script converts markdown files into course JSON for the app.
 
-### Markdown Format
-
-```markdown
-# Course Title
-### Section Title
-Optional intro text right after the section heading becomes the first page.
-
-#### Page Title
- * Each bullet point becomes a text block on the page.
- * Another bullet becomes another text block.
-
-#### Another Page
- * Content for this page.
-
-### Another Section
-#### Page In Section Two
- * More content here.
-```
-
-**Heading mapping:**
-- `#` — Course title
-- `###` — Section (shown in the course section list)
-- `####` — Page within a section (swipeable reading pages)
-- `*` or `-` bullets — Text content blocks on the page
-- Plain text after `###` (before first `####`) — Intro page for that section
-
 ### Running the Script
 
 ```bash

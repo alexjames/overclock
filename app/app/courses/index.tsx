@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, StyleSheet, ScrollView, ActivityIndicator, TouchableOpacity, RefreshControl } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, ActivityIndicator, TouchableOpacity, Dimensions } from 'react-native';
 import { router, useFocusEffect } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -9,12 +9,11 @@ import { CourseCard } from '../../components/CourseCard';
 import { fetchCourses } from '../../api/courses';
 import { Course } from '../../types/course';
 
-export default function HomeScreen() {
+export default function AllCoursesScreen() {
   const { colors } = useTheme();
   const { apiHost } = useApiHost();
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const loadCourses = useCallback(async () => {
@@ -26,7 +25,6 @@ export default function HomeScreen() {
       setError(err.message);
     } finally {
       setLoading(false);
-      setRefreshing(false);
     }
   }, [apiHost]);
 
@@ -37,14 +35,14 @@ export default function HomeScreen() {
     }, [loadCourses])
   );
 
-  const handleRefresh = () => {
-    setRefreshing(true);
-    loadCourses();
-  };
-
-  const handleCoursePress = (course: Course) => {
-    router.push(`/course/${course.id}`);
-  };
+  // Group courses by category
+  const grouped = courses.reduce<Record<string, Course[]>>((acc, course) => {
+    const cat = course.category || 'Other';
+    if (!acc[cat]) acc[cat] = [];
+    acc[cat].push(course);
+    return acc;
+  }, {});
+  const categories = Object.keys(grouped);
 
   if (loading) {
     return (
@@ -61,7 +59,6 @@ export default function HomeScreen() {
       <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
         <View style={styles.centered}>
           <Text style={[styles.errorText, { color: colors.text }]}>Failed to load courses</Text>
-          <Text style={[styles.errorDetail, { color: colors.textMuted }]}>{error}</Text>
           <TouchableOpacity
             style={[styles.retryButton, { backgroundColor: colors.primary }]}
             onPress={() => { setLoading(true); loadCourses(); }}
@@ -75,39 +72,33 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={colors.primary} />}
-      >
-        <View style={styles.header}>
-          <Text style={[styles.headerTitle, { color: colors.text }]}>Home</Text>
-        </View>
+      {/* Header */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+          <Ionicons name="chevron-back" size={28} color={colors.text} />
+        </TouchableOpacity>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>Crash Courses</Text>
+        <View style={styles.headerSpacer} />
+      </View>
 
-        {/* Crash Courses section */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={[styles.sectionTitle, { color: colors.text }]}>Crash Courses</Text>
-            <TouchableOpacity onPress={() => router.push('/courses')} style={styles.seeAllButton}>
-              <Text style={[styles.seeAllText, { color: colors.primary }]}>See all</Text>
-              <Ionicons name="chevron-forward" size={16} color={colors.primary} />
-            </TouchableOpacity>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Explore all crash courses</Text>
+
+        {categories.map((category) => (
+          <View key={category} style={styles.categorySection}>
+            <Text style={[styles.categoryTitle, { color: colors.text }]}>{category}</Text>
+            <Text style={[styles.categorySubtitle, { color: colors.textMuted }]}>
+              Explore {category.toLowerCase()} crash courses
+            </Text>
+            <View style={styles.coursesGrid}>
+              {grouped[category].map((course) => (
+                <View key={course.id} style={styles.courseWrapper}>
+                  <CourseCard course={course} onPress={() => router.push(`/course/${course.id}`)} variant="grid" />
+                </View>
+              ))}
+            </View>
           </View>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.carouselContent}
-            decelerationRate="fast"
-          >
-            {courses.map((course) => (
-              <CourseCard
-                key={course.id}
-                course={course}
-                onPress={() => handleCoursePress(course)}
-                variant="horizontal"
-              />
-            ))}
-          </ScrollView>
-        </View>
+        ))}
 
         <View style={styles.bottomPadding} />
       </ScrollView>
@@ -126,42 +117,56 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   header: {
-    paddingHorizontal: 24,
-    paddingTop: 16,
-    paddingBottom: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   headerTitle: {
-    fontSize: 24,
+    flex: 1,
+    fontSize: 20,
     fontWeight: '700',
     textAlign: 'center',
   },
-  section: {
-    marginTop: 24,
+  headerSpacer: {
+    width: 40,
   },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+  subtitle: {
+    fontSize: 14,
+    textAlign: 'center',
+    marginBottom: 24,
+    paddingHorizontal: 24,
+  },
+  categorySection: {
+    marginBottom: 24,
+  },
+  categoryTitle: {
+    fontSize: 22,
+    fontWeight: '700',
+    paddingHorizontal: 24,
+    marginBottom: 4,
+  },
+  categorySubtitle: {
+    fontSize: 13,
     paddingHorizontal: 24,
     marginBottom: 16,
   },
-  sectionTitle: {
-    fontSize: 22,
-    fontWeight: '700',
-  },
-  seeAllButton: {
+  coursesGrid: {
     flexDirection: 'row',
-    alignItems: 'center',
+    flexWrap: 'wrap',
+    paddingHorizontal: 16,
   },
-  seeAllText: {
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  carouselContent: {
-    paddingLeft: 24,
-    paddingRight: 8,
+  courseWrapper: {
+    width: '50%',
+    paddingHorizontal: 8,
+    marginBottom: 16,
   },
   bottomPadding: {
     height: 32,
@@ -170,10 +175,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     marginBottom: 8,
-  },
-  errorDetail: {
-    fontSize: 14,
-    textAlign: 'center',
   },
   retryButton: {
     marginTop: 20,
