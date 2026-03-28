@@ -30,6 +30,7 @@ export default function DiscoverScreen() {
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [activeItemIndex, setActiveItemIndex] = useState(0);
+  const [loadingMore, setLoadingMore] = useState(false);
 
   const loadItems = useCallback(async () => {
     try {
@@ -44,6 +45,19 @@ export default function DiscoverScreen() {
     }
   }, [apiHost]);
 
+  const loadMore = useCallback(async () => {
+    if (loadingMore) return;
+    setLoadingMore(true);
+    try {
+      const data = await fetchDiscover(apiHost);
+      setItems(prev => [...prev, ...data]);
+    } catch {
+      // silently ignore — user can keep scrolling existing items
+    } finally {
+      setLoadingMore(false);
+    }
+  }, [apiHost, loadingMore]);
+
   React.useEffect(() => {
     setLoading(true);
     loadItems();
@@ -53,6 +67,10 @@ export default function DiscoverScreen() {
     const index = Math.round(e.nativeEvent.contentOffset.y / SCREEN_HEIGHT);
     if (index >= 0 && index < items.length) {
       setActiveItemIndex(index);
+      // Trigger load when one item away from the end
+      if (index >= items.length - 2) {
+        loadMore();
+      }
     }
   };
 
@@ -98,6 +116,11 @@ export default function DiscoverScreen() {
         {items.map((item) => (
           <DiscoverItemPage key={item.id} item={item} insetBottom={insets.bottom} />
         ))}
+        {loadingMore && (
+          <View style={styles.loadMoreIndicator}>
+            <ActivityIndicator size="small" color="#fff" />
+          </View>
+        )}
       </ScrollView>
     </View>
   );
@@ -206,9 +229,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 16,
     elevation: 8,
+    height: SCREEN_HEIGHT * 0.7,
   },
   cardContent: {
     padding: 28,
+    flex: 1,
   },
   didYouKnowLabel: {
     fontSize: 11,
@@ -218,10 +243,10 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   slideTitle: {
-    fontSize: 26,
+    fontSize: 22,
     fontWeight: '800',
     color: '#111827',
-    lineHeight: 34,
+    lineHeight: 30,
     marginBottom: 16,
   },
   divider: {
@@ -259,5 +284,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: 'center',
     paddingHorizontal: 32,
+  },
+  loadMoreIndicator: {
+    height: SCREEN_HEIGHT * 0.1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
