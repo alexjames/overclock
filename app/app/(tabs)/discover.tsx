@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import {
   View,
   Text,
@@ -7,17 +7,18 @@ import {
   Dimensions,
   ActivityIndicator,
   RefreshControl,
+  NativeSyntheticEvent,
+  NativeScrollEvent,
 } from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { StatusBar } from 'expo-status-bar';
 import { useTheme } from '../../context/ThemeContext';
 import { useApiHost } from '../../context/ApiHostContext';
 import { fetchDiscover } from '../../api/courses';
 import { DiscoverItem } from '../../types/discover';
-import { DiscoverCard } from '../../components/discover/DiscoverCard';
-import { DiscoverSlideViewer } from '../../components/discover/DiscoverSlideViewer';
+import { FormattedText } from '../../components/ContentRenderer';
 
-const { height: SCREEN_HEIGHT } = Dimensions.get('window');
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 export default function DiscoverScreen() {
   const { colors } = useTheme();
@@ -28,11 +29,7 @@ export default function DiscoverScreen() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
-  const [activeItem, setActiveItem] = useState<DiscoverItem | null>(null);
-
-  const headerHeight = 44;
-  const tabBarHeight = 80;
-  const cardHeight = SCREEN_HEIGHT - insets.top - headerHeight - tabBarHeight;
+  const [activeItemIndex, setActiveItemIndex] = useState(0);
 
   const loadItems = useCallback(async () => {
     try {
@@ -47,124 +44,220 @@ export default function DiscoverScreen() {
     }
   }, [apiHost]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     setLoading(true);
     loadItems();
   }, [loadItems]);
 
-  const handleRefresh = () => {
-    setRefreshing(true);
-    loadItems();
+  const handleVerticalScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const index = Math.round(e.nativeEvent.contentOffset.y / SCREEN_HEIGHT);
+    if (index >= 0 && index < items.length) {
+      setActiveItemIndex(index);
+    }
   };
 
-  // Slide viewer mode
-  if (activeItem) {
+  const bgColor = items[activeItemIndex]?.color ?? colors.primary;
+
+  if (loading) {
     return (
-      <DiscoverSlideViewer
-        item={activeItem}
-        onExit={() => setActiveItem(null)}
-      />
+      <View style={[styles.fullScreen, styles.centered, { backgroundColor: colors.primary }]}>
+        <StatusBar style="light" />
+        <ActivityIndicator size="large" color="#fff" />
+      </View>
     );
   }
 
-  // Loading
-  if (loading) {
+  if (error || items.length === 0) {
     return (
-      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
-        <View style={styles.header}>
-          <Text style={[styles.title, { color: colors.text }]}>Discover</Text>
-        </View>
-        <View style={styles.centered}>
-          <ActivityIndicator size="large" color={colors.primary} />
-        </View>
-      </SafeAreaView>
+      <View style={[styles.fullScreen, { backgroundColor: colors.primary }]}>
+        <StatusBar style="light" />
+        <Text style={styles.errorText}>{error ?? 'Nothing to discover yet'}</Text>
+      </View>
     );
   }
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
-      <View style={styles.header}>
-        <Text style={[styles.title, { color: colors.text }]}>Discover</Text>
-      </View>
+    <View style={[styles.fullScreen, { backgroundColor: bgColor }]}>
+      <StatusBar style="light" />
+      <ScrollView
+        style={styles.fullScreen}
+        showsVerticalScrollIndicator={false}
+        snapToInterval={SCREEN_HEIGHT}
+        snapToAlignment="start"
+        decelerationRate="fast"
+        disableIntervalMomentum
+        onMomentumScrollEnd={handleVerticalScroll}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={() => { setRefreshing(true); loadItems(); }}
+            tintColor="#fff"
+          />
+        }
+      >
+        {items.map((item) => (
+          <DiscoverItemPage key={item.id} item={item} insetBottom={insets.bottom} />
+        ))}
+      </ScrollView>
+    </View>
+  );
+}
 
-      {error && (
-        <View style={styles.errorContainer}>
-          <Text style={[styles.errorText, { color: colors.text }]}>Failed to load content</Text>
-          <Text style={[styles.errorDetail, { color: colors.textMuted }]}>{error}</Text>
-        </View>
-      )}
+// ─── Per-item full-screen page ────────────────────────────────────────────────
 
-      {!error && items.length === 0 && (
-        <View style={styles.emptyContainer}>
-          <Ionicons name="compass-outline" size={64} color={colors.textMuted} />
-          <Text style={[styles.emptyText, { color: colors.textMuted }]}>Nothing to discover yet</Text>
-        </View>
-      )}
+interface DiscoverItemPageProps {
+  item: DiscoverItem;
+  insetBottom: number;
+}
 
-      {!error && items.length > 0 && (
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          snapToInterval={cardHeight}
-          snapToAlignment="start"
-          decelerationRate={0}
-          disableIntervalMomentum
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={colors.primary} />
-          }
-        >
-          {items.map((item) => (
-            <View key={item.id} style={{ height: cardHeight }}>
-              <DiscoverCard
-                item={item}
-                onPress={() => setActiveItem(item)}
-              />
+function DiscoverItemPage({ item, insetBottom }: DiscoverItemPageProps) {
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const totalSlides = item.slides.length;
+
+  const handleHorizontalScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const index = Math.round(e.nativeEvent.contentOffset.x / SCREEN_WIDTH);
+    if (index >= 0 && index < totalSlides) {
+      setCurrentSlide(index);
+    }
+  };
+
+  return (
+    <View style={[styles.page, { height: SCREEN_HEIGHT, backgroundColor: item.color }]}>
+      {/* Horizontal slide scroll */}
+      <ScrollView
+        horizontal
+        pagingEnabled
+        showsHorizontalScrollIndicator={false}
+        onMomentumScrollEnd={handleHorizontalScroll}
+        scrollEventThrottle={16}
+        style={styles.horizontalScroll}
+        contentContainerStyle={styles.horizontalContent}
+      >
+        {item.slides.map((slide) => (
+          <View key={slide.id} style={[styles.slideOuter, { width: SCREEN_WIDTH }]}>
+            <View style={[styles.slideInner, { paddingBottom: insetBottom + 48 }]}>
+              <View style={styles.card}>
+                <View style={styles.cardContent}>
+                  <Text style={[styles.didYouKnowLabel, { color: item.color }]}>
+                    Did you know
+                  </Text>
+                  <Text style={styles.slideTitle}>{slide.title}</Text>
+                  <View style={styles.divider} />
+                  {slide.blocks.map((block, i) =>
+                    block.type === 'text' ? (
+                      <FormattedText key={i} style={styles.bodyText}>
+                        {block.content}
+                      </FormattedText>
+                    ) : null
+                  )}
+                </View>
+              </View>
+              {/* Dot indicators sit in normal flow just below the card */}
+              {totalSlides > 1 && (
+                <View style={styles.dotsRow}>
+                  {item.slides.map((_, i) => (
+                    <View
+                      key={i}
+                      style={[
+                        styles.dot,
+                        i === currentSlide ? styles.dotActive : styles.dotInactive,
+                      ]}
+                    />
+                  ))}
+                </View>
+              )}
             </View>
-          ))}
-        </ScrollView>
-      )}
-    </SafeAreaView>
+          </View>
+        ))}
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  fullScreen: {
     flex: 1,
-  },
-  header: {
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    alignItems: 'center',
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: '700',
   },
   centered: {
-    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 24,
   },
-  errorContainer: {
-    padding: 24,
+  page: {},
+  horizontalScroll: {
+    flex: 1,
+  },
+  horizontalContent: {
+    // no extra padding — each slide is exactly SCREEN_WIDTH
+  },
+  slideOuter: {
+    height: SCREEN_HEIGHT,
+    justifyContent: 'center',
+  },
+  slideInner: {
+    justifyContent: 'center',
+    paddingHorizontal: 20,
+    paddingTop: 60,
+  },
+  card: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 16,
+    elevation: 8,
+  },
+  cardContent: {
+    padding: 28,
+  },
+  didYouKnowLabel: {
+    fontSize: 11,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 1.2,
+    marginBottom: 12,
+  },
+  slideTitle: {
+    fontSize: 26,
+    fontWeight: '800',
+    color: '#111827',
+    lineHeight: 34,
+    marginBottom: 16,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: '#E5E7EB',
+    marginBottom: 16,
+  },
+  bodyText: {
+    fontSize: 17,
+    lineHeight: 26,
+    color: '#374151',
+  },
+  dotsRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
     alignItems: 'center',
+    gap: 6,
+    marginTop: 16,
+  },
+  dot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+  },
+  dotActive: {
+    backgroundColor: 'rgba(255,255,255,1)',
+    width: 18,
+    borderRadius: 3,
+  },
+  dotInactive: {
+    backgroundColor: 'rgba(255,255,255,0.45)',
   },
   errorText: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 8,
-  },
-  errorDetail: {
-    fontSize: 14,
-    textAlign: 'center',
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  emptyText: {
+    color: '#fff',
     fontSize: 16,
-    marginTop: 16,
+    textAlign: 'center',
+    paddingHorizontal: 32,
   },
 });

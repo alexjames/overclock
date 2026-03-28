@@ -10,7 +10,7 @@ export interface DiscoverItem {
   id: string;
   title: string;
   subtitle?: string;
-  image: string;
+  image?: string;
   color: string;
   slides: DiscoverSlide[];
 }
