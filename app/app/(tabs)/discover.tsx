@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
+import { useFocusEffect } from 'expo-router';
 import { useTheme } from '../../context/ThemeContext';
 import { useApiHost } from '../../context/ApiHostContext';
 import { fetchDiscover } from '../../api/courses';
@@ -50,7 +51,9 @@ export default function DiscoverScreen() {
     setLoadingMore(true);
     try {
       const data = await fetchDiscover(apiHost);
-      setItems(prev => [...prev, ...data]);
+      const shuffled = [...data].sort(() => Math.random() - 0.5);
+      const batch = shuffled.map(item => ({ ...item, id: `${item.id}-${Date.now()}-${Math.random()}` }));
+      setItems(prev => [...prev, ...batch]);
     } catch {
       // silently ignore — user can keep scrolling existing items
     } finally {
@@ -62,6 +65,13 @@ export default function DiscoverScreen() {
     setLoading(true);
     loadItems();
   }, [loadItems]);
+
+  useFocusEffect(useCallback(() => {
+    if (error || items.length === 0) {
+      setLoading(true);
+      loadItems();
+    }
+  }, [error, items.length, loadItems]));
 
   const handleVerticalScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     const index = Math.round(e.nativeEvent.contentOffset.y / SCREEN_HEIGHT);
@@ -169,7 +179,7 @@ function DiscoverItemPage({ item, insetBottom }: DiscoverItemPageProps) {
                   {slide.blocks.map((block, i) => {
                     if (block.type === 'text') {
                       return (
-                        <FormattedText key={i} style={styles.bodyText}>
+                        <FormattedText key={i} style={styles.bodyText} accentColor={item.color}>
                           {block.content}
                         </FormattedText>
                       );

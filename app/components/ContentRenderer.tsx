@@ -41,9 +41,10 @@ export function ContentRenderer({ blocks, onLongPressImage }: ContentRendererPro
 interface FormattedTextProps {
   children: string;
   style?: TextStyle | TextStyle[];
+  accentColor?: string;
 }
 
-export function FormattedText({ children, style }: FormattedTextProps) {
+export function FormattedText({ children, style, accentColor }: FormattedTextProps) {
   const formattedParts = parseFormatting(children);
 
   return (
@@ -55,6 +56,7 @@ export function FormattedText({ children, style }: FormattedTextProps) {
             part.bold && styles.boldText,
             part.italic && styles.italicText,
             part.color ? { color: part.color } : undefined,
+            part.bold && accentColor ? { color: accentColor } : undefined,
           ]}
         >
           {part.text}

@@ -208,5 +208,42 @@
         ]
       }
     ]
+  },
+  {
+    "id": "anycast",
+    "title": "Anycast Networking",
+    "color": "#6366F1",
+    "slides": [
+      {
+        "id": "anycast-1",
+        "title": "What is Anycast?",
+        "blocks": [
+          {
+            "type": "text",
+            "content": "Anycast is a network addressing technique where **multiple servers share the same IP address**.\n\nTraffic is routed to the \"nearest\" or best-performing server based on routing protocols.\n\nThis improves performance and redundancy without requiring client-side changes."
+          }
+        ]
+      },
+      {
+        "id": "anycast-2",
+        "title": "How Routing Works",
+        "blocks": [
+          {
+            "type": "text",
+            "content": "Routers use **BGP (Border Gateway Protocol)** to determine the shortest or most efficient path to the shared IP.\n\nEach server advertises the same IP prefix from different geographic locations.\n\nThe network automatically directs users to the closest available instance."
+          }
+        ]
+      },
+      {
+        "id": "anycast-3",
+        "title": "Why Anycast Matters",
+        "blocks": [
+          {
+            "type": "text",
+            "content": "Anycast reduces latency by serving users from nearby locations.\n\nIt increases resilience since traffic can **fail over** to other nodes if one goes down.\n\nIt's widely used in DNS infrastructure and CDNs to handle global-scale traffic efficiently."
+          }
+        ]
+      }
+    ]
   }
 ]
