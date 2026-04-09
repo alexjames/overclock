@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export const DEFAULT_API_HOST = 'http://192.168.0.24';
+//export const DEFAULT_API_HOST = 'http://192.168.0.24';
+export const DEFAULT_API_HOST = 'https://overclock.buildbreak.net';
 const STORAGE_KEY = '@overclock_api_host';
 
 interface ApiHostContextValue {
