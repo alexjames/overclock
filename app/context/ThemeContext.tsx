@@ -16,7 +16,7 @@ const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const systemColorScheme = useColorScheme();
-  const [mode, setMode] = useState<ThemeMode>('auto');
+  const [mode, setMode] = useState<ThemeMode>('light');
 
   const isDark = useMemo(() => {
     if (mode === 'auto') {

@@ -13,7 +13,8 @@
         },
         {
           "type": "image",
-          "url": "https://overclock-img.buildbreak.net/images/courses/internet-protocols/osi.jpg"
+          "url": "https://overclock-img.buildbreak.net/images/courses/internet-protocols/osi.jpg",
+          "position": "middle-center"
         }
       ]
     },
