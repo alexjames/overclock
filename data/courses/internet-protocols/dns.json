@@ -13,7 +13,7 @@
         },
         {
           "type": "text",
-          "content": "Commonly referred to as the \"phone book of the internet\", it is a decentralized global database that runs over millions of servers managed by ISPs and other organizations."
+          "content": "Commonly referred to as the \"phone book of the internet\", it is a decentralized global database that runs over millions of servers managed by private companies, government agencies, ISPs and other organizations."
         },
         {
           "type": "text",
@@ -185,7 +185,7 @@
         },
         {
           "type": "text",
-          "content": "When a DNS query returns a cached response, it is a **non-authoritative result** — it did not originate from an authoritative name server.\n\nCaching is one reason DNS changes can take hours to propagate globally. DNS trades off **strong consistency** for **high read performance**."
+          "content": "When a DNS query returns a cached response, it is sometimes referred to as a **non-authoritative result** — it did not originate from an authoritative name server.\n\nCaching is one reason DNS changes can take hours to propagate globally. DNS trades off **strong consistency** for **high read performance**."
         }
       ]
     },
