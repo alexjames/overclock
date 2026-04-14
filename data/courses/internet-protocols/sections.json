@@ -1,4 +1,20 @@
 [
-  { "file": "osi-model.json", "id": "osi-model", "title": "OSI Model" },
-  { "file": "dns.json", "id": "dns", "title": "DNS", "group": "DNS" }
+  {
+    "file": "osi-model.json",
+    "id": "osi-model",
+    "title": "OSI Model",
+    "group": "OSI Model"
+  },
+  {
+    "file": "dns.json",
+    "id": "dns",
+    "title": "DNS",
+    "group": "DNS"
+  },
+  {
+    "file": "dns-records.json",
+    "id": "dns-records",
+    "title": "DNS Records",
+    "group": "DNS"
+  }
 ]

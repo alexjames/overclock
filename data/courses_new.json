@@ -1,1 +1,119 @@
-npm warn exec The following package was not found and will be installed: tsx@4.21.0
+Slide 1
+A DNS zone is a portion of a DNS namespace that is managed by an administrator or organization. A zone file is a text file containing information about all DNS records in that zone.
+
+Let’s look at the most common kinds of DNS records
+
+Slide 2
+A record
+
+This record indicates the IPv4 address of a domain. The “A” stands for address.
+
+E.g. 
+Name          class  type value
+subdomain.example.com IN A 10.16.12.12
+@ IN A 10.25.75.145
+
+@ indicates that this is the record of the root domain.
+
+IN stands for “interent class” which indicates the class of DNS record. All other classes are practically obsolete.
+
+Slide 3
+A record
+
+A records are also used to implement DNS blackhole lists. These lists are used to block DNS requests for malicious or spam domains
+
+
+spamdomain00010jz.com IN A 0.0.0.0
+
+The value of the record is set to 0.0.0.0, which is a non-routeable IP address.
+
+Slide 4
+AAAA record
+
+This record maps a domain to an IPv6 address.
+
+@   IN  AAAA 2001:db8: 85a3: : 8a2e: 370: 7334
+www IN  AAAA 2001:db8: 85a3: : 8a2e: 370: 7334
+
+AAAA records are used when a domain supports IPv6 and the client is capable of using the protocol. IPv6 is becoming more widely adopted, owing to IPv4 address space exhaustion.
+
+Slide 5
+CNAME record
+A “canonical” name record is used as an alias to point from one domain to another.
+
+news.example.com   IN  CNAME example.com
+
+Here a query to news.example.com results in another query for example.com
+
+CNAME records are commonly used for invisibly routing from one service to another. 
+
+For example 
+service-a.example.com -> authproxy.example.com
+
+cdn.example.com -> example.cloudflare.com
+
+Slide 6
+MX record
+
+Mail Exchange (MX) records are used to find the IP addresses of mail servers.
+
+
+@ IN MX 10 mail-sever-1.example.com
+@ IN MX 20 mail-sever-2.example.com
+
+The numbers 10 and 20 specify the priority of the servers, with the lower value having higher priority. The mail transfer agent client will try establishing an SMTP connection to mail-server-1 before trying mail-server-2.
+
+Slide 7
+NS record
+NS records stand for Name Server, which indicate which name servers are authoritative for a domain. 
+
+example.com. IN SOA ns1.example.com. admin.example.com. ...
+example.com. IN NS ns1.example.com.
+example.com. IN NS ns2.example.com.
+
+It is common for domains to be hosted on multiple name servers for reliability. A DNS zone typically has multiple NS records for primary and secondary name servers.
+
+
+Slide 8
+NS record
+
+NS records may also be used to delegate management of records of a domain to another name server.
+
+blog.example.com. IN NS ns2.example.com.
+
+This record indicates that ns2.exapmle.come is the authoritative name server for blog.example.com.
+
+Slide 9
+SOA record
+
+The Start Of Authority record stores configuration information about a domain such as the email of the administrator, primary name server and server refresh intervals.
+
+example.com.  IN  SOA  ns1.example.com. admin.example.com. (
+    2026031701 ; Serial
+    7200       ; Refresh (2 hours)
+    3600       ; Retry (1 hour)
+    86400      ; Expire (24 hours)
+    300        ; Negative Response TTL (5 mins)
+)
+
+Slide 9
+TXT record
+Text records allow domain administrators to store custom strings in DNS.
+
+These are primarily used for domain ownership verification and combating email spam. A domain owner may be asked to put in a custom TXT record into their domain to prove they control that domain. TXT records may also store SPF authorized mail server lists or DKIM public keys used to digitally sign emails.
+
+Slide 10
+PTR record
+Commonly used in reverse DNS looksup, these records map IP addresses to domains.
+
+
+The names of PTR records consists of the ip address followed by appending .in-addr.arpa in case of ipv4 and .ip6.arpa in case of ipv6.
+
+25.2.0.192.in-addr.arpa.   IN   PTR   host-v4.example.com.
+1.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.8.b.d.0.1.0.0.2.ip6.arpa.   IN   PTR   host-v6.example.com.
+
+These records are commonly used in spam filtering
+
+Network diagnostics tools such as dig and nslookup make use of PTR records to perform reverse DNS lookups.
+
+Some logging tools use these records to log the domain name of an IP address for better readability.

@@ -1,0 +1,10 @@
+Shared Responsiblity Principle
+
+The Shared Responsiblity Model draws a line between what a cloud provider secures and what the customer secures.
+Typically, the provider is responsbile for security "of" the cloud and the customer is responsible for securing infrastructure "in" the cloud.
+For instance, the security of the physical host and hypervisor is the sole Responsiblity of the provider.
+Application code, IAM and data classification are the responsiblity of the customer.
+Thus things like misconfigured S3 buckets, overly permissive IAM policies and weak database passwords fall on the customer.
+
+
+

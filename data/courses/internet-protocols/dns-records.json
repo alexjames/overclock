@@ -1,0 +1,333 @@
+{
+  "id": "dns-records",
+  "title": "DNS Records",
+  "pages": [
+    {
+      "id": "dns-rec-1",
+      "title": "DNS Zones",
+      "content": "",
+      "blocks": [
+        {
+          "type": "text",
+          "content": "A DNS **zone** is a portion of the DNS namespace that is managed by an administrator. For instance, [example.com]{#3B82F6} could be a zone and [api.example.com]{#3B82F6} could be another zone."
+        },
+        {
+          "type": "text",
+          "content": "A **zone file** is a text file containing information about all DNS records in that zone."
+        },
+        {
+          "type": "text",
+          "content": "Let's look at the most common kinds of DNS records."
+        }
+      ]
+    },
+    {
+      "id": "dns-rec-2",
+      "title": "\"A\" Record",
+      "content": "",
+      "blocks": [
+        {
+          "type": "text",
+          "content": "This record indicates the **IPv4 address** of a domain. The \"A\" stands for address."
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Name",
+            "Class",
+            "Type",
+            "Value"
+          ],
+          "rows": [
+            [
+              "subdomain.example.com",
+              "IN",
+              "A",
+              "10.16.12.12"
+            ],
+            [
+              "@",
+              "IN",
+              "A",
+              "10.25.75.145"
+            ]
+          ]
+        },
+        {
+          "type": "text",
+          "content": "Note: **@** indicates that this is the record of the root domain. If the zone file is for [example.com]{#3B82F6}, @ would refer to [example.com]{#3B82F6} there."
+        },
+        {
+          "type": "text",
+          "content": "The class field is a vestigial remnant from a time when the designers of DNS expected to support multiple network protocols. **IN** stands for \"internet class\"."
+        }
+      ]
+    },
+    {
+      "id": "dns-rec-3",
+      "title": "\"A\" Records: Other use cases",
+      "content": "",
+      "blocks": [
+        {
+          "type": "text",
+          "content": "**A** records are also used to implement **DNS blackhole lists**. These lists are used to block DNS requests for malicious or spam domains."
+        },
+        {
+          "type": "code",
+          "language": "Zone File",
+          "content": "spamdomain00010jz.com.  IN  A  0.0.0.0"
+        },
+        {
+          "type": "text",
+          "content": "The value of the record is set to [0.0.0.0]{#EF4444}, which is a non-routable IP address. If malicious code attempts to connect to this domain, it will be blocked."
+        }
+      ]
+    },
+    {
+      "id": "dns-rec-4",
+      "title": "AAAA (quad-A) Record",
+      "content": "",
+      "blocks": [
+        {
+          "type": "text",
+          "content": "Quad-A (AAAA) records map a domain to an **IPv6** address."
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Name",
+            "Class",
+            "Type",
+            "Value"
+          ],
+          "rows": [
+            [
+              "@",
+              "IN",
+              "AAAA",
+              "2001:db8:85a3::8a2e:370:7334"
+            ],
+            [
+              "www",
+              "IN",
+              "AAAA",
+              "2001:db8:85a3::8a2e:370:7334"
+            ]
+          ]
+        },
+        {
+          "type": "text",
+          "content": "AAAA records are used when a domain supports IPv6 and the client is capable of using the protocol. IPv6 is becoming more widely adopted, owing to **IPv4 address space exhaustion**."
+        }
+      ]
+    },
+    {
+      "id": "dns-rec-5",
+      "title": "CNAME Record",
+      "content": "",
+      "blocks": [
+        {
+          "type": "text",
+          "content": "A **\"canonical\" name** record is used as an alias to point from one domain to another."
+        },
+        {
+          "type": "code",
+          "language": "Zone File",
+          "content": "news.example.com. IN  CNAME  example.com"
+        },
+        {
+          "type": "text",
+          "content": "Here, a query for [news.example.com]{#3B82F6} returns a CNAME record and the DNS resolver would need to make another query for [example.com]{#3B82F6} to fully resolve the domain name."
+        },
+        {
+          "type": "text",
+          "content": "CNAME records are commonly used for invisibly routing from one service to another."
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Alias",
+            "Target"
+          ],
+          "rows": [
+            [
+              "service-a.example.com",
+              "authproxy.example.com"
+            ],
+            [
+              "cdn.example.com",
+              "example.cloudflare.com"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dns-rec-6",
+      "title": "MX Record",
+      "content": "",
+      "blocks": [
+        {
+          "type": "text",
+          "content": "**Mail Exchange (MX)** records are used to find the IP addresses of mail servers. These are primarily used by Mail Transfer Agents (MTAs) that are responsible for sending email using SMTP."
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Name",
+            "Class",
+            "Type",
+            "Priority",
+            "Value"
+          ],
+          "rows": [
+            [
+              "@",
+              "IN",
+              "MX",
+              "10",
+              "mail-server-1.example.com"
+            ],
+            [
+              "@",
+              "IN",
+              "MX",
+              "20",
+              "mail-server-2.example.com"
+            ]
+          ]
+        },
+        {
+          "type": "text",
+          "content": "Here, the value of the name field is @, indicating the mail servers are for the root domain. When an email needs to be sent to user@example.com, these records are queried."
+        },
+        {
+          "type": "text",
+          "content": "The numbers **10** and **20** specify the priority of the servers, with the lower value having higher priority. The mail transfer agent client will try establishing an SMTP connection to mail-server-1 before trying mail-server-2."
+        }
+      ]
+    },
+    {
+      "id": "dns-rec-7",
+      "title": "NS Record",
+      "content": "",
+      "blocks": [
+        {
+          "type": "text",
+          "content": "**NS** records stand for **Name Server**, which indicate which name servers are authoritative for a domain."
+        },
+        {
+          "type": "code",
+          "language": "Zone File",
+          "content": "example.com.  IN  SOA  ns1.example.com. admin.example.com. ...\nexample.com.  IN  NS   ns1.example.com.\nexample.com.  IN  NS   ns2.example.com."
+        },
+        {
+          "type": "text",
+          "content": "It is common for domains to be hosted on multiple name servers for reliability. A DNS zone typically has multiple NS records for **primary** and **secondary** name servers. The primary name server is where all updates are made and secondary name servers are read-only replicas of the primary."
+        }
+      ]
+    },
+    {
+      "id": "dns-rec-8",
+      "title": "NS Record — Delegation",
+      "content": "",
+      "blocks": [
+        {
+          "type": "text",
+          "content": "NS records may also be used to **delegate** management of records of a domain to another name server."
+        },
+        {
+          "type": "code",
+          "language": "Zone File",
+          "content": "blog.example.com.  IN  NS  ns2.example.com."
+        },
+        {
+          "type": "text",
+          "content": "This record indicates that [ns2.example.com]{#3B82F6} is the authoritative name server for [blog.example.com]{#3B82F6}."
+        }
+      ]
+    },
+    {
+      "id": "dns-rec-9",
+      "title": "SOA Record",
+      "content": "",
+      "blocks": [
+        {
+          "type": "text",
+          "content": "The **Start Of Authority** record stores configuration about a domain or zone. It contains information such a sthe email of the administrator, the primary name server, when the DNS server was last updated and server refresh intervals."
+        },
+        {
+          "type": "code",
+          "language": "Zone File",
+          "content": "example.com.  IN  SOA  ns1.example.com. admin.example.com. (\n    2026031701  ; Serial\n    7200        ; Refresh (2 hours)\n    3600        ; Retry (1 hour)\n    86400       ; Expire (24 hours)\n    300         ; Negative Response TTL (5 mins)\n)"
+        },
+        {
+          "type": "text",
+          "content": "The \"serial\" number is a version number for DNS data on the primary name server. By querying the SOA record of the primary name server, secondary name servers can tell when its time for them to fetch updated data."
+        }
+      ]
+    },
+    {
+      "id": "dns-rec-10",
+      "title": "TXT Record",
+      "content": "",
+      "blocks": [
+        {
+          "type": "text",
+          "content": "**Text records** allow domain administrators to store custom strings in DNS."
+        },
+        {
+          "type": "text",
+          "content": "These are primarily used for \n• domain ownership verification\n• email security\n• storing custom metadata"
+        },
+        {
+          "type": "text",
+          "content": "A domain owner may be asked to put a custom TXT record into their DNS domain to prove they control that domain."
+        },
+        {
+          "type": "text",
+          "content": "TXT records may store **SPF** authorized mail server lists or **DKIM** public keys used to digitally sign emails."
+        }
+      ]
+    },
+    {
+      "id": "dns-rec-11",
+      "title": "PTR Record",
+      "content": "",
+      "blocks": [
+        {
+          "type": "text",
+          "content": "Commonly used in **reverse DNS lookups**, these records map IP addresses to domains."
+        },
+        {
+          "type": "text",
+          "content": "The names of PTR records consist of the IP address followed by appending **.in-addr.arpa** in case of IPv4 and **.ip6.arpa** in case of IPv6."
+        },
+        {
+          "type": "code",
+          "language": "Zone File",
+          "content": "25.2.0.192.in-addr.arpa.  IN  PTR  host-v4.example.com.\n1.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.8.b.d.0.1.0.0.2.ip6.arpa.  IN  PTR  host-v6.example.com."
+        }
+      ]
+    },
+    {
+      "id": "dns-rec-12",
+      "title": "PTR Record — Usage",
+      "content": "",
+      "blocks": [
+        {
+          "type": "text",
+          "content": "PTR records are commonly used in **spam filtering** — mail servers perform reverse lookups to verify sender identity."
+        },
+        {
+          "type": "text",
+          "content": "Network diagnostic tools such as **dig** and **nslookup** make use of PTR records to perform reverse DNS lookups."
+        },
+        {
+          "type": "text",
+          "content": "Some logging tools use these records to log the domain name of an IP address for better readability."
+        }
+      ]
+    }
+  ]
+}

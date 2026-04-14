@@ -171,6 +171,9 @@ function ImageBlock({ url, caption, scale = 1, onLongPress, colors }: { url: str
   const [aspectRatio, setAspectRatio] = React.useState<number | undefined>(undefined);
   const [enlarged, setEnlarged] = React.useState(false);
   const pan = React.useRef(new Animated.ValueXY({ x: 0, y: 0 })).current;
+  const pinchScale = React.useRef(new Animated.Value(1)).current;
+  const lastScale = React.useRef(1);
+  const initialPinchDistance = React.useRef<number | null>(null);
 
   React.useEffect(() => {
     Image.getSize(url, (w, h) => {
@@ -178,23 +181,43 @@ function ImageBlock({ url, caption, scale = 1, onLongPress, colors }: { url: str
     });
   }, [url]);
 
+  function getPinchDistance(touches: { pageX: number; pageY: number }[]) {
+    const dx = touches[0].pageX - touches[1].pageX;
+    const dy = touches[0].pageY - touches[1].pageY;
+    return Math.sqrt(dx * dx + dy * dy);
+  }
+
   const panResponder = React.useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
       onPanResponderGrant: () => {
         pan.setOffset({ x: (pan.x as any)._value, y: (pan.y as any)._value });
         pan.setValue({ x: 0, y: 0 });
+        initialPinchDistance.current = null;
       },
-      onPanResponderMove: Animated.event([null, { dx: pan.x, dy: pan.y }], { useNativeDriver: false }),
+      onPanResponderMove: (evt, gestureState) => {
+        const touches = evt.nativeEvent.touches;
+        if (touches.length === 2) {
+          const dist = getPinchDistance(touches as any);
+          if (initialPinchDistance.current === null) {
+            initialPinchDistance.current = dist;
+          }
+          const newScale = Math.max(0.5, Math.min(5, lastScale.current * (dist / initialPinchDistance.current)));
+          pinchScale.setValue(newScale);
+        } else {
+          initialPinchDistance.current = null;
+          Animated.event([null, { dx: pan.x, dy: pan.y }], { useNativeDriver: false })(evt, gestureState);
+        }
+      },
       onPanResponderRelease: () => {
+        lastScale.current = (pinchScale as any)._value;
         pan.flattenOffset();
-        setEnlarged(false);
-        pan.setValue({ x: 0, y: 0 });
+        initialPinchDistance.current = null;
       },
       onPanResponderTerminate: () => {
+        lastScale.current = (pinchScale as any)._value;
         pan.flattenOffset();
-        setEnlarged(false);
-        pan.setValue({ x: 0, y: 0 });
+        initialPinchDistance.current = null;
       },
     })
   ).current;
@@ -211,6 +234,8 @@ function ImageBlock({ url, caption, scale = 1, onLongPress, colors }: { url: str
 
   const handleLongPress = () => {
     pan.setValue({ x: 0, y: 0 });
+    pinchScale.setValue(1);
+    lastScale.current = 1;
     if (onLongPress) {
       onLongPress(url);
     } else {
@@ -229,10 +254,9 @@ function ImageBlock({ url, caption, scale = 1, onLongPress, colors }: { url: str
 
       {/* Own modal — only used when not inside PageSlideshow (no onLongPress callback) */}
       <Modal visible={enlarged} transparent animationType="fade" statusBarTranslucent>
-        <View style={styles.enlargedOverlay}>
+        <View style={styles.enlargedOverlay} {...panResponder.panHandlers}>
           <Animated.View
-            style={[styles.enlargedContainer, { transform: pan.getTranslateTransform() }]}
-            {...panResponder.panHandlers}
+            style={[styles.enlargedContainer, { transform: [...pan.getTranslateTransform(), { scale: pinchScale }] }]}
           >
             <Image source={{ uri: url }} style={enlargedStyle} resizeMode="contain" />
           </Animated.View>
